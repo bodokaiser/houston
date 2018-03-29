@@ -1,3 +1,4 @@
+{{ define "header" }}
 <!DOCTYPE html>
 <html>
   <head>
@@ -7,6 +8,11 @@
     <link rel="stylesheet" href="/stylesheets/bootstrap.css">
   </head>
   <body>
-    <h1>Beagle Web</h1>
+{{ end }}
+{{ define "footer" }}
   </body>
+  <script src="/javascripts/jquery.js"></script>
+  <script src="/javascripts/popper.js"></script>
+  <script src="/javascripts/bootstrap.js"></script>
 </html>
+{{ end }}

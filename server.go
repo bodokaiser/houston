@@ -9,13 +9,15 @@ import (
 
 func main() {
 	e := echo.New()
-
-	e.Static("/", "public")
+	e.Renderer = httpd.NewTemplate("views/*.html")
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	e.GET("/foo", httpd.Handler)
+	e.GET("/", httpd.IndexHandler)
+
+	e.Static("/stylesheets", "public/stylesheets")
+	e.Static("/javascripts", "public/javascripts")
 
 	e.Logger.Fatal(e.Start(":8000"))
 }
