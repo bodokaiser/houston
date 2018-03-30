@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-func IndexHandler(c echo.Context) error {
+// GetHandler responds with rendered html.
+func GetHandler(c echo.Context) error {
 	return c.Render(http.StatusOK, "index.html", nil)
 }
