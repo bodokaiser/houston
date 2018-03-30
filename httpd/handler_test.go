@@ -23,73 +23,85 @@ func (s *HandlerTestSuite) SetupTest() {
 
 func (s *HandlerTestSuite) TestIndexHTML() {
 	req := httptest.NewRequest(echo.GET, "/", nil)
-	req.Header.Set(echo.HeaderContentType, echo.MIMETextHTML)
+	req.Header.Set(echo.HeaderAccept, echo.MIMETextHTML)
 	rec := httptest.NewRecorder()
 	ctx := s.echo.NewContext(req, rec)
 
-	if assert.NoError(s.T(), IndexHandler(ctx)) {
+	h := ExtendContext(IndexHandler)
+
+	if assert.NoError(s.T(), h(ctx)) {
 		assert.Equal(s.T(), http.StatusOK, rec.Code)
 	}
 }
 
 func (s *HandlerTestSuite) TestIndexJSON() {
 	req := httptest.NewRequest(echo.GET, "/", nil)
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	req.Header.Set(echo.HeaderAccept, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	ctx := s.echo.NewContext(req, rec)
 
-	assert.Equal(s.T(), IndexHandler(ctx), echo.ErrUnsupportedMediaType)
+	h := ExtendContext(IndexHandler)
+
+	assert.Equal(s.T(), h(ctx), echo.ErrUnsupportedMediaType)
 }
 
 func (s *HandlerTestSuite) TestListSignalGeneratorsHTML() {
 	req := httptest.NewRequest(echo.GET, "/signal-generators", nil)
-	req.Header.Set(echo.HeaderContentType, echo.MIMETextHTML)
+	req.Header.Set(echo.HeaderAccept, echo.MIMETextHTML)
 	rec := httptest.NewRecorder()
 	ctx := s.echo.NewContext(req, rec)
 
-	assert.Equal(s.T(), ListSignalGeneratorsHandler(ctx),
-		echo.ErrUnsupportedMediaType)
+	h := ExtendContext(ListSignalGeneratorsHandler)
+
+	assert.Equal(s.T(), h(ctx), echo.ErrUnsupportedMediaType)
 }
 
 func (s *HandlerTestSuite) TestListSignalGeneratorsJSON() {
 	req := httptest.NewRequest(echo.GET, "/signal-generators", nil)
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	req.Header.Set(echo.HeaderAccept, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	ctx := s.echo.NewContext(req, rec)
 
-	if assert.NoError(s.T(), ListSignalGeneratorsHandler(ctx)) {
+	h := ExtendContext(ListSignalGeneratorsHandler)
+
+	if assert.NoError(s.T(), h(ctx)) {
 		assert.Equal(s.T(), http.StatusNoContent, rec.Code)
 	}
 }
 
 func (s *HandlerTestSuite) TestShowSignalGeneratorHTML() {
 	req := httptest.NewRequest(echo.GET, "/signal-generators/0", nil)
-	req.Header.Set(echo.HeaderContentType, echo.MIMETextHTML)
+	req.Header.Set(echo.HeaderAccept, echo.MIMETextHTML)
 	rec := httptest.NewRecorder()
 	ctx := s.echo.NewContext(req, rec)
 
-	assert.Equal(s.T(), ShowSignalGeneratorHandler(ctx),
-		echo.ErrUnsupportedMediaType)
+	h := ExtendContext(ShowSignalGeneratorHandler)
+
+	assert.Equal(s.T(), h(ctx), echo.ErrUnsupportedMediaType)
 }
 
 func (s *HandlerTestSuite) TestShowSignalGeneratorJSON() {
 	req := httptest.NewRequest(echo.GET, "/signal-generators/0", nil)
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	req.Header.Set(echo.HeaderAccept, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	ctx := s.echo.NewContext(req, rec)
 
-	if assert.NoError(s.T(), ShowSignalGeneratorHandler(ctx)) {
+	h := ExtendContext(ShowSignalGeneratorHandler)
+
+	if assert.NoError(s.T(), h(ctx)) {
 		assert.Equal(s.T(), http.StatusNoContent, rec.Code)
 	}
 }
 
 func (s *HandlerTestSuite) TestUpdateSignalGenerator() {
 	req := httptest.NewRequest(echo.PUT, "/signal-generators/0", nil)
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	req.Header.Set(echo.HeaderAccept, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	ctx := s.echo.NewContext(req, rec)
 
-	if assert.NoError(s.T(), UpdateSignalGeneratorHandler(ctx)) {
+	h := ExtendContext(UpdateSignalGeneratorHandler)
+
+	if assert.NoError(s.T(), h(ctx)) {
 		assert.Equal(s.T(), http.StatusNoContent, rec.Code)
 	}
 }

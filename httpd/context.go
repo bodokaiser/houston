@@ -31,6 +31,17 @@ func (c *Context) Accept() []string {
 	return atypes
 }
 
+// Accepts returns true if the client accepts given type.
+func (c *Context) Accepts(mtype string) bool {
+	for _, atype := range c.Accept() {
+		if strings.Contains(atype, mtype) {
+			return true
+		}
+	}
+
+	return false
+}
+
 // ExtendContext wraps echo.Context as Context.
 func ExtendContext(h echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {

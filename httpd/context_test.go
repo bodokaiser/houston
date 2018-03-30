@@ -58,6 +58,16 @@ func (s *HandlerTestSuite) TestAcceptChrome() {
 		ctx.Accept())
 }
 
+func (s *HandlerTestSuite) TestAcceptsHTML() {
+	req := httptest.NewRequest(echo.GET, "/", nil)
+	req.Header.Set(echo.HeaderAccept, "text/html,application/xhtml+xml")
+	rec := httptest.NewRecorder()
+	ctx := Context{s.echo.NewContext(req, rec)}
+
+	assert.True(s.T(), ctx.Accepts(echo.MIMETextHTML))
+	assert.False(s.T(), ctx.Accepts(echo.MIMEApplicationJavaScript))
+}
+
 func (s *HandlerTestSuite) TestExtendContext() {
 	req := httptest.NewRequest(echo.GET, "/", nil)
 	req.Header.Set(echo.HeaderAccept, "text/html,application/xhtml+xml")
