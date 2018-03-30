@@ -26,7 +26,10 @@ func main() {
 	e.Use(middleware.Recover())
 
 	e.GET("/", httpd.IndexHandler)
-	e.PATCH("/", httpd.PatchHandler)
+
+	e.GET("/signal-generators", httpd.ListSignalGeneratorsHandler)
+	e.GET("/signal-generators/:id", httpd.ShowSignalGeneratorHandler)
+	e.PUT("/signal.generators/:id", httpd.UpdateSignalGeneratorHandler)
 
 	e.Static("/stylesheets", "public/stylesheets")
 	e.Static("/javascripts", "public/javascripts")
