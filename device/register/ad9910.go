@@ -1,5 +1,7 @@
 package register
 
+import "github.com/bodokaiser/beagle/util"
+
 // AD9910 register default values.
 var (
 	AD9910CtrlFunc1Default = [4]byte{
@@ -66,19 +68,21 @@ type AD9910 struct {
 // LSBFirst returns true if SPI byte order is configured to be
 // LSB and false if SPI byte order is MSB.
 func (r *AD9910) LSBFirst() bool {
-	return r.CtrlFunc1[0]&1 == 1
+	return util.HasBit(r.CtrlFunc1[0], 0)
 }
 
 // SetLSBFirst configures the SPI byte order to be LSB on
 // true and MSB on false.
 func (r *AD9910) SetLSBFirst(active bool) {
-  r.CtrlFunc1[0] &= ~(1 << 0)
+	r.CtrlFunc1[0] = util.UnsetBit(r.CtrlFunc1[0], 0)
 
 	if active {
-		r.CtrlFunc1[0] |= 1
+		r.CtrlFunc1[0] = util.SetBit(r.CtrlFunc1[0], 0)
 	}
 }
 
+// SDIOInputOnly returns true if SPI uses 3-wire mode and
+// false if SDIO pin is used bidirectional.
 func (r *AD9910) SDIOInputOnly() bool {
-	return r.CtrlFunc1[0]&1<<1 == 1
+	return util.HasBit(r.CtrlFunc1[0], 1)
 }
