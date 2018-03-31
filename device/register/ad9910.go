@@ -66,15 +66,19 @@ type AD9910 struct {
 // LSBFirst returns true if SPI byte order is configured to be
 // LSB and false if SPI byte order is MSB.
 func (r *AD9910) LSBFirst() bool {
-	return r.CtrlFunc1[0]&0x01 == 0x01
+	return r.CtrlFunc1[0]&1 == 1
 }
 
 // SetLSBFirst configures the SPI byte order to be LSB on
 // true and MSB on false.
 func (r *AD9910) SetLSBFirst(active bool) {
+  r.CtrlFunc1[0] &= ~(1 << 0)
+
 	if active {
-		r.CtrlFunc1[0] |= 0x01
-	} else {
-		r.CtrlFunc2[0] |= 0x00
+		r.CtrlFunc1[0] |= 1
 	}
+}
+
+func (r *AD9910) SDIOInputOnly() bool {
+	return r.CtrlFunc1[0]&1<<1 == 1
 }

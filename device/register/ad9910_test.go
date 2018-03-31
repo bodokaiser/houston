@@ -28,8 +28,8 @@ func TestAD9910SetLSBFirst(t *testing.T) {
 	r.CtrlFunc1 = AD9910CtrlFunc1Default
 
 	r.SetLSBFirst(true)
-	assert.Equal(t, r.CtrlFunc1, 0x01)
+	assert.Equal(t, r.CtrlFunc1[0], byte(0x01), "not active")
 
 	r.SetLSBFirst(false)
-	assert.Equal(t, r.CtrlFunc1, 0x00)
+	assert.Equal(t, r.CtrlFunc1[0], byte(0x00), "not inactive")
 }
