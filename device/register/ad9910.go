@@ -1,6 +1,6 @@
 package register
 
-import "github.com/bodokaiser/beagle/util"
+import "github.com/bodokaiser/beagle/encoding/binary"
 
 // Default values for the AD9910 register from the datasheet
 // reference. If a register is not explicitly named then
@@ -72,32 +72,32 @@ type AD9910 struct {
 // LSBFirst returns true if SPI byte order is configured to be
 // LSB and false if SPI byte order is MSB.
 func (r *AD9910) LSBFirst() bool {
-	return util.HasBit(r.CtrlFunc1[0], 0)
+	return binary.HasBit(r.CtrlFunc1[0], 0)
 }
 
 // SetLSBFirst configures the SPI byte order to be LSB on
 // true and MSB on false.
 func (r *AD9910) SetLSBFirst(active bool) {
-	r.CtrlFunc1[0] = util.UnsetBit(r.CtrlFunc1[0], 0)
+	r.CtrlFunc1[0] = binary.UnsetBit(r.CtrlFunc1[0], 0)
 
 	if active {
-		r.CtrlFunc1[0] = util.SetBit(r.CtrlFunc1[0], 0)
+		r.CtrlFunc1[0] = binary.SetBit(r.CtrlFunc1[0], 0)
 	}
 }
 
 // SDIOInputOnly returns true if SPI uses 3-wire mode and
 // false if SDIO pin is used bidirectional.
 func (r *AD9910) SDIOInputOnly() bool {
-	return util.HasBit(r.CtrlFunc1[0], 1)
+	return binary.HasBit(r.CtrlFunc1[0], 1)
 }
 
 // SetSDIOInputOnly configures SPI to use 3-wire on true and
 // 2-wire on false.
 func (r *AD9910) SetSDIOInputOnly(active bool) {
-	r.CtrlFunc1[0] = util.UnsetBit(r.CtrlFunc1[0], 1)
+	r.CtrlFunc1[0] = binary.UnsetBit(r.CtrlFunc1[0], 1)
 
 	if active {
-		r.CtrlFunc1[0] = util.SetBit(r.CtrlFunc1[0], 1)
+		r.CtrlFunc1[0] = binary.SetBit(r.CtrlFunc1[0], 1)
 	}
 }
 
@@ -115,7 +115,7 @@ const (
 // ExtPowerDownCtrl returns the configured power down
 // behaviour (see AD9910PowerDownModee).
 func (r *AD9910) ExtPowerDownCtrl() AD9910PowerDownMode {
-	if util.HasBit(r.CtrlFunc1[0], 3) {
+	if binary.HasBit(r.CtrlFunc1[0], 3) {
 		return FastRecoveryPowerDown
 	}
 	return FullPowerDown
@@ -124,169 +124,169 @@ func (r *AD9910) ExtPowerDownCtrl() AD9910PowerDownMode {
 // SetExtPowerDownCtrl configures the power down
 // behaviour (see AD9910PowerDownModee).
 func (r *AD9910) SetExtPowerDownCtrl(m AD9910PowerDownMode) {
-	r.CtrlFunc1[0] = util.UnsetBit(r.CtrlFunc1[0], 3)
+	r.CtrlFunc1[0] = binary.UnsetBit(r.CtrlFunc1[0], 3)
 
 	if FastRecoveryPowerDown == m {
-		r.CtrlFunc1[0] = util.SetBit(r.CtrlFunc1[0], 3)
+		r.CtrlFunc1[0] = binary.SetBit(r.CtrlFunc1[0], 3)
 	}
 }
 
 // AuxiliaryDACPowerDown returns true if auxiliary DAC is
 // configured to be powered down.
 func (r *AD9910) AuxiliaryDACPowerDown() bool {
-	return util.HasBit(r.CtrlFunc1[0], 4)
+	return binary.HasBit(r.CtrlFunc1[0], 4)
 }
 
 // SetAuxiliaryDACPowerDown configures the auxiliary DAC to
 // be powered down if active is true.
 func (r *AD9910) SetAuxiliaryDACPowerDown(active bool) {
-	r.CtrlFunc1[0] = util.UnsetBit(r.CtrlFunc1[0], 4)
+	r.CtrlFunc1[0] = binary.UnsetBit(r.CtrlFunc1[0], 4)
 
 	if active {
-		r.CtrlFunc1[0] = util.SetBit(r.CtrlFunc1[0], 4)
+		r.CtrlFunc1[0] = binary.SetBit(r.CtrlFunc1[0], 4)
 	}
 }
 
 // RefClockInputPowerDown returns true if external reference
 // clock input pin is configured to be powered down.
 func (r *AD9910) RefClockInputPowerDown() bool {
-	return util.HasBit(r.CtrlFunc1[0], 5)
+	return binary.HasBit(r.CtrlFunc1[0], 5)
 }
 
 // SetRefClockInputPowerDown configures the external reference
 // clock input pin to be configured powered down if
 // active is true.
 func (r *AD9910) SetRefClockInputPowerDown(active bool) {
-	r.CtrlFunc1[0] = util.UnsetBit(r.CtrlFunc1[0], 5)
+	r.CtrlFunc1[0] = binary.UnsetBit(r.CtrlFunc1[0], 5)
 
 	if active {
-		r.CtrlFunc1[0] = util.SetBit(r.CtrlFunc1[0], 5)
+		r.CtrlFunc1[0] = binary.SetBit(r.CtrlFunc1[0], 5)
 	}
 }
 
 // DACPowerDown returns true if main DAC is configured to be
 // powered down.
 func (r *AD9910) DACPowerDown() bool {
-	return util.HasBit(r.CtrlFunc1[0], 6)
+	return binary.HasBit(r.CtrlFunc1[0], 6)
 }
 
 // SetDACPowerDown configures the main DAC to be configured
 // powered down if active is true.
 func (r *AD9910) SetDACPowerDown(active bool) {
-	r.CtrlFunc1[0] = util.UnsetBit(r.CtrlFunc1[0], 6)
+	r.CtrlFunc1[0] = binary.UnsetBit(r.CtrlFunc1[0], 6)
 
 	if active {
-		r.CtrlFunc1[0] = util.SetBit(r.CtrlFunc1[0], 6)
+		r.CtrlFunc1[0] = binary.SetBit(r.CtrlFunc1[0], 6)
 	}
 }
 
 // DigitalPowerDown returns true if core is configured to be
 // powered down.
 func (r *AD9910) DigitalPowerDown() bool {
-	return util.HasBit(r.CtrlFunc1[0], 7)
+	return binary.HasBit(r.CtrlFunc1[0], 7)
 }
 
 // SetDigitalPowerDown configures the core to be powered down
 // if active is true.
 func (r *AD9910) SetDigitalPowerDown(active bool) {
-	r.CtrlFunc1[0] = util.UnsetBit(r.CtrlFunc1[0], 7)
+	r.CtrlFunc1[0] = binary.UnsetBit(r.CtrlFunc1[0], 7)
 
 	if active {
-		r.CtrlFunc1[0] = util.SetBit(r.CtrlFunc1[0], 7)
+		r.CtrlFunc1[0] = binary.SetBit(r.CtrlFunc1[0], 7)
 	}
 }
 
 // SelectAutoOSK returns true if automatic OSK is enabled.
 func (r *AD9910) SelectAutoOSK() bool {
-	return util.HasBit(r.CtrlFunc1[1], 0)
+	return binary.HasBit(r.CtrlFunc1[1], 0)
 }
 
 // SetSelectAutoOSK configures automatic OSK to be enabled
 // if active is true.
 func (r *AD9910) SetSelectAutoOSK(active bool) {
-	r.CtrlFunc1[1] = util.UnsetBit(r.CtrlFunc1[1], 0)
+	r.CtrlFunc1[1] = binary.UnsetBit(r.CtrlFunc1[1], 0)
 
 	if active {
-		r.CtrlFunc1[1] = util.SetBit(r.CtrlFunc1[1], 0)
+		r.CtrlFunc1[1] = binary.SetBit(r.CtrlFunc1[1], 0)
 	}
 }
 
 // OSKEnable returns true if output shift keying (OSK) is
 // enabled.
 func (r *AD9910) OSKEnable() bool {
-	return util.HasBit(r.CtrlFunc1[1], 1)
+	return binary.HasBit(r.CtrlFunc1[1], 1)
 }
 
 // SetOSKEnable configures output shift keying (OSK) to be
 // enabled if active is true.
 func (r *AD9910) SetOSKEnable(active bool) {
-	r.CtrlFunc1[1] = util.UnsetBit(r.CtrlFunc1[1], 1)
+	r.CtrlFunc1[1] = binary.UnsetBit(r.CtrlFunc1[1], 1)
 
 	if active {
-		r.CtrlFunc1[1] = util.SetBit(r.CtrlFunc1[1], 1)
+		r.CtrlFunc1[1] = binary.SetBit(r.CtrlFunc1[1], 1)
 	}
 }
 
 // LoadARR is over my paygrade.
 func (r *AD9910) LoadARR() bool {
-	return util.HasBit(r.CtrlFunc1[1], 2)
+	return binary.HasBit(r.CtrlFunc1[1], 2)
 }
 
 // SetLoadARR is over my paygrade.
 func (r *AD9910) SetLoadARR(active bool) {
-	r.CtrlFunc1[1] = util.UnsetBit(r.CtrlFunc1[1], 2)
+	r.CtrlFunc1[1] = binary.UnsetBit(r.CtrlFunc1[1], 2)
 
 	if active {
-		r.CtrlFunc1[1] = util.SetBit(r.CtrlFunc1[1], 2)
+		r.CtrlFunc1[1] = binary.SetBit(r.CtrlFunc1[1], 2)
 	}
 }
 
 // ClearPhaseAccumulator returns true if async, static reset
 // of the phase accumulator is configured.
 func (r *AD9910) ClearPhaseAccumulator() bool {
-	return util.HasBit(r.CtrlFunc1[1], 3)
+	return binary.HasBit(r.CtrlFunc1[1], 3)
 }
 
 // SetClearPhaseAccumulator configures a static reset of the
 // phase accumulator if active is true.
 func (r *AD9910) SetClearPhaseAccumulator(active bool) {
-	r.CtrlFunc1[1] = util.UnsetBit(r.CtrlFunc1[1], 3)
+	r.CtrlFunc1[1] = binary.UnsetBit(r.CtrlFunc1[1], 3)
 
 	if active {
-		r.CtrlFunc1[1] = util.SetBit(r.CtrlFunc1[1], 3)
+		r.CtrlFunc1[1] = binary.SetBit(r.CtrlFunc1[1], 3)
 	}
 }
 
 // ClearDigitalRampAccumulator returns true if async, static
 // reset of the digital ramp accumulator is configured.
 func (r *AD9910) ClearDigitalRampAccumulator() bool {
-	return util.HasBit(r.CtrlFunc1[1], 4)
+	return binary.HasBit(r.CtrlFunc1[1], 4)
 }
 
 // SetClearDigitalRampAccumulator configures a static reset of the
 // digital ramp accumulator if active is true.
 func (r *AD9910) SetClearDigitalRampAccumulator(active bool) {
-	r.CtrlFunc1[1] = util.UnsetBit(r.CtrlFunc1[1], 4)
+	r.CtrlFunc1[1] = binary.UnsetBit(r.CtrlFunc1[1], 4)
 
 	if active {
-		r.CtrlFunc1[1] = util.SetBit(r.CtrlFunc1[1], 4)
+		r.CtrlFunc1[1] = binary.SetBit(r.CtrlFunc1[1], 4)
 	}
 }
 
 // AutoClearPhaseAccumulator returns true if phase accumulator
 // is configured to be reset on IOUpdate or profile change.
 func (r *AD9910) AutoClearPhaseAccumulator() bool {
-	return util.HasBit(r.CtrlFunc1[1], 5)
+	return binary.HasBit(r.CtrlFunc1[1], 5)
 }
 
 // SetAutoClearPhaseAccumulator configures a sync reset on
 // IOUpdate or profile change of the phase accumulator if
 // active is true.
 func (r *AD9910) SetAutoClearPhaseAccumulator(active bool) {
-	r.CtrlFunc1[1] = util.UnsetBit(r.CtrlFunc1[1], 5)
+	r.CtrlFunc1[1] = binary.UnsetBit(r.CtrlFunc1[1], 5)
 
 	if active {
-		r.CtrlFunc1[1] = util.SetBit(r.CtrlFunc1[1], 5)
+		r.CtrlFunc1[1] = binary.SetBit(r.CtrlFunc1[1], 5)
 	}
 }
 
@@ -294,122 +294,122 @@ func (r *AD9910) SetAutoClearPhaseAccumulator(active bool) {
 // digital ramp accumulator is configured to be reset on
 // IOUpdate or profile change.
 func (r *AD9910) AutoClearDigitalRampAccumulator() bool {
-	return util.HasBit(r.CtrlFunc1[1], 5)
+	return binary.HasBit(r.CtrlFunc1[1], 5)
 }
 
 // SetAutoClearDigitalRampAccumulator configures a sync reset on
 // IOUpdate or profile change of the digital ramp accumulator if
 // active is true.
 func (r *AD9910) SetAutoClearDigitalRampAccumulator(active bool) {
-	r.CtrlFunc1[1] = util.UnsetBit(r.CtrlFunc1[1], 5)
+	r.CtrlFunc1[1] = binary.UnsetBit(r.CtrlFunc1[1], 5)
 
 	if active {
-		r.CtrlFunc1[1] = util.SetBit(r.CtrlFunc1[1], 5)
+		r.CtrlFunc1[1] = binary.SetBit(r.CtrlFunc1[1], 5)
 	}
 }
 
 // LoadLRR is over my paygrade.
 func (r *AD9910) LoadLRR() bool {
-	return util.HasBit(r.CtrlFunc1[1], 6)
+	return binary.HasBit(r.CtrlFunc1[1], 6)
 }
 
 // SetLoadLRR is over my paygrade.
 func (r *AD9910) SetLoadLRR(active bool) {
-	r.CtrlFunc1[1] = util.UnsetBit(r.CtrlFunc1[1], 6)
+	r.CtrlFunc1[1] = binary.UnsetBit(r.CtrlFunc1[1], 6)
 
 	if active {
-		r.CtrlFunc1[1] = util.SetBit(r.CtrlFunc1[1], 6)
+		r.CtrlFunc1[1] = binary.SetBit(r.CtrlFunc1[1], 6)
 	}
 }
 
 // SelectSineOutput returns true if sine output is selected
 // as output and false if cosine output is configured.
 func (r *AD9910) SelectSineOutput() bool {
-	return util.HasBit(r.CtrlFunc1[1], 7)
+	return binary.HasBit(r.CtrlFunc1[1], 7)
 }
 
 // SetSelectSineOutput configures output to be sine if
 // active is true.
 func (r *AD9910) SetSelectSineOutput(active bool) {
-	r.CtrlFunc1[1] = util.UnsetBit(r.CtrlFunc1[1], 7)
+	r.CtrlFunc1[1] = binary.UnsetBit(r.CtrlFunc1[1], 7)
 
 	if active {
-		r.CtrlFunc1[1] = util.SetBit(r.CtrlFunc1[1], 7)
+		r.CtrlFunc1[1] = binary.SetBit(r.CtrlFunc1[1], 7)
 	}
 }
 
 // TODO
 func (r *AD9910) InternalProfileCtrl() bool {
-	return util.HasBit(r.CtrlFunc1[2], 0)
+	return binary.HasBit(r.CtrlFunc1[2], 0)
 }
 
 // TODO
 func (r *AD9910) SetInternalProfileCtrl(active bool) {
-	r.CtrlFunc1[2] = util.UnsetBit(r.CtrlFunc1[2], 0)
+	r.CtrlFunc1[2] = binary.UnsetBit(r.CtrlFunc1[2], 0)
 
 	if active {
-		r.CtrlFunc1[2] = util.SetBit(r.CtrlFunc1[2], 0)
+		r.CtrlFunc1[2] = binary.SetBit(r.CtrlFunc1[2], 0)
 	}
 }
 
 // InverseSincFilterEnable returns true if the inverse sinc
 // filter is configured to be enabled.
 func (r *AD9910) InverseSincFilterEnable() bool {
-	return util.HasBit(r.CtrlFunc1[2], 6)
+	return binary.HasBit(r.CtrlFunc1[2], 6)
 }
 
 // SetInverseSincFilterEnable configures the inverse sinc filter
 // to be enabled if active is true.
 func (r *AD9910) SetInverseSincFilterEnable(active bool) {
-	r.CtrlFunc1[2] = util.UnsetBit(r.CtrlFunc1[2], 6)
+	r.CtrlFunc1[2] = binary.UnsetBit(r.CtrlFunc1[2], 6)
 
 	if active {
-		r.CtrlFunc1[2] = util.SetBit(r.CtrlFunc1[2], 6)
+		r.CtrlFunc1[2] = binary.SetBit(r.CtrlFunc1[2], 6)
 	}
 }
 
 // ManualOSKExtCtrl return true if external OSK pin is
 // configured to be enabled.
 func (r *AD9910) ManualOSKExtCtrl() bool {
-	return util.HasBit(r.CtrlFunc1[2], 7)
+	return binary.HasBit(r.CtrlFunc1[2], 7)
 }
 
 // SetManualOSKExtCtrl configures the external OSK pin to be
 // configured enabled if active is true.
 func (r *AD9910) SetManualOSKExtCtrl(active bool) {
-	r.CtrlFunc1[2] = util.UnsetBit(r.CtrlFunc1[2], 7)
+	r.CtrlFunc1[2] = binary.UnsetBit(r.CtrlFunc1[2], 7)
 
 	if active {
-		r.CtrlFunc1[2] = util.SetBit(r.CtrlFunc1[2], 7)
+		r.CtrlFunc1[2] = binary.SetBit(r.CtrlFunc1[2], 7)
 	}
 }
 
 // TODO
 func (r *AD9910) RAMPlaybackDest() bool {
-	return util.HasBit(r.CtrlFunc1[3], 0)
+	return binary.HasBit(r.CtrlFunc1[3], 0)
 }
 
 // TODO
 func (r *AD9910) SetRAMPlaybackDest(active bool) {
-	r.CtrlFunc1[3] = util.UnsetBit(r.CtrlFunc1[3], 0)
+	r.CtrlFunc1[3] = binary.UnsetBit(r.CtrlFunc1[3], 0)
 
 	if active {
-		r.CtrlFunc1[3] = util.SetBit(r.CtrlFunc1[3], 0)
+		r.CtrlFunc1[3] = binary.SetBit(r.CtrlFunc1[3], 0)
 	}
 }
 
 // RAMEnable returns true if RAM functionality (for playback
 // operation) is configured to be enabled.
 func (r *AD9910) RAMEnable() bool {
-	return util.HasBit(r.CtrlFunc1[3], 7)
+	return binary.HasBit(r.CtrlFunc1[3], 7)
 }
 
 // SetRAMEnable configures RAM functionality to be enabled
 // if active is true.
 func (r *AD9910) SetRAMEnable(active bool) {
-	r.CtrlFunc1[3] = util.UnsetBit(r.CtrlFunc1[3], 7)
+	r.CtrlFunc1[3] = binary.UnsetBit(r.CtrlFunc1[3], 7)
 
 	if active {
-		r.CtrlFunc1[3] = util.SetBit(r.CtrlFunc1[3], 7)
+		r.CtrlFunc1[3] = binary.SetBit(r.CtrlFunc1[3], 7)
 	}
 }
