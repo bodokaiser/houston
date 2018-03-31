@@ -108,17 +108,17 @@ type AD9910PowerDownMode int
 // AD9910 can be configured to go in full or fast recovery
 // power down.
 const (
-	FullPowerDown AD9910PowerDownMode = iota
-	FastRecoveryPowerDown
+	PowerDownFull AD9910PowerDownMode = iota
+	PowerDownFastRecovery
 )
 
 // ExtPowerDownCtrl returns the configured power down
 // behaviour (see AD9910PowerDownModee).
 func (r *AD9910) ExtPowerDownCtrl() AD9910PowerDownMode {
 	if binary.HasBit(r.CtrlFunc1[0], 3) {
-		return FastRecoveryPowerDown
+		return PowerDownFastRecovery
 	}
-	return FullPowerDown
+	return PowerDownFull
 }
 
 // SetExtPowerDownCtrl configures the power down
@@ -126,7 +126,7 @@ func (r *AD9910) ExtPowerDownCtrl() AD9910PowerDownMode {
 func (r *AD9910) SetExtPowerDownCtrl(m AD9910PowerDownMode) {
 	r.CtrlFunc1[0] = binary.UnsetBit(r.CtrlFunc1[0], 3)
 
-	if FastRecoveryPowerDown == m {
+	if PowerDownFastRecovery == m {
 		r.CtrlFunc1[0] = binary.SetBit(r.CtrlFunc1[0], 3)
 	}
 }
@@ -338,18 +338,42 @@ func (r *AD9910) SetSelectSineOutput(active bool) {
 	}
 }
 
-// TODO
-func (r *AD9910) InternalProfileCtrl() bool {
-	return binary.HasBit(r.CtrlFunc1[2], 0)
+// AD9910RAMProfileMode defines the composition of the
+// different RAM profiles.
+type AD9910RAMProfileMode int
+
+// Supported RAM profile compositions. BurstN can be read that
+// profile 0 to N will be executed once while ContN
+// continuously executes profiles 0 to N.
+const (
+	AD9910ProfileModeDisabled AD9910RAMProfileMode = iota
+	AD9910ProfileModeBurst1
+	AD9910ProfileModeBurst2
+	AD9910ProfileModeBurst3
+	AD9910ProfileModeBurst4
+	AD9910ProfileModeBurst5
+	AD9910ProfileModeBurst6
+	AD9910ProfileModeBurst7
+	AD9910ProfileModeCont1
+	AD9910ProfileModeCont2
+	AD9910ProfileModeCont3
+	AD9910ProfileModeCont4
+	AD9910ProfileModeCont5
+	AD9910ProfileModeCont6
+	AD9910ProfileModeCont7
+)
+
+// IntProfileCtrl returns the configured AD9910RAMProfile mode.
+func (r *AD9910) IntProfileCtrl() AD9910RAMProfileMode {
+	b := binary.ReadBits(r.CtrlFunc1[2], 1, 4)
+
+	return AD9910RAMProfileMode(b)
 }
 
-// TODO
-func (r *AD9910) SetInternalProfileCtrl(active bool) {
-	r.CtrlFunc1[2] = binary.UnsetBit(r.CtrlFunc1[2], 0)
-
-	if active {
-		r.CtrlFunc1[2] = binary.SetBit(r.CtrlFunc1[2], 0)
-	}
+// SetIntProfileCtrl configures the AD9910 to use the given
+// AD9910RAMProfileMode m.
+func (r *AD9910) SetIntProfileCtrl(m AD9910RAMProfileMode) {
+	binary.WriteBits(r.CtrlFunc1[2], 1, 4, byte(m))
 }
 
 // InverseSincFilterEnable returns true if the inverse sinc
@@ -384,18 +408,30 @@ func (r *AD9910) SetManualOSKExtCtrl(active bool) {
 	}
 }
 
-// TODO
-func (r *AD9910) RAMPlaybackDest() bool {
-	return binary.HasBit(r.CtrlFunc1[3], 0)
+// AD9910RAMPlaybackDest defines what parameters to control
+// by RAM playback.
+type AD9910RAMPlaybackDest int
+
+// See Table 12 in the datasheet for details.
+const (
+	AD9910RAMPlaybackDestFreq AD9910RAMPlaybackDest = iota
+	AD9910RAMPlaybackDestPhase
+	AD9910RAMPlaybackDestAmpl
+	AD9910RAMPlaybackDestPolar
+)
+
+// RAMPlaybackDest returns the configured playback destination
+// in RAM mode. See AD9910RAMPPlaybackDest.
+func (r *AD9910) RAMPlaybackDest() AD9910RAMPlaybackDest {
+	b := binary.ReadBits(r.CtrlFunc1[3], 5, 2)
+
+	return AD9910RAMPlaybackDest(b)
 }
 
-// TODO
-func (r *AD9910) SetRAMPlaybackDest(active bool) {
-	r.CtrlFunc1[3] = binary.UnsetBit(r.CtrlFunc1[3], 0)
-
-	if active {
-		r.CtrlFunc1[3] = binary.SetBit(r.CtrlFunc1[3], 0)
-	}
+// SetRAMPlaybackDest configures the playback destination
+// in RAM mode. See AD9910RAMPPlaybackDest.
+func (r *AD9910) SetRAMPlaybackDest(d AD9910RAMPlaybackDest) {
+	binary.WriteBits(r.CtrlFunc1[3], 5, 2, byte(d))
 }
 
 // RAMEnable returns true if RAM functionality (for playback

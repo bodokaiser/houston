@@ -51,3 +51,15 @@ func TestUnsetBit(t *testing.T) {
 
 	assert.Equal(t, byte(0x00), b)
 }
+
+func TestReadBits(t *testing.T) {
+	b := byte(0x2c)
+
+	assert.Equal(t, byte(0x0b), ReadBits(b, 2, 4))
+}
+
+func TestWriteBits(t *testing.T) {
+	b := byte(0x00)
+
+	assert.Equal(t, byte(0x2c), WriteBits(b, 2, 4, 0x0b))
+}
