@@ -449,3 +449,247 @@ func (r *AD9910) SetRAMEnable(active bool) {
 		r.CtrlFunc1[3] = binary.SetBit(r.CtrlFunc1[3], 7)
 	}
 }
+
+// ParallelPortEnable returns true if parallel port functionality is configured
+// to be enabled.
+func (r *AD9910) ParallelPortEnable() bool {
+	return binary.HasBit(r.CtrlFunc2[0], 4)
+}
+
+// SetParallelPortEnable configures the parallel port functionality to be
+// enabled if true.
+func (r *AD9910) SetParallelPortEnable(active bool) {
+	r.CtrlFunc2[0] = binary.UnsetBit(r.CtrlFunc2[0], 4)
+
+	if active {
+		r.CtrlFunc2[0] = binary.SetBit(r.CtrlFunc2[0], 4)
+	}
+}
+
+// SyncTimingValidationDisable returns false if SYNC_SMP_ERR pin is configured
+// to detect syncronization pulse sampling errors.
+func (r *AD9910) SyncTimingValidationDisable() bool {
+	return binary.HasBit(r.CtrlFunc2[0], 5)
+}
+
+// SetSyncTimingValidationDisable configures SYNC_SMP_ERR pin to detect
+// syncronization pulse sampling errors.
+func (r *AD9910) SetSyncTimingValidationDisable(active bool) {
+	r.CtrlFunc2[0] = binary.UnsetBit(r.CtrlFunc2[0], 5)
+
+	if active {
+		r.CtrlFunc2[0] = binary.SetBit(r.CtrlFunc2[0], 5)
+	}
+}
+
+// DataAssemblerHoldLastValue relates to some parallel port communication.
+func (r *AD9910) DataAssemblerHoldLastValue() bool {
+	return binary.HasBit(r.CtrlFunc2[0], 6)
+}
+
+// SetDataAssemblerHoldLastValue relates to some parallel port communication.
+func (r *AD9910) SetDataAssemblerHoldLastValue(active bool) {
+	r.CtrlFunc2[0] = binary.UnsetBit(r.CtrlFunc2[0], 6)
+
+	if active {
+		r.CtrlFunc2[0] = binary.SetBit(r.CtrlFunc2[0], 6)
+	}
+}
+
+// MatchedLatencyEnable returns true if parameter changes affect the output
+// signal in the order made.
+func (r *AD9910) MatchedLatencyEnable() bool {
+	return binary.HasBit(r.CtrlFunc2[0], 7)
+}
+
+// SetMatchedLatencyEnable configures the output signal to be affected by
+// multiple parameter changes at once if true.
+func (r *AD9910) SetMatchedLatencyEnable(active bool) {
+	r.CtrlFunc2[0] = binary.UnsetBit(r.CtrlFunc2[0], 7)
+
+	if active {
+		r.CtrlFunc2[0] = binary.SetBit(r.CtrlFunc2[0], 7)
+	}
+}
+
+// TxEnableInvert relates to the parallel port communication.
+func (r *AD9910) TxEnableInvert() bool {
+	return binary.HasBit(r.CtrlFunc2[1], 0)
+}
+
+// SetTxEnableInvert relates to the parallel port communication.
+func (r *AD9910) SetTxEnableInvert(active bool) {
+	r.CtrlFunc2[1] = binary.UnsetBit(r.CtrlFunc2[1], 0)
+
+	if active {
+		r.CtrlFunc2[1] = binary.SetBit(r.CtrlFunc2[1], 0)
+	}
+}
+
+// ParallelDataClockInvert relates to the parallel port communication.
+func (r *AD9910) ParallelDataClockInvert() bool {
+	return binary.HasBit(r.CtrlFunc2[1], 2)
+}
+
+// SetParallelDataClockInvert relates to the parallel port communication.
+func (r *AD9910) SetParallelDataClockInvert(active bool) {
+	r.CtrlFunc2[1] = binary.UnsetBit(r.CtrlFunc2[1], 2)
+
+	if active {
+		r.CtrlFunc2[1] = binary.SetBit(r.CtrlFunc2[1], 2)
+	}
+}
+
+// ParallelDataClockEnable relates to the parallel port communication.
+func (r *AD9910) ParallelDataClockEnable() bool {
+	return binary.HasBit(r.CtrlFunc2[1], 3)
+}
+
+// SetParallelDataClockEnable relates to the parallel port communication.
+func (r *AD9910) SetParallelDataClockEnable(active bool) {
+	r.CtrlFunc2[1] = binary.UnsetBit(r.CtrlFunc2[1], 3)
+
+	if active {
+		r.CtrlFunc2[1] = binary.SetBit(r.CtrlFunc2[1], 3)
+	}
+}
+
+// ReadEffectiveFreqTuningWord returns true if the AD9910 is configured to
+// reply with the actual measured frequency if FTW is requested.
+func (r *AD9910) ReadEffectiveFreqTuningWord() bool {
+	return binary.HasBit(r.CtrlFunc2[2], 0)
+}
+
+// SetReadEffectiveFreqTuningWord configures the AD9910 to reply with the
+// actual frequency instead of the register value if true.
+func (r *AD9910) SetReadEffectiveFreqTuningWord(active bool) {
+	r.CtrlFunc2[2] = binary.UnsetBit(r.CtrlFunc2[2], 0)
+
+	if active {
+		r.CtrlFunc2[2] = binary.SetBit(r.CtrlFunc2[2], 0)
+	}
+}
+
+// DigitalRampNoDwellLow returns true if the digital ramp is configured to
+// directly skip back to the configured lower limit instead of ramping back.
+func (r *AD9910) DigitalRampNoDwellLow() bool {
+	return binary.HasBit(r.CtrlFunc2[2], 1)
+}
+
+// SetDigitalRampNoDwellLow configures the digital ramp to skip instead of
+// ramping back to the opposing limit if true.
+func (r *AD9910) SetDigitalRampNoDwellLow(active bool) {
+	r.CtrlFunc2[2] = binary.UnsetBit(r.CtrlFunc2[2], 1)
+
+	if active {
+		r.CtrlFunc2[2] = binary.SetBit(r.CtrlFunc2[2], 1)
+	}
+}
+
+// DigitalRampEnable returns true if the digital ramp is configured to be
+// enabled.
+func (r *AD9910) DigitalRampEnable() bool {
+	return binary.HasBit(r.CtrlFunc2[2], 2)
+}
+
+// SetDigitalRampEnable configures the digital ramp to be enabled if
+// active is true.
+func (r *AD9910) SetDigitalRampEnable(active bool) {
+	r.CtrlFunc2[2] = binary.UnsetBit(r.CtrlFunc2[2], 2)
+
+	if active {
+		r.CtrlFunc2[2] = binary.SetBit(r.CtrlFunc2[2], 2)
+	}
+}
+
+// SyncClockEnable returns true if the AD9910 is configured to generate
+// a clock signal to syncronize SPI communication.
+func (r *AD9910) SyncClockEnable() bool {
+	return binary.HasBit(r.CtrlFunc2[2], 6)
+}
+
+// SetSyncClockEnable configures the AD9910 to generate a clock signal
+// for SPI communication if active is true.
+func (r *AD9910) SetSyncClockEnable(active bool) {
+	r.CtrlFunc2[2] = binary.UnsetBit(r.CtrlFunc2[2], 6)
+
+	if active {
+		r.CtrlFunc2[2] = binary.SetBit(r.CtrlFunc2[2], 6)
+	}
+}
+
+// IntIOUpdateActive returns true if the SPI communication is configured
+// to be syncronized with an internally generated I/O update signal.
+func (r *AD9910) IntIOUpdateActive() bool {
+	return binary.HasBit(r.CtrlFunc2[2], 7)
+}
+
+// SetIntIOUpdateActive configures the SPI communication to be syncronized
+// with an internally generated I/O update signal if active is true.
+func (r *AD9910) SetIntIOUpdateActive(active bool) {
+	r.CtrlFunc2[2] = binary.UnsetBit(r.CtrlFunc2[2], 7)
+
+	if active {
+		r.CtrlFunc2[2] = binary.SetBit(r.CtrlFunc2[2], 7)
+	}
+}
+
+func (r *AD9910) AmplScaleFromSTProfileEnable() bool {
+	return binary.HasBit(r.CtrlFunc2[3], 0)
+}
+
+func (r *AD9910) SetAmplScaleFromSTProfileEnable(active bool) {
+	r.CtrlFunc2[3] = binary.UnsetBit(r.CtrlFunc2[3], 0)
+
+	if active {
+		r.CtrlFunc2[3] = binary.SetBit(r.CtrlFunc2[3], 0)
+	}
+}
+
+func (r *AD9910) PhaseLockedLoopEnable() bool {
+	return binary.HasBit(r.CtrlFunc3[0], 0)
+}
+
+func (r *AD9910) SetPhaseLockedLoopEnable(active bool) {
+	r.CtrlFunc3[0] = binary.UnsetBit(r.CtrlFunc3[0], 0)
+
+	if active {
+		r.CtrlFunc3[0] = binary.SetBit(r.CtrlFunc3[0], 0)
+	}
+}
+
+func (r *AD9910) PhaseFreqDetectorReset() bool {
+	return binary.HasBit(r.CtrlFunc3[0], 2)
+}
+
+func (r *AD9910) SetPhaseFreqDetectorReset(active bool) {
+	r.CtrlFunc3[0] = binary.UnsetBit(r.CtrlFunc3[0], 2)
+
+	if active {
+		r.CtrlFunc3[0] = binary.SetBit(r.CtrlFunc3[0], 2)
+	}
+}
+
+func (r *AD9910) RefClockInputDividerReset() bool {
+	return binary.HasBit(r.CtrlFunc3[0], 6)
+}
+
+func (r *AD9910) SetRefClockInputDividerReset(active bool) {
+	r.CtrlFunc3[0] = binary.UnsetBit(r.CtrlFunc3[0], 6)
+
+	if active {
+		r.CtrlFunc3[0] = binary.SetBit(r.CtrlFunc3[0], 6)
+	}
+}
+
+func (r *AD9910) RefClockInputDividerBypass() bool {
+	return binary.HasBit(r.CtrlFunc3[0], 7)
+}
+
+func (r *AD9910) SetRefClockInputDividerBypass(active bool) {
+	r.CtrlFunc3[0] = binary.UnsetBit(r.CtrlFunc3[0], 7)
+
+	if active {
+		r.CtrlFunc3[0] = binary.SetBit(r.CtrlFunc3[0], 7)
+	}
+}
