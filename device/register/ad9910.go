@@ -32,9 +32,9 @@ const (
 	AD9910PhaseOffsetWordAddress
 	AD9910AmplScaleFactorAddress
 	AD9910MultichipSyncAddress
-	AD9910DRampLimitAddress
-	AD9910DRampStepSizeAddress
-	AD9910DRampRateAddress
+	AD9910DigitalRampLimitAddress
+	AD9910DigitalRampStepSizeAddress
+	AD9910DigitalRampRateAddress
 	AD9910Profile0Address
 	AD9910Profile1Address
 	AD9910Profile2Address
@@ -50,23 +50,23 @@ const (
 // comprehensible operations close to the datasheet reference
 // to interact with the register values.
 type AD9910 struct {
-	CtrlFunc1       [4]byte
-	CtrlFunc2       [4]byte
-	CtrlFunc3       [4]byte
-	AuxDACCtrl      [4]byte
-	IOUpdateRate    [4]byte
-	FreqTuningWord  [4]byte
-	PhaseOffsetWord [2]byte
-	AmplScaleFactor [4]byte
-	MultichipSync   [4]byte
-	DRampLimit      [8]byte
-	DRampStepSize   [8]byte
-	DRampRate       [4]byte
-	STProfile0      [8]byte
-	STProfile1      [8]byte
-	RAMProfile0     [8]byte
-	RAMProfile1     [8]byte
-	RAMMemory       [4]byte
+	CtrlFunc1           [4]byte
+	CtrlFunc2           [4]byte
+	CtrlFunc3           [4]byte
+	AuxDACCtrl          [4]byte
+	IOUpdateRate        [4]byte
+	FreqTuningWord      [4]byte
+	PhaseOffsetWord     [2]byte
+	AmplScaleFactor     [4]byte
+	MultichipSync       [4]byte
+	DigitalRampLimit    [8]byte
+	DigitalRampStepSize [8]byte
+	DigitalRampRate     [4]byte
+	STProfile0          [8]byte
+	STProfile1          [8]byte
+	RAMProfile0         [8]byte
+	RAMProfile1         [8]byte
+	RAMMemory           [4]byte
 }
 
 // LSBFirst returns true if SPI byte order is configured to be
