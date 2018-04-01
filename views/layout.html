@@ -1,12 +1,22 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Beagle Web</title>
+    <title>Beagle</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="/stylesheets/bootstrap.css">
   </head>
   <body>
-    {{ block "content" . }}{{ end }}
+    <nav class="navbar navbar-dark bg-dark sticky-top">
+      <a class="navbar-brand" href="/">Beagle</a>
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="/signal-generators">Signal Generators</a>
+        </li>
+      </ul>
+    </nav>
+    <div class="container mt-5">
+      {{ block "content" . }}{{ end }}
+    </div>
   </body>
 </html>

@@ -25,6 +25,9 @@ func ListSignalGeneratorsHandler(ctx echo.Context) error {
 	if c.Accepts(echo.MIMEApplicationJSON) {
 		return c.NoContent(http.StatusNoContent)
 	}
+	if c.Accepts(echo.MIMETextHTML) {
+		return c.Render(http.StatusOK, "signal-generators.html", nil)
+	}
 
 	return echo.ErrUnsupportedMediaType
 }
