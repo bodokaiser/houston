@@ -1,4 +1,4 @@
-package binary
+package utils
 
 // HasBit returns true if bit is set at position p else false.
 func HasBit(b byte, p uint) bool {

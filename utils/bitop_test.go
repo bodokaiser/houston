@@ -1,4 +1,4 @@
-package binary
+package utils
 
 import (
 	"fmt"
