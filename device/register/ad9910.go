@@ -634,10 +634,15 @@ func (r *AD9910) SetIntIOUpdateActive(active bool) {
 	}
 }
 
+// AmplScaleFromSTProfileEnable returns true if amplitude from single tone
+// profile is configured to be scaled by amplitude scalar factor.
 func (r *AD9910) AmplScaleFromSTProfileEnable() bool {
 	return binary.HasBit(r.CtrlFunc2[3], 0)
 }
 
+// SetAmplScaleFromSTProfileEnable configures the amplitude from single tone
+// profile to be configured to be scaled by amplitude scalar factor if
+// active is true.
 func (r *AD9910) SetAmplScaleFromSTProfileEnable(active bool) {
 	r.CtrlFunc2[3] = binary.UnsetBit(r.CtrlFunc2[3], 0)
 
@@ -646,10 +651,14 @@ func (r *AD9910) SetAmplScaleFromSTProfileEnable(active bool) {
 	}
 }
 
+// PhaseLockedLoopEnable returns true if reference clock phase locked loop
+// is configured to be enabled.
 func (r *AD9910) PhaseLockedLoopEnable() bool {
 	return binary.HasBit(r.CtrlFunc3[0], 0)
 }
 
+// SetPhaseLockedLoopEnable configures the reference clock phase locked loop
+// (PLL) to be configured enabled if active is true.
 func (r *AD9910) SetPhaseLockedLoopEnable(active bool) {
 	r.CtrlFunc3[0] = binary.UnsetBit(r.CtrlFunc3[0], 0)
 
@@ -658,10 +667,14 @@ func (r *AD9910) SetPhaseLockedLoopEnable(active bool) {
 	}
 }
 
+// PhaseFreqDetectorReset returns true if phase frequency detector (PFD) is
+// configured to be disabled.
 func (r *AD9910) PhaseFreqDetectorReset() bool {
 	return binary.HasBit(r.CtrlFunc3[0], 2)
 }
 
+// SetPhaseFreqDetectorReset configures the phase frequency detector (PFD)
+// to be enabled if active is true.
 func (r *AD9910) SetPhaseFreqDetectorReset(active bool) {
 	r.CtrlFunc3[0] = binary.UnsetBit(r.CtrlFunc3[0], 2)
 
@@ -670,10 +683,14 @@ func (r *AD9910) SetPhaseFreqDetectorReset(active bool) {
 	}
 }
 
+// RefClockInputDividerReset returns true if reference clock input divider
+// operates normally.
 func (r *AD9910) RefClockInputDividerReset() bool {
 	return binary.HasBit(r.CtrlFunc3[0], 6)
 }
 
+// SetRefClockInputDividerReset configures the reference clock input divider
+// to operate normally if active is true and be reset else.
 func (r *AD9910) SetRefClockInputDividerReset(active bool) {
 	r.CtrlFunc3[0] = binary.UnsetBit(r.CtrlFunc3[0], 6)
 
@@ -682,10 +699,14 @@ func (r *AD9910) SetRefClockInputDividerReset(active bool) {
 	}
 }
 
+// RefClockInputDividerBypass returns true if reference clock input divider
+// is configured to be bypassed.
 func (r *AD9910) RefClockInputDividerBypass() bool {
 	return binary.HasBit(r.CtrlFunc3[0], 7)
 }
 
+// SetRefClockInputDividerBypass configures the reference clock input divider
+// to be configured bypassed if active is true.
 func (r *AD9910) SetRefClockInputDividerBypass(active bool) {
 	r.CtrlFunc3[0] = binary.UnsetBit(r.CtrlFunc3[0], 7)
 
