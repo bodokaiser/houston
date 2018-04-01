@@ -918,3 +918,46 @@ func (r *AD9910) PhaseOffsetWord() uint16 {
 func (r *AD9910) SetPhaseOffsetWord(v uint16) {
 	binary.LittleEndian.PutUint16(r.FreqTuningWordData[:], v)
 }
+
+// AD9910AmplStepSize defines the amplitude step size in OSK mode.
+type AD9910AmplStepSize int
+
+// Values for amplitude step size in OSK mode.
+const (
+	AD9910AmplStepSize1 AD9910AmplStepSize = iota
+	AD9910AmplStepSize2
+	AD9910AmplStepSize4
+	AD9910AmplStepSize8
+)
+
+// AmplStepSize returns the configured amplitude step size.
+func (r *AD9910) AmplStepSize() AD9910AmplStepSize {
+	b := utils.ReadBits(r.AmplScaleFactorData[0], 0, 2)
+
+	return AD9910AmplStepSize(b)
+}
+
+// SetAmplStepSize configures the amplitude step size.
+func (r *AD9910) SetAmplStepSize(v AD9910AmplStepSize) {
+	utils.WriteBits(r.AmplScaleFactorData[0], 0, 2, byte(v))
+}
+
+// AmplScaleFactor returns the 14 bit amplitude scale factor.
+func (r *AD9910) AmplScaleFactor() uint16 {
+	return binary.LittleEndian.Uint16(r.AmplScaleFactorData[:2]) << 2
+}
+
+// SetAmplScaleFactor configures the 14 bit amplitude scale factor.
+func (r *AD9910) SetAmplScaleFactor(v uint16) {
+	binary.LittleEndian.PutUint16(r.AmplScaleFactorData[2:], v>>2)
+}
+
+// AmplRampRate returns the 16 bit amplitude ramp rate.
+func (r *AD9910) AmplRampRate() uint16 {
+	return binary.LittleEndian.Uint16(r.AmplScaleFactorData[2:])
+}
+
+// SetAmplRampRate configures the 16 bit amplitude ramp rate.
+func (r *AD9910) SetAmplRampRate(v uint16) {
+	binary.LittleEndian.PutUint16(r.AmplScaleFactorData[2:], v)
+}
