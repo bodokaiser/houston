@@ -22,34 +22,6 @@ var (
 		0x08, 0xb5, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 )
 
-// Register addresses for the AD9910 with registers
-// 0x05 and 0x06 (see datasheet).
-const (
-	AD9910CtrlFunc1Address = iota
-	AD9910CtrlFunc2Address
-	AD9910CtrlFunc3Address
-	AD9910AuxDACCtrlAddress
-	AD9910IOUpdateRateAddress
-	_
-	_
-	AD9910FreqTuningWordAddress
-	AD9910PhaseOffsetWordAddress
-	AD9910AmplScaleFactorAddress
-	AD9910MultichipSyncAddress
-	AD9910DigitalRampLimitAddress
-	AD9910DigitalRampStepSizeAddress
-	AD9910DigitalRampRateAddress
-	AD9910Profile0Address
-	AD9910Profile1Address
-	AD9910Profile2Address
-	AD9910Profile3Address
-	AD9910Profile4Address
-	AD9910Profile5Address
-	AD9910Profile6Address
-	AD9910Profile7Address
-	AD9910RAMAddress
-)
-
 // AD9910 reproduces the AD9910 registers and provides
 // comprehensible operations close to the datasheet reference
 // to interact with the register values.
@@ -66,8 +38,8 @@ type AD9910 struct {
 	DigitalRampLimitData    [8]byte
 	DigitalRampStepSizeData [8]byte
 	DigitalRampRateData     [4]byte
-	STProfile0Data          [8]byte
-	STProfile1Data          [8]byte
+	StProfile0Data          [8]byte
+	StProfile1Data          [8]byte
 	RAMProfile0Data         [8]byte
 	RAMProfile1Data         [8]byte
 	RAMMemoryData           [4]byte
@@ -696,16 +668,16 @@ func (r *AD9910) SetIntIOUpdateActive(active bool) {
 	}
 }
 
-// AmplScaleFromSTProfileEnable returns true if amplitude from single tone
+// AmplScaleFromStProfileEnable returns true if amplitude from single tone
 // profile is configured to be scaled by amplitude scalar factor.
-func (r *AD9910) AmplScaleFromSTProfileEnable() bool {
+func (r *AD9910) AmplScaleFromStProfileEnable() bool {
 	return utils.HasBit(r.CtrlFunc2Data[3], 0)
 }
 
-// SetAmplScaleFromSTProfileEnable configures the amplitude from single tone
+// SetAmplScaleFromStProfileEnable configures the amplitude from single tone
 // profile to be configured to be scaled by amplitude scalar factor if
 // active is true.
-func (r *AD9910) SetAmplScaleFromSTProfileEnable(active bool) {
+func (r *AD9910) SetAmplScaleFromStProfileEnable(active bool) {
 	r.CtrlFunc2Data[3] = utils.UnsetBit(r.CtrlFunc2Data[3], 0)
 
 	if active {
@@ -1128,38 +1100,38 @@ func (r *AD9910) SetDigitalRampNegativeSlopeRate(v uint16) {
 	binary.LittleEndian.PutUint16(r.DigitalRampRateData[:2], v)
 }
 
-// STProfile0FreqTuningWord returns the configured 32 bit number to be
+// StProfile0FreqTuningWord returns the configured 32 bit number to be
 // the frequency tuning word of single tone profile 0.
-func (r *AD9910) STProfile0FreqTuningWord() uint32 {
-	return binary.LittleEndian.Uint32(r.STProfile0Data[:4])
+func (r *AD9910) StProfile0FreqTuningWord() uint32 {
+	return binary.LittleEndian.Uint32(r.StProfile0Data[:4])
 }
 
-// SetSTProfile0FreqTuningWord configures the 32 bit number to be
+// SetStProfile0FreqTuningWord configures the 32 bit number to be
 // the frequency tuning word of single tone profile 0.
-func (r *AD9910) SetSTProfile0FreqTuningWord(v uint32) {
-	binary.LittleEndian.PutUint32(r.STProfile0Data[:4], v)
+func (r *AD9910) SetStProfile0FreqTuningWord(v uint32) {
+	binary.LittleEndian.PutUint32(r.StProfile0Data[:4], v)
 }
 
-// STProfile0PhaseOffsetWord returns the configured 16 bit number to be
+// StProfile0PhaseOffsetWord returns the configured 16 bit number to be
 // the phase offset word of single tone profile 0.
-func (r *AD9910) STProfile0PhaseOffsetWord() uint16 {
-	return binary.LittleEndian.Uint16(r.STProfile0Data[4:6])
+func (r *AD9910) StProfile0PhaseOffsetWord() uint16 {
+	return binary.LittleEndian.Uint16(r.StProfile0Data[4:6])
 }
 
-// SetSTProfile0PhaseOffsetWord configures the 16 bit number to be
+// SetStProfile0PhaseOffsetWord configures the 16 bit number to be
 // the phase offset word of single tone profile 0.
-func (r *AD9910) SetSTProfile0PhaseOffsetWord(v uint16) {
-	binary.LittleEndian.PutUint16(r.STProfile0Data[4:6], v)
+func (r *AD9910) SetStProfile0PhaseOffsetWord(v uint16) {
+	binary.LittleEndian.PutUint16(r.StProfile0Data[4:6], v)
 }
 
-// STProfile0AmplScaleFactor returns the configured 14 bit number to be
+// StProfile0AmplScaleFactor returns the configured 14 bit number to be
 // the amplitude scale factor single tone profile 0.
-func (r *AD9910) STProfile0AmplScaleFactor() uint16 {
-	return binary.LittleEndian.Uint16(r.STProfile0Data[6:])
+func (r *AD9910) StProfile0AmplScaleFactor() uint16 {
+	return binary.LittleEndian.Uint16(r.StProfile0Data[6:])
 }
 
-// SetSTProfile0AmplScaleFactor configures the 14 bit number to be
+// SetStProfile0AmplScaleFactor configures the 14 bit number to be
 // the amplitude scale factor of single tone profile 0.
-func (r *AD9910) SetSTProfile0AmplScaleFactor(v uint16) {
-	binary.LittleEndian.PutUint16(r.STProfile0Data[6:], v)
+func (r *AD9910) SetStProfile0AmplScaleFactor(v uint16) {
+	binary.LittleEndian.PutUint16(r.StProfile0Data[6:], v)
 }

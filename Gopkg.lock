@@ -14,6 +14,18 @@
   version = "v3.2.0"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/hashicorp/errwrap"
+  packages = ["."]
+  revision = "7554cd9344cec97297fa6649b055a8c98c2a1e55"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/hashicorp/go-multierror"
+  packages = ["."]
+  revision = "b7773ae218740a7be65057fc60b366a49b538a44"
+
+[[projects]]
   name = "github.com/labstack/echo"
   packages = [
     ".",
@@ -74,6 +86,15 @@
   revision = "dcecefd839c4193db0d35b88ec65b4c12d360ab0"
 
 [[projects]]
+  name = "gobot.io/x/gobot"
+  packages = [
+    ".",
+    "drivers/spi"
+  ]
+  revision = "59aaba08eba8b081a9541f77aed19aba919437ac"
+  version = "v1.9.0"
+
+[[projects]]
   branch = "master"
   name = "golang.org/x/crypto"
   packages = [
@@ -84,6 +105,15 @@
 
 [[projects]]
   branch = "master"
+  name = "golang.org/x/exp"
+  packages = [
+    "io/spi",
+    "io/spi/driver"
+  ]
+  revision = "8460e604b9de9da5834c9f198cadf9dca4b05cac"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
   revision = "13d03a9a82fba647c21a0ef8fba44a795d0f0835"
@@ -91,6 +121,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "bdc620c71d37394bb6c7c8cecb5ef4643040f24d8396aa0fb667d1f926a192cf"
+  inputs-digest = "4c4e38e3558bf189d029f2c48f30d835a0a47038b4506f313f4ba5a2702c145b"
   solver-name = "gps-cdcl"
   solver-version = 1

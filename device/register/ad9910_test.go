@@ -46,13 +46,6 @@ func (s *AD9910TestSuite) TestSDIOInputOnly() {
 	assert.True(s.T(), s.r.SDIOInputOnly())
 }
 
-func TestAD9910Constants(t *testing.T) {
-	assert.Equal(t, 0x00, AD9910CtrlFunc1Address)
-	assert.Equal(t, 0x04, AD9910IOUpdateRateAddress)
-	assert.Equal(t, 0x07, AD9910FreqTuningWordAddress)
-	assert.Equal(t, 0x16, AD9910RAMAddress)
-}
-
 func TestAD9910TestSuite(t *testing.T) {
 	suite.Run(t, new(AD9910TestSuite))
 }
