@@ -1055,3 +1055,111 @@ func (r *AD9910) SyncValidationDelay() uint8 {
 func (r *AD9910) SetSyncValidationDelay(v uint8) {
 	utils.WriteBits(r.MultichipSyncData[3], 4, 4, byte(v))
 }
+
+// DigitalRampLowerLimit returns the 32 bit number configured to be the
+// lower limit of the digital ramp.
+func (r *AD9910) DigitalRampLowerLimit() uint32 {
+	return binary.LittleEndian.Uint32(r.DigitalRampLimitData[:4])
+}
+
+// SetDigitalRampLowerLimit configures the 32 bit number to be the lower
+// limit of the digital ramp.
+func (r *AD9910) SetDigitalRampLowerLimit(v uint32) {
+	binary.LittleEndian.PutUint32(r.DigitalRampLimitData[:4], v)
+}
+
+// DigitalRampUpperLimit returns the 32 bit number configured to be the
+// upper limit of the digital ramp.
+func (r *AD9910) DigitalRampUpperLimit() uint32 {
+	return binary.LittleEndian.Uint32(r.DigitalRampLimitData[4:])
+}
+
+// SetDigitalRampUpperLimit configures the 32 bit number to be the upper
+// limit of the digital ramp.
+func (r *AD9910) SetDigitalRampUpperLimit(v uint32) {
+	binary.LittleEndian.PutUint32(r.DigitalRampLimitData[4:], v)
+}
+
+// DigitalRampIncrementStepSize returns the 32 bit number configured to be the
+// increment step size of the digital ramp.
+func (r *AD9910) DigitalRampIncrementStepSize() uint32 {
+	return binary.LittleEndian.Uint32(r.DigitalRampStepSizeData[:4])
+}
+
+// SetDigitalRampIncrementStepSize configures the 32 bit number to be the
+// increment step size of the digital ramp.
+func (r *AD9910) SetDigitalRampIncrementStepSize(v uint32) {
+	binary.LittleEndian.PutUint32(r.DigitalRampStepSizeData[:4], v)
+}
+
+// DigitalRampDecrementStepSize returns the 32 bit number configured to be the
+// decrement step size of the digital ramp.
+func (r *AD9910) DigitalRampDecrementStepSize() uint32 {
+	return binary.LittleEndian.Uint32(r.DigitalRampStepSizeData[4:])
+}
+
+// SetDigitalRampDecrementStepSize configures the 32 bit number to be the
+// decrement step size of the digital ramp.
+func (r *AD9910) SetDigitalRampDecrementStepSize(v uint32) {
+	binary.LittleEndian.PutUint32(r.DigitalRampStepSizeData[4:], v)
+}
+
+// DigitalRampPositiveSlopeRate returns the 16 bit number configured to be
+// the positive slope rate of the digital ramp.
+func (r *AD9910) DigitalRampPositiveSlopeRate() uint16 {
+	return binary.LittleEndian.Uint16(r.DigitalRampRateData[:2])
+}
+
+// SetDigitalRampPositiveSlopeRate configures the 16 bit number to be
+// the positive slope rate of the digital ramp.
+func (r *AD9910) SetDigitalRampPositiveSlopeRate(v uint16) {
+	binary.LittleEndian.PutUint16(r.DigitalRampRateData[:2], v)
+}
+
+// DigitalRampNegativeSlopeRate returns the 16 bit number configured to be
+// the negative slope rate of the digital ramp.
+func (r *AD9910) DigitalRampNegativeSlopeRate() uint16 {
+	return binary.LittleEndian.Uint16(r.DigitalRampRateData[2:])
+}
+
+// SetDigitalRampNegativeSlopeRate configures the 16 bit number to be
+// the negative slope rate of the digital ramp.
+func (r *AD9910) SetDigitalRampNegativeSlopeRate(v uint16) {
+	binary.LittleEndian.PutUint16(r.DigitalRampRateData[:2], v)
+}
+
+// STProfile0FreqTuningWord returns the configured 32 bit number to be
+// the frequency tuning word of single tone profile 0.
+func (r *AD9910) STProfile0FreqTuningWord() uint32 {
+	return binary.LittleEndian.Uint32(r.STProfile0Data[:4])
+}
+
+// SetSTProfile0FreqTuningWord configures the 32 bit number to be
+// the frequency tuning word of single tone profile 0.
+func (r *AD9910) SetSTProfile0FreqTuningWord(v uint32) {
+	binary.LittleEndian.PutUint32(r.STProfile0Data[:4], v)
+}
+
+// STProfile0PhaseOffsetWord returns the configured 16 bit number to be
+// the phase offset word of single tone profile 0.
+func (r *AD9910) STProfile0PhaseOffsetWord() uint16 {
+	return binary.LittleEndian.Uint16(r.STProfile0Data[4:6])
+}
+
+// SetSTProfile0PhaseOffsetWord configures the 16 bit number to be
+// the phase offset word of single tone profile 0.
+func (r *AD9910) SetSTProfile0PhaseOffsetWord(v uint16) {
+	binary.LittleEndian.PutUint16(r.STProfile0Data[4:6], v)
+}
+
+// STProfile0AmplScaleFactor returns the configured 14 bit number to be
+// the amplitude scale factor single tone profile 0.
+func (r *AD9910) STProfile0AmplScaleFactor() uint16 {
+	return binary.LittleEndian.Uint16(r.STProfile0Data[6:])
+}
+
+// SetSTProfile0AmplScaleFactor configures the 14 bit number to be
+// the amplitude scale factor of single tone profile 0.
+func (r *AD9910) SetSTProfile0AmplScaleFactor(v uint16) {
+	binary.LittleEndian.PutUint16(r.STProfile0Data[6:], v)
+}
