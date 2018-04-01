@@ -89,6 +89,7 @@
   name = "gobot.io/x/gobot"
   packages = [
     ".",
+    "drivers/gpio",
     "drivers/spi"
   ]
   revision = "59aaba08eba8b081a9541f77aed19aba919437ac"
@@ -121,6 +122,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "4c4e38e3558bf189d029f2c48f30d835a0a47038b4506f313f4ba5a2702c145b"
+  inputs-digest = "b6f2f6ca12e4209a28420a52f6bc87d99c27865b8480a761a1772876b842bfd9"
   solver-name = "gps-cdcl"
   solver-version = 1
