@@ -450,6 +450,13 @@ func (r *AD9910) SetRAMEnable(active bool) {
 	}
 }
 
+// FreqModGain returns a 4 bit FM gain word which can be used in parallel port
+// modulation mode, however the datasheet is a bit unspecific on possible
+// values.
+func (r *AD9910) FreqModGain() byte {
+	return binary.ReadBits(r.CtrlFunc2[0], 0, 4)
+}
+
 // ParallelPortEnable returns true if parallel port functionality is configured
 // to be enabled.
 func (r *AD9910) ParallelPortEnable() bool {
@@ -554,6 +561,31 @@ func (r *AD9910) SetParallelDataClockEnable(active bool) {
 	}
 }
 
+// AD9910IOUpdateRateDivider defines the allowed prescale ratios of the
+// auto I/O update clocks.
+type AD9910IOUpdateRateDivider int
+
+// Allowed dividers for the I/O update rate.
+const (
+	AD9910IOUpdateRateDividerBy1 AD9910IOUpdateRateDivider = iota
+	AD9910IOUpdateRateDividerBy2
+	AD9910IOUpdateRateDividerBy4
+	AD9910IOUpdateRateDividerBy8
+)
+
+// IOUpdateRateCtrl returns the configured I/O update rate divider.
+func (r *AD9910) IOUpdateRateCtrl() AD9910IOUpdateRateDivider {
+	b := binary.ReadBits(r.CtrlFunc2[1], 6, 2)
+
+	return AD9910IOUpdateRateDivider(b)
+}
+
+// SetIOUpdateRateCtrl configures the I/O update rate divider to be one of the
+// allowed values of AD9910UpdateRateDivider.
+func (r *AD9910) SetIOUpdateRateCtrl(d AD9910IOUpdateRateDivider) {
+	binary.WriteBits(r.CtrlFunc2[1], 6, 2, byte(d))
+}
+
 // ReadEffectiveFreqTuningWord returns true if the AD9910 is configured to
 // reply with the actual measured frequency if FTW is requested.
 func (r *AD9910) ReadEffectiveFreqTuningWord() bool {
@@ -600,6 +632,32 @@ func (r *AD9910) SetDigitalRampEnable(active bool) {
 	if active {
 		r.CtrlFunc2[2] = binary.SetBit(r.CtrlFunc2[2], 2)
 	}
+}
+
+// AD9910DigitalRampDest defines the allowed parameters to be controlled by
+// the digital ramp.
+type AD9910DigitalRampDest int
+
+// AD9910DigitalRampDest can be set to control frequency, phase or amplitude
+// by the digital ramp.
+const (
+	AD9910DigitalRampDestFreq AD9910DigitalRampDest = iota
+	AD9910DigitalRampDestPhase
+	AD9910DigitalRampDestAmpl
+)
+
+// DigitalRampDest returns the configured digital ramp destination.
+// See AD9910DigitalRampDest for more.
+func (r *AD9910) DigitalRampDest() AD9910DigitalRampDest {
+	b := binary.ReadBits(r.CtrlFunc2[2], 4, 2)
+
+	return AD9910DigitalRampDest(b)
+}
+
+// SetDigitalRampDest configures the digital ramp destination.
+// See AD9910DigitalRampDest for more.
+func (r *AD9910) SetDigitalRampDest(d AD9910DigitalRampDest) {
+	binary.WriteBits(r.CtrlFunc2[2], 4, 2, byte(d))
 }
 
 // SyncClockEnable returns true if the AD9910 is configured to generate
@@ -651,66 +709,166 @@ func (r *AD9910) SetAmplScaleFromSTProfileEnable(active bool) {
 	}
 }
 
+// RefClockFeedbackDivider returns a 7 bit divide modulus of the reference
+// clock phase locked loop feedback divider.
+func (r *AD9910) RefClockFeedbackDivider() uint {
+	return uint(binary.ReadBits(r.CtrlFunc3[0], 1, 7))
+}
+
+// SetRefClockFeedbackDivider sets the 7 bit divide modulus of the reference
+// clock phase locked loop feedback divider.
+func (r *AD9910) SetRefClockFeedbackDivider(d uint) {
+	binary.WriteBits(r.CtrlFunc3[0], 1, 7, byte(d))
+}
+
 // PhaseLockedLoopEnable returns true if reference clock phase locked loop
 // is configured to be enabled.
 func (r *AD9910) PhaseLockedLoopEnable() bool {
-	return binary.HasBit(r.CtrlFunc3[0], 0)
+	return binary.HasBit(r.CtrlFunc3[1], 0)
 }
 
 // SetPhaseLockedLoopEnable configures the reference clock phase locked loop
 // (PLL) to be configured enabled if active is true.
 func (r *AD9910) SetPhaseLockedLoopEnable(active bool) {
-	r.CtrlFunc3[0] = binary.UnsetBit(r.CtrlFunc3[0], 0)
+	r.CtrlFunc3[1] = binary.UnsetBit(r.CtrlFunc3[1], 0)
 
 	if active {
-		r.CtrlFunc3[0] = binary.SetBit(r.CtrlFunc3[0], 0)
+		r.CtrlFunc3[1] = binary.SetBit(r.CtrlFunc3[1], 0)
 	}
 }
 
 // PhaseFreqDetectorReset returns true if phase frequency detector (PFD) is
 // configured to be disabled.
 func (r *AD9910) PhaseFreqDetectorReset() bool {
-	return binary.HasBit(r.CtrlFunc3[0], 2)
+	return binary.HasBit(r.CtrlFunc3[1], 2)
 }
 
 // SetPhaseFreqDetectorReset configures the phase frequency detector (PFD)
 // to be enabled if active is true.
 func (r *AD9910) SetPhaseFreqDetectorReset(active bool) {
-	r.CtrlFunc3[0] = binary.UnsetBit(r.CtrlFunc3[0], 2)
+	r.CtrlFunc3[1] = binary.UnsetBit(r.CtrlFunc3[1], 2)
 
 	if active {
-		r.CtrlFunc3[0] = binary.SetBit(r.CtrlFunc3[0], 2)
+		r.CtrlFunc3[1] = binary.SetBit(r.CtrlFunc3[1], 2)
 	}
 }
 
 // RefClockInputDividerReset returns true if reference clock input divider
 // operates normally.
 func (r *AD9910) RefClockInputDividerReset() bool {
-	return binary.HasBit(r.CtrlFunc3[0], 6)
+	return binary.HasBit(r.CtrlFunc3[1], 6)
 }
 
 // SetRefClockInputDividerReset configures the reference clock input divider
 // to operate normally if active is true and be reset else.
 func (r *AD9910) SetRefClockInputDividerReset(active bool) {
-	r.CtrlFunc3[0] = binary.UnsetBit(r.CtrlFunc3[0], 6)
+	r.CtrlFunc3[1] = binary.UnsetBit(r.CtrlFunc3[1], 6)
 
 	if active {
-		r.CtrlFunc3[0] = binary.SetBit(r.CtrlFunc3[0], 6)
+		r.CtrlFunc3[1] = binary.SetBit(r.CtrlFunc3[1], 6)
 	}
 }
 
 // RefClockInputDividerBypass returns true if reference clock input divider
 // is configured to be bypassed.
 func (r *AD9910) RefClockInputDividerBypass() bool {
-	return binary.HasBit(r.CtrlFunc3[0], 7)
+	return binary.HasBit(r.CtrlFunc3[1], 7)
 }
 
 // SetRefClockInputDividerBypass configures the reference clock input divider
 // to be configured bypassed if active is true.
 func (r *AD9910) SetRefClockInputDividerBypass(active bool) {
-	r.CtrlFunc3[0] = binary.UnsetBit(r.CtrlFunc3[0], 7)
+	r.CtrlFunc3[1] = binary.UnsetBit(r.CtrlFunc3[1], 7)
 
 	if active {
-		r.CtrlFunc3[0] = binary.SetBit(r.CtrlFunc3[0], 7)
+		r.CtrlFunc3[1] = binary.SetBit(r.CtrlFunc3[1], 7)
 	}
+}
+
+// AD9910PhaseLockedLoopCurrent defines the charge pump current values of the
+// phase locked loop.
+type AD9910PhaseLockedLoopCurrent int
+
+// Allowed charge pump current values in micro amperes.
+const (
+	AD9910PhaseLockedLoopCurrent212 AD9910PhaseLockedLoopCurrent = iota
+	AD9910PhaseLockedLoopCurrent237
+	AD9910PhaseLockedLoopCurrent262
+	AD9910PhaseLockedLoopCurrent287
+	AD9910PhaseLockedLoopCurrent312
+	AD9910PhaseLockedLoopCurrent337
+	AD9910PhaseLockedLoopCurrent363
+	AD9910PhaseLockedLoopCurrent387
+)
+
+// PhaseLockedLoopCurrent returns the configured phase locked loop current.
+func (r *AD9910) PhaseLockedLoopCurrent() AD9910PhaseLockedLoopCurrent {
+	b := binary.ReadBits(r.CtrlFunc3[2], 3, 3)
+
+	return AD9910PhaseLockedLoopCurrent(b)
+}
+
+// SetPhaseLockedLoopCurrent configures the phase locked loop current.
+func (r *AD9910) SetPhaseLockedLoopCurrent(c AD9910PhaseLockedLoopCurrent) {
+	binary.WriteBits(r.CtrlFunc3[2], 3, 3, byte(c))
+}
+
+// AD9910RefClockVCORange defines allowed VCO frequency ranges.
+type AD9910RefClockVCORange int
+
+const (
+	// AD9910RefClockVCORange0 typically ranges between 370 and 510 MHz.
+	AD9910RefClockVCORange0 AD9910RefClockVCORange = iota
+	// AD9910RefClockVCORange1 typically ranges between 420 and 590 MHz.
+	AD9910RefClockVCORange1
+	// AD9910RefClockVCORange2 typically ranges between 500 and 700 MHz.
+	AD9910RefClockVCORange2
+	// AD9910RefClockVCORange3 typically ranges between 600 and 880 MHz.
+	AD9910RefClockVCORange3
+	// AD9910RefClockVCORange4 typically ranges between 700 and 950 MHz.
+	AD9910RefClockVCORange4
+	// AD9910RefClockVCORange5 typically ranges between 820 and 1150 MHz.
+	AD9910RefClockVCORange5
+	// AD9910RefClockVCOPLLBypassed disabled internal PLL (unconfirmed?).
+	AD9910RefClockVCOPLLBypassed
+)
+
+// RefClockVCORange returns the configured VCO frequency range.
+// See AD910RefClockVCORange.
+func (r *AD9910) RefClockVCORange() AD9910RefClockVCORange {
+	b := binary.ReadBits(r.CtrlFunc3[3], 0, 3)
+
+	return AD9910RefClockVCORange(b)
+}
+
+// SetRefClockVCORange configures the VCO frequency range.
+// See AD910RefClockVCORange.
+func (r *AD9910) SetRefClockVCORange(v AD9910RefClockVCORange) {
+	binary.WriteBits(r.CtrlFunc3[3], 0, 3, byte(v))
+}
+
+// AD9910RefClockOutputMode defines the output mode of the reference clock
+// output mode.
+type AD9910RefClockOutputMode int
+
+// Allowed configurations for AD9910RefClockOutputMode.
+const (
+	AD9910RefClockOutputModeDisabled AD9910RefClockOutputMode = iota
+	AD9910RefClockOutputModeLowCurrent
+	AD9910RefClockOutputModeMediumCurrent
+	AD9910RefClockOutputModeHighCurrent
+)
+
+// RefClockOuputCtrl returns the configured reference clock output mode.
+// See AD9910RefClockOutputMode.
+func (r *AD9910) RefClockOuputCtrl() AD9910RefClockOutputMode {
+	b := binary.ReadBits(r.CtrlFunc3[3], 4, 2)
+
+	return AD9910RefClockOutputMode(b)
+}
+
+// SetRefClockOuputCtrl configures the reference clock output mode.
+// See AD9910RefClockOutputMode.
+func (r *AD9910) SetRefClockOuputCtrl(v AD9910RefClockOutputMode) {
+	binary.WriteBits(r.CtrlFunc3[3], 4, 2, byte(v))
 }
