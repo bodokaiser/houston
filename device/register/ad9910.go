@@ -961,3 +961,97 @@ func (r *AD9910) AmplRampRate() uint16 {
 func (r *AD9910) SetAmplRampRate(v uint16) {
 	binary.LittleEndian.PutUint16(r.AmplScaleFactorData[2:], v)
 }
+
+// InputSyncReceiverDelay returns a 5 bit number configured to be the input
+// delay of the sync receiver.
+func (r *AD9910) InputSyncReceiverDelay() uint8 {
+	return uint8(utils.ReadBits(r.MultichipSyncData[0], 3, 5))
+}
+
+// SetInputSyncReceiverDelay configures the sync receiver input delay.
+func (r *AD9910) SetInputSyncReceiverDelay(v uint8) {
+	utils.WriteBits(r.MultichipSyncData[0], 3, 5, byte(v))
+}
+
+// OutputSyncReceiverDelay returns a 5 bit number configured to be the output
+// delay of the sync receiver.
+func (r *AD9910) OutputSyncReceiverDelay() uint8 {
+	return uint8(utils.ReadBits(r.MultichipSyncData[1], 3, 5))
+}
+
+// SetOutputSyncReceiverDelay configures the sync receiver output delay.
+func (r *AD9910) SetOutputSyncReceiverDelay(v uint8) {
+	utils.WriteBits(r.MultichipSyncData[1], 3, 5, byte(v))
+}
+
+// SyncStatePresetValue returns a 6 bit number configured to define the state
+// of the internal clock generator for the sync pulse.
+func (r *AD9910) SyncStatePresetValue() uint8 {
+	return uint8(utils.ReadBits(r.MultichipSyncData[2], 2, 6))
+}
+
+// SetSyncStatePresetValue configures a 6 bit number to define the state of
+// the internal clock generator.
+func (r *AD9910) SetSyncStatePresetValue(v uint8) {
+	utils.WriteBits(r.MultichipSyncData[2], 2, 6, byte(v))
+}
+
+// SyncGeneratorPolarity returns true if syncronisation clock generator is
+// configured to coincident with the falling edge of the system clock.
+func (r *AD9910) SyncGeneratorPolarity() bool {
+	return utils.HasBit(r.MultichipSyncData[3], 1)
+}
+
+// SetSyncGeneratorPolarity configures the syncronisation clock generator to
+// be configured to coincident with the falling edge of the system clock.
+func (r *AD9910) SetSyncGeneratorPolarity(active bool) {
+	utils.UnsetBit(r.MultichipSyncData[3], 1)
+
+	if active {
+		utils.SetBit(r.MultichipSyncData[3], 1)
+	}
+}
+
+// SyncGeneratorEnable returns true if the syncronisation clock generator is
+// configured to be enabled.
+func (r *AD9910) SyncGeneratorEnable() bool {
+	return utils.HasBit(r.MultichipSyncData[3], 2)
+}
+
+// SetSyncGeneratorEnable configures the syncronisation clock generator to be
+// enabled if active is true.
+func (r *AD9910) SetSyncGeneratorEnable(active bool) {
+	utils.UnsetBit(r.MultichipSyncData[3], 2)
+
+	if active {
+		utils.SetBit(r.MultichipSyncData[3], 2)
+	}
+}
+
+// SyncReceiverEnable returns true if the syncronisation clock receiver is
+// configured to be enabled.
+func (r *AD9910) SyncReceiverEnable() bool {
+	return utils.HasBit(r.MultichipSyncData[3], 3)
+}
+
+// SetSyncReceiverEnable configures the syncronisation clock receiver to be
+// configured enabled if active is true.
+func (r *AD9910) SetSyncReceiverEnable(active bool) {
+	utils.UnsetBit(r.MultichipSyncData[3], 3)
+
+	if active {
+		utils.SetBit(r.MultichipSyncData[3], 3)
+	}
+}
+
+// SyncValidationDelay returns a 4 bit number configured to be the skew timing
+// between SYSCLK and SYNC_INx signal.
+func (r *AD9910) SyncValidationDelay() uint8 {
+	return uint8(utils.ReadBits(r.MultichipSyncData[3], 4, 4))
+}
+
+// SetSyncValidationDelay configures a 4 bit number to be configured as the
+// skew timing between SYSCLK and SYNC_INx.
+func (r *AD9910) SetSyncValidationDelay(v uint8) {
+	utils.WriteBits(r.MultichipSyncData[3], 4, 4, byte(v))
+}
