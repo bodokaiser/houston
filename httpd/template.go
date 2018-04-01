@@ -1,6 +1,7 @@
 package httpd
 
 import (
+	"fmt"
 	"html/template"
 	"io"
 
@@ -10,8 +11,10 @@ import (
 // NewTemplate returns an instance of Template responsible for html templates
 // at path.
 func NewTemplate(path string) *Template {
+	t := template.Must(template.ParseGlob(path))
+	fmt.Printf("%+v\n", t.DefinedTemplates())
 	return &Template{
-		templates: template.Must(template.ParseGlob(path)),
+		templates: t,
 	}
 }
 
@@ -21,6 +24,7 @@ type Template struct {
 }
 
 // Render implements the echo.Renderer interface.
-func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+func (t *Template) Render(w io.Writer, name string, data interface{},
+	c echo.Context) error {
 	return t.templates.ExecuteTemplate(w, name, data)
 }

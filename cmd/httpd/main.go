@@ -22,6 +22,7 @@ func main() {
 	e := echo.New()
 	e.Renderer = httpd.NewTemplate("views/*.html")
 
+	e.Use(httpd.ExtendContext)
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
@@ -32,7 +33,6 @@ func main() {
 	e.PUT("/signal.generators/:id", httpd.UpdateSignalGeneratorHandler)
 
 	e.Static("/stylesheets", "public/stylesheets")
-	e.Static("/javascripts", "public/javascripts")
 
 	e.Logger.Fatal(e.Start(c.address))
 }
