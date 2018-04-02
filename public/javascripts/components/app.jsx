@@ -3,7 +3,7 @@ import {Route, Switch} from 'react-router-dom'
 
 import Layout from './layout'
 import Navbar from './navbar'
-import SynthList from './synthesizer/list'
+import SynthList from './synth/list'
 
 let Index = () => (
   <h1>Hello World</h1>
@@ -15,7 +15,7 @@ export default () => (
     <Layout>
       <Switch>
         <Route exact path="/" component={Index} />
-        <Route path="/synthesizer" component={SynthList} />
+        <Route path="/synth" component={SynthList} />
       </Switch>
     </Layout>
   </content>
