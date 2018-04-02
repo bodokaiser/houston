@@ -20,19 +20,15 @@ func main() {
 	flag.Parse()
 
 	e := echo.New()
-	e.Renderer = httpd.NewTemplate("views/*.html")
-
 	e.Use(httpd.ExtendContext)
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-
-	e.GET("/", httpd.IndexHandler)
 
 	e.GET("/signal-generators", httpd.ListSignalGeneratorsHandler)
 	e.GET("/signal-generators/:id", httpd.ShowSignalGeneratorHandler)
 	e.PUT("/signal.generators/:id", httpd.UpdateSignalGeneratorHandler)
 
-	e.Static("/stylesheets", "public/stylesheets")
+	e.Static("/", "public")
 
 	e.Logger.Fatal(e.Start(c.address))
 }

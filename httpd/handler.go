@@ -6,17 +6,6 @@ import (
 	"github.com/labstack/echo"
 )
 
-// IndexHandler serves index HTML.
-func IndexHandler(ctx echo.Context) error {
-	c := ctx.(*Context)
-
-	if c.Accepts(echo.MIMETextHTML) {
-		return c.Render(http.StatusOK, "index.html", nil)
-	}
-
-	return echo.ErrUnsupportedMediaType
-}
-
 // ListSignalGeneratorsHandler serves list of available signal generators
 // formated as JSON.
 func ListSignalGeneratorsHandler(ctx echo.Context) error {
@@ -26,7 +15,7 @@ func ListSignalGeneratorsHandler(ctx echo.Context) error {
 		return c.NoContent(http.StatusNoContent)
 	}
 	if c.Accepts(echo.MIMETextHTML) {
-		return c.Render(http.StatusOK, "signal-generators.html", nil)
+		return c.File("public/index.html")
 	}
 
 	return echo.ErrUnsupportedMediaType

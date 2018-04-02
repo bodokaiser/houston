@@ -4,19 +4,29 @@
     <title>Beagle</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="/stylesheets/bootstrap.css">
+    <link rel="stylesheet" href="stylesheets/bootstrap.css">
   </head>
   <body>
     <nav class="navbar navbar-dark bg-dark sticky-top">
       <a class="navbar-brand" href="/">Beagle</a>
       <ul class="navbar-nav">
         <li class="nav-item">
-          <a class="nav-link" href="/signal-generators">Signal Generators</a>
+          <a class="nav-link" href="#">Signal Generators</a>
         </li>
       </ul>
     </nav>
     <div class="container mt-5">
-      {{ block "content" . }}{{ end }}
+      <div class="row">
+        <div class="col-sm">
+          <div class="jumbotron">
+            <h1 class="display-4">Welcome to Beagle</h1>
+            <p class="lead">
+              Your interface to the experiment.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
+    <script src="javascripts/app.js"></script>
   </body>
 </html>

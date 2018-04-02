@@ -18,31 +18,6 @@ type HandlerTestSuite struct {
 
 func (s *HandlerTestSuite) SetupTest() {
 	s.echo = echo.New()
-	s.echo.Renderer = NewTemplate("../views/*.html")
-}
-
-func (s *HandlerTestSuite) TestIndexHTML() {
-	req := httptest.NewRequest(echo.GET, "/", nil)
-	req.Header.Set(echo.HeaderAccept, echo.MIMETextHTML)
-	rec := httptest.NewRecorder()
-	ctx := s.echo.NewContext(req, rec)
-
-	h := ExtendContext(IndexHandler)
-
-	if assert.NoError(s.T(), h(ctx)) {
-		assert.Equal(s.T(), http.StatusOK, rec.Code)
-	}
-}
-
-func (s *HandlerTestSuite) TestIndexJSON() {
-	req := httptest.NewRequest(echo.GET, "/", nil)
-	req.Header.Set(echo.HeaderAccept, echo.MIMEApplicationJSON)
-	rec := httptest.NewRecorder()
-	ctx := s.echo.NewContext(req, rec)
-
-	h := ExtendContext(IndexHandler)
-
-	assert.Equal(s.T(), h(ctx), echo.ErrUnsupportedMediaType)
 }
 
 func (s *HandlerTestSuite) TestListSignalGeneratorsHTML() {
