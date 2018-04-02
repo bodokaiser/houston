@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import {connect} from 'react-redux'
 
 import {
-  fetchDevices,
+  fetchDevicesIfNeeded,
   requestDevices,
   receiveDevices
 } from '../actions/device'
@@ -20,7 +20,7 @@ class Devices extends Component {
   componentDidMount() {
     const { dispatch } = this.props
 
-    dispatch(fetchDevices())
+    dispatch(fetchDevicesIfNeeded())
   }
 
 }

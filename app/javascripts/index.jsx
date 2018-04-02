@@ -12,8 +12,20 @@ import {configureStore} from './store'
 import Navbar from './components/navbar'
 import Devices from './containers/devices'
 
+if (process.env.NODE_ENV == 'developement') {
+  var state = {
+    devices: [
+      {name: 'Signal Generator 1a', mode: 'const'},
+      {name: 'Signal Generator 1b', mode: 'const'},
+      {name: 'Signal Generator 2a', mode: 'sweep'}
+    ]
+  }
+} else {
+  var state = {}
+}
+
 render(
-  <Provider store={configureStore()}>
+  <Provider store={configureStore(state)}>
     <Router>
       <content>
         <Navbar />

@@ -1,8 +1,6 @@
 export const REQUEST_DEVICES = 'REQUEST_DEVICES'
 export const RECEIVE_DEVICES = 'RECEIVE_DEVICES'
 
-const URL = process.env.URL
-
 export function requestDevices() {
   return { type: REQUEST_DEVICES }
 }
@@ -12,13 +10,23 @@ export function receiveDevices(devices) {
 }
 
 export function fetchDevices() {
-  console.log('fetch devices')
-
   return dispatch => {
     dispatch(requestDevices())
 
-    return fetch(`${URL}/devices`, { mode: 'no-cors' })
+    return fetch('/devices')
       .then(resp => resp.json())
       .then(json => receiveDevices(json))
+  }
+}
+
+export function shouldFetchDevices(state) {
+  return false
+}
+
+export function fetchDevicesIfNeeded() {
+  return (dispatch, getState) => {
+    if (shouldFetchDevices(getState())) {
+      return dispatch(fetchDevices())
+    }
   }
 }
