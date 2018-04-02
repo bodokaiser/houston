@@ -4,6 +4,7 @@
   },
   "dependencies": {
     "parcel-bundler": "^1.7.0",
-    "preact": "^8.2.7"
+    "preact": "^8.2.7",
+    "preact-router": "^2.6.0"
   }
 }
