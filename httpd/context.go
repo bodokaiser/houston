@@ -37,6 +37,9 @@ func (c *Context) Accepts(mtype string) bool {
 		if strings.Contains(atype, mtype) {
 			return true
 		}
+		if atype == "*/*" {
+			return true
+		}
 	}
 
 	return false

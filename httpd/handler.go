@@ -6,12 +6,24 @@ import (
 	"github.com/labstack/echo"
 )
 
+// Device is a device exposed by the HTTP api.
+type Device struct {
+	Name string `json:"name"`
+	Mode string `json:"mode"`
+}
+
+var defaultDevices = []Device{
+	Device{"Signal Generator 1a", "Const"},
+	Device{"Signal Generator 1b", "Const"},
+	Device{"Signal Generator 2a", "Sweep"},
+}
+
 // ListDevicesHandler responds a list of available devices.
 func ListDevicesHandler(ctx echo.Context) error {
 	c := ctx.(*Context)
 
 	if c.Accepts(echo.MIMEApplicationJSON) {
-		return c.NoContent(http.StatusNoContent)
+		return c.JSON(http.StatusOK, defaultDevices)
 	}
 
 	return echo.ErrUnsupportedMediaType
@@ -22,7 +34,7 @@ func ShowDeviceHandler(ctx echo.Context) error {
 	c := ctx.(*Context)
 
 	if c.Accepts(echo.MIMEApplicationJSON) {
-		return c.NoContent(http.StatusNoContent)
+		return c.JSON(http.StatusOK, defaultDevices[0])
 	}
 
 	return echo.ErrUnsupportedMediaType

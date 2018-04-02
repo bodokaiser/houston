@@ -8,10 +8,12 @@
     "react-redux": "^5.0.7",
     "react-router-dom": "^4.2.2",
     "redux": "^3.7.2",
-    "redux-promise": "^0.5.3",
-    "redux-promise-middleware": "^5.0.0"
+    "redux-thunk": "^2.2.0"
   },
   "scripts": {
-    "serve": "HOSTNAME=:8000 parcel app/index.html"
+    "serve": "URL=http://0.0.0.0:8000 parcel app/index.html"
+  },
+  "babel": {
+    "presets": ["stage-3"]
   }
 }

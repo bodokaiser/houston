@@ -1,11 +1,27 @@
 import React from 'react'
 import {render} from 'react-dom'
+import {Provider} from 'react-redux'
+import {
+  BrowserRouter as Router,
+  Route,
+  Switch
+} from 'react-router-dom'
 
-import App from './containers/app'
 import {configureStore} from './store'
 
-const store = configureStore()
+import Navbar from './components/navbar'
+import Devices from './containers/devices'
 
 render(
-  <App store={store} />,
-  document.querySelector('content'))
+  <Provider store={configureStore()}>
+    <Router>
+      <content>
+        <Navbar />
+        <Switch>
+          <Route exact path="/" render={() => <h1>Index</h1>} />
+          <Route path="/devices" component={Devices} />
+        </Switch>
+      </content>
+    </Router>
+  </Provider>,
+  document.querySelector('main'))
