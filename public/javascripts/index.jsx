@@ -1,16 +1,16 @@
 import {h, render} from 'preact'
-import Router from 'preact-router'
+import {
+  BrowserRouter as Router,
+  Route,
+} from 'react-router-dom'
 
 import App from './components/app'
-import SynthList from './components/synth/list'
 
 let content = document.querySelector('content')
 
 render(
   <Router>
-    <App path="/" />
-    <SynthList path="/synth" /> 
-  </Router>,
-  content, content.firstElementChild)
+    <Route component={App} />
+  </Router>, content, content.lastChild)
 
 if (module.hot) module.hot.accept()
