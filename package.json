@@ -1,15 +1,17 @@
 {
   "dependencies": {
+    "babel-preset-stage-3": "^6.24.1",
+    "history": "^4.7.2",
     "parcel-bundler": "^1.7.0",
-    "preact": "^8.2.7",
-    "preact-compat": "^3.18.0",
-    "react-router-dom": "^4.2.2"
+    "react": "^16.3.0",
+    "react-dom": "^16.3.0",
+    "react-redux": "^5.0.7",
+    "react-router-dom": "^4.2.2",
+    "redux": "^3.7.2",
+    "redux-promise": "^0.5.3",
+    "redux-promise-middleware": "^5.0.0"
   },
   "scripts": {
     "serve": "parcel public/index.html"
-  },
-  "alias": {
-    "react": "preact-compat",
-    "react-dom": "preact-compat"
   }
 }

@@ -1,13 +1,11 @@
-import {h, render} from 'preact'
-import {BrowserRouter as Router} from 'react-router-dom'
+import React from 'react'
+import {render} from 'react-dom'
 
-import App from './components/app'
+import App from './containers/app'
+import {configureStore} from './store'
 
-let content = document.querySelector('content')
+const store = configureStore()
 
 render(
-  <Router>
-    <App />
-  </Router>, content, content.lastChild)
-
-if (module.hot) module.hot.accept()
+  <App store={store} />,
+  document.querySelector('content'))
