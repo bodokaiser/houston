@@ -24,9 +24,9 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	e.GET("/signal-generators", httpd.ListSignalGeneratorsHandler)
-	e.GET("/signal-generators/:id", httpd.ShowSignalGeneratorHandler)
-	e.PUT("/signal.generators/:id", httpd.UpdateSignalGeneratorHandler)
+	e.GET("/devices", httpd.ListDevicesHandler)
+	e.GET("/devices/:device", httpd.ShowDeviceHandler)
+	e.PUT("/devices/:device", httpd.UpdateDeviceHandler)
 
 	e.Static("/", "public")
 

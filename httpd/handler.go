@@ -6,24 +6,8 @@ import (
 	"github.com/labstack/echo"
 )
 
-// ListSignalGeneratorsHandler serves list of available signal generators
-// formated as JSON.
-func ListSignalGeneratorsHandler(ctx echo.Context) error {
-	c := ctx.(*Context)
-
-	if c.Accepts(echo.MIMEApplicationJSON) {
-		return c.NoContent(http.StatusNoContent)
-	}
-	if c.Accepts(echo.MIMETextHTML) {
-		return c.File("public/index.html")
-	}
-
-	return echo.ErrUnsupportedMediaType
-}
-
-// ShowSignalGeneratorHandler serves configuration of specified signal
-// generator formated as JSON.
-func ShowSignalGeneratorHandler(ctx echo.Context) error {
+// ListDevicesHandler responds a list of available devices.
+func ListDevicesHandler(ctx echo.Context) error {
 	c := ctx.(*Context)
 
 	if c.Accepts(echo.MIMEApplicationJSON) {
@@ -33,9 +17,19 @@ func ShowSignalGeneratorHandler(ctx echo.Context) error {
 	return echo.ErrUnsupportedMediaType
 }
 
-// UpdateSignalGeneratorHandler updates configuration of specified signal
-// generator from JSON formated payload.
-func UpdateSignalGeneratorHandler(ctx echo.Context) error {
+// ShowDeviceHandler responds configuration of the specified device.
+func ShowDeviceHandler(ctx echo.Context) error {
+	c := ctx.(*Context)
+
+	if c.Accepts(echo.MIMEApplicationJSON) {
+		return c.NoContent(http.StatusNoContent)
+	}
+
+	return echo.ErrUnsupportedMediaType
+}
+
+// UpdateDeviceHandler updates configuration of specified device.
+func UpdateDeviceHandler(ctx echo.Context) error {
 	c := ctx.(*Context)
 
 	return c.NoContent(http.StatusNoContent)

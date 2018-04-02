@@ -20,61 +20,61 @@ func (s *HandlerTestSuite) SetupTest() {
 	s.echo = echo.New()
 }
 
-func (s *HandlerTestSuite) TestListSignalGeneratorsHTML() {
-	req := httptest.NewRequest(echo.GET, "/signal-generators", nil)
+func (s *HandlerTestSuite) TestListDevicesHTML() {
+	req := httptest.NewRequest(echo.GET, "/devices", nil)
 	req.Header.Set(echo.HeaderAccept, echo.MIMETextHTML)
 	rec := httptest.NewRecorder()
 	ctx := s.echo.NewContext(req, rec)
 
-	h := ExtendContext(ListSignalGeneratorsHandler)
+	h := ExtendContext(ListDevicesHandler)
 
 	assert.Equal(s.T(), h(ctx), echo.ErrUnsupportedMediaType)
 }
 
-func (s *HandlerTestSuite) TestListSignalGeneratorsJSON() {
-	req := httptest.NewRequest(echo.GET, "/signal-generators", nil)
+func (s *HandlerTestSuite) TestListDevicesJSON() {
+	req := httptest.NewRequest(echo.GET, "/devices", nil)
 	req.Header.Set(echo.HeaderAccept, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	ctx := s.echo.NewContext(req, rec)
 
-	h := ExtendContext(ListSignalGeneratorsHandler)
+	h := ExtendContext(ListDevicesHandler)
 
 	if assert.NoError(s.T(), h(ctx)) {
 		assert.Equal(s.T(), http.StatusNoContent, rec.Code)
 	}
 }
 
-func (s *HandlerTestSuite) TestShowSignalGeneratorHTML() {
-	req := httptest.NewRequest(echo.GET, "/signal-generators/0", nil)
+func (s *HandlerTestSuite) TestShowDeviceHTML() {
+	req := httptest.NewRequest(echo.GET, "/devices/0", nil)
 	req.Header.Set(echo.HeaderAccept, echo.MIMETextHTML)
 	rec := httptest.NewRecorder()
 	ctx := s.echo.NewContext(req, rec)
 
-	h := ExtendContext(ShowSignalGeneratorHandler)
+	h := ExtendContext(ShowDeviceHandler)
 
 	assert.Equal(s.T(), h(ctx), echo.ErrUnsupportedMediaType)
 }
 
-func (s *HandlerTestSuite) TestShowSignalGeneratorJSON() {
-	req := httptest.NewRequest(echo.GET, "/signal-generators/0", nil)
+func (s *HandlerTestSuite) TestShowDeviceJSON() {
+	req := httptest.NewRequest(echo.GET, "/devices/0", nil)
 	req.Header.Set(echo.HeaderAccept, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	ctx := s.echo.NewContext(req, rec)
 
-	h := ExtendContext(ShowSignalGeneratorHandler)
+	h := ExtendContext(ShowDeviceHandler)
 
 	if assert.NoError(s.T(), h(ctx)) {
 		assert.Equal(s.T(), http.StatusNoContent, rec.Code)
 	}
 }
 
-func (s *HandlerTestSuite) TestUpdateSignalGenerator() {
-	req := httptest.NewRequest(echo.PUT, "/signal-generators/0", nil)
+func (s *HandlerTestSuite) TestUpdateDevice() {
+	req := httptest.NewRequest(echo.PUT, "/devices/0", nil)
 	req.Header.Set(echo.HeaderAccept, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	ctx := s.echo.NewContext(req, rec)
 
-	h := ExtendContext(UpdateSignalGeneratorHandler)
+	h := ExtendContext(UpdateDeviceHandler)
 
 	if assert.NoError(s.T(), h(ctx)) {
 		assert.Equal(s.T(), http.StatusNoContent, rec.Code)
