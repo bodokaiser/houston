@@ -11,7 +11,7 @@
     "redux-thunk": "^2.2.0"
   },
   "scripts": {
-    "serve": "URL=http://0.0.0.0:8000 parcel app/index.html"
+    "serve": "parcel app/index.html"
   },
   "babel": {
     "presets": ["stage-3"]

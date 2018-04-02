@@ -1,39 +1,24 @@
 import React from 'react'
-import {render} from 'react-dom'
-import {Provider} from 'react-redux'
-import {
-  BrowserRouter as Router,
-  Route,
-  Switch
-} from 'react-router-dom'
+import ReactDOM from 'react-dom'
+
+import App from './containers/app'
 
 import {configureStore} from './store'
-
-import Navbar from './components/navbar'
-import Devices from './containers/devices'
 
 if (process.env.NODE_ENV == 'developement') {
   var state = {
     devices: [
       {name: 'Signal Generator 1a', mode: 'const'},
       {name: 'Signal Generator 1b', mode: 'const'},
-      {name: 'Signal Generator 2a', mode: 'sweep'}
+      {name: 'Signal Generatsor 2a', mode: 'sweep'},
+      {name: 'Signal Generator 2b', mode: 'const'}
     ]
   }
 } else {
   var state = {}
 }
 
-render(
-  <Provider store={configureStore(state)}>
-    <Router>
-      <content>
-        <Navbar />
-        <Switch>
-          <Route exact path="/" render={() => <h1>Index</h1>} />
-          <Route path="/devices" component={Devices} />
-        </Switch>
-      </content>
-    </Router>
-  </Provider>,
-  document.querySelector('main'))
+const store = configureStore(state)
+
+
+ReactDOM.render(<App store={store} />, document.querySelector('main'))
