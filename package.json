@@ -12,6 +12,6 @@
     "redux-promise-middleware": "^5.0.0"
   },
   "scripts": {
-    "serve": "parcel public/index.html"
+    "serve": "HOSTNAME=:8000 parcel app/index.html"
   }
 }

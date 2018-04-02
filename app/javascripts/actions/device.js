@@ -1,6 +1,8 @@
 export const REQUEST_SYNTHS = 'REQUEST_DEVICES'
 export const RECEIVE_SYNTHS = 'RECEIVE_DEVICES'
 
+const HOSTNAME = process.env.HOSTNAME
+
 export function requestDevices() {
   return { type: REQUEST_DEVICES }
 }
@@ -13,7 +15,7 @@ export function fetchSynths() {
   return dispatch => {
     dispatch(requestDevices())
 
-    return fetch('https://www.reddit.com/r/python.json')
+    return fetch(`${HOSTNAME}/devices`)
       .then(resp => resp.json())
       .then(json => dispatch(receiveDevices(json)))
   }
