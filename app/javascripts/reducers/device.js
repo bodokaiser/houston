@@ -1,11 +1,13 @@
-import {combineReducers} from 'redux'
 import {
   REQUEST_DEVICES,
   RECEIVE_DEVICES,
 } from '../actions/device'
 
 const initialState = {
-  devices: []
+  devices: [
+    { name: 'Signal Generator 0', mode: 'const' },
+    { name: 'Signal Generator 1', mode: 'sweep' }
+  ]
 }
 
 export default (state = initialState, action) => {

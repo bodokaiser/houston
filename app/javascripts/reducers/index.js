@@ -1,7 +1,10 @@
-import {combineReducers} from 'redux'
+import { combineReducers } from 'redux'
 
-import device from './device'
+import appReducer from './app'
+import deviceReducer from './device'
+
 
 export default combineReducers({
-  device
+  app: appReducer,
+  device: deviceReducer
 })

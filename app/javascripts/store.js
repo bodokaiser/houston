@@ -1,14 +1,20 @@
 import {
+  compose,
   createStore,
   applyMiddleware
 } from 'redux'
 import thunkMiddleware from 'redux-thunk'
+import loggerMiddleware from 'redux-logger'
 
-import reducers from './reducers'
+import rootReducer from './reducers'
 
-export function configureStore(state) {
-  const store = createStore(reducers, state,
-    applyMiddleware(thunkMiddleware))
+const middleware = [
+  thunkMiddleware,
+  loggerMiddleware
+]
+
+const setupStore = (state) => {
+  const store = createStore(rootReducer, state, applyMiddleware(...middleware))
 
   if (module.hot) module.hot.accept('./reducers', () => {
     store.replaceReducer(require('./reducers').default)
@@ -16,3 +22,7 @@ export function configureStore(state) {
 
   return store
 }
+
+const store = setupStore()
+
+export default store

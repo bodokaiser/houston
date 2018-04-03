@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default ({ title, lead }) => (
+const Jumbotron = ({ title, lead }) => (
   <div className="container mt-5">
       <div className="row">
         <div className="col-sm">
@@ -12,3 +12,5 @@ export default ({ title, lead }) => (
       </div>
   </div>
 )
+
+export default Jumbotron

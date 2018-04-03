@@ -1,24 +1,14 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
-import App from './containers/app'
+import Redux from './redux'
 
-import {configureStore} from './store'
+const render = Component => {
+  const Redux = require('./redux').default
 
-if (process.env.NODE_ENV == 'developement') {
-  var state = {
-    devices: [
-      {name: 'Signal Generator 1a', mode: 'const'},
-      {name: 'Signal Generator 1b', mode: 'const'},
-      {name: 'Signal Generatsor 2a', mode: 'sweep'},
-      {name: 'Signal Generator 2b', mode: 'const'}
-    ]
-  }
-} else {
-  var state = {}
+  ReactDOM.render(<Redux />, document.querySelector('main'))
 }
 
-const store = configureStore(state)
+render()
 
-
-ReactDOM.render(<App store={store} />, document.querySelector('main'))
+if (module.hot) module.hot.accept(render)

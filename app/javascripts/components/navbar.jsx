@@ -1,9 +1,9 @@
 import React from 'react'
-import {NavLink} from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 
-export default () => (
+const Navbar = ({ brand }) => (
   <nav className="navbar navbar-dark bg-dark sticky-top">
-    <NavLink className="navbar-brand" to="/">Beagle</NavLink>
+    <NavLink className="navbar-brand" to="/">{ brand }</NavLink>
     <ul className="navbar-nav">
       <li className="nav-item">
         <NavLink className="nav-link" to="/devices">Devices</NavLink>
@@ -11,3 +11,5 @@ export default () => (
     </ul>
   </nav>
 )
+
+export default Navbar
