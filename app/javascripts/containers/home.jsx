@@ -2,15 +2,19 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
 import Jumbotron from '../components/jumbotron'
-import Layout from '../components/layout'
+import Container from '../components/container'
 
 class Home extends Component {
 
   render() {
     return (
-      <Layout columns="col-sm-12">
-        <Jumbotron {...this.props} />
-      </Layout>
+      <Container>
+        <div className="row">
+          <div className="col-sm">
+            <Jumbotron {...this.props} />
+          </div>
+        </div>
+      </Container>
     )
   }
 

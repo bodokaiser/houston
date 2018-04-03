@@ -1,7 +1,9 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
-import Layout from '../components/layout'
+import Card from '../components/card'
+import Tabs from '../components/tabs'
+import Container from '../components/container'
 
 import {
   fetchDevicesIfNeeded,
@@ -15,15 +17,28 @@ class Devices extends Component {
   render() {
     const { devices } = this.props
 
+    const links = [
+      { name: 'Constant', active: true },
+      { name: 'Sweep' }
+    ]
+
     return (
-      <Layout className="col-sm">
-        <h2>Devices</h2>
-        <ul>
-          {devices.map((device, index) => (
-            <li key={index}>{device.name}</li>
-          ))}
-        </ul>
-      </Layout>
+      <Container>
+        <div className="row">
+          <div className="col-sm">
+            <h2 className="text-center">Devices</h2>
+          </div>
+        </div>
+        {devices.map((device, index) => (
+          <div className="row mt-3" key={index}>
+            <div className="col-sm">
+              <Card key={index} title={device.name}>
+                <Tabs links={links} />
+              </Card>
+            </div>
+          </div>
+        ))}
+      </Container>
     )
   }
 

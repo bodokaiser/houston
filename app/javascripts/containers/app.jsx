@@ -1,4 +1,7 @@
-import React, { Component }  from 'react'
+import React, {
+  Component,
+  Fragment
+} from 'react'
 import {
   BrowserRouter as Router,
   Route,
@@ -14,13 +17,13 @@ class App extends Component {
   render() {
     return (
       <Router>
-        <content>
+        <Fragment>
           <Navbar />
           <Switch>
             <Route exact path="/" component={Home} />
             <Route path="/devices" component={Devices} />
           </Switch>
-        </content>
+        </Fragment>
       </Router>
     )
   }
