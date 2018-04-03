@@ -1,19 +1,29 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
+import Layout from '../components/layout'
+
 import {
   fetchDevicesIfNeeded,
   requestDevices,
   receiveDevices
 } from '../actions/device'
 
+
 class Devices extends Component {
 
   render() {
+    const { devices } = this.props
+
     return (
-      <section>
+      <Layout className="col-sm">
         <h2>Devices</h2>
-      </section>
+        <ul>
+          {devices.map((device, index) => (
+            <li key={index}>{device.name}</li>
+          ))}
+        </ul>
+      </Layout>
     )
   }
 
@@ -25,9 +35,11 @@ class Devices extends Component {
 
 }
 
-const mapState = (state) => (
-  { devices: state.devices }
-)
+const mapState = (state) => {
+  const { devices } = state.device
+
+  return { devices }
+}
 
 export default connect(
   mapState

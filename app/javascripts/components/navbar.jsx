@@ -1,13 +1,15 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom'
 
-const Navbar = ({ brand }) => (
+const Navbar = ({ title, links }) => (
   <nav className="navbar navbar-dark bg-dark sticky-top">
-    <NavLink className="navbar-brand" to="/">{ brand }</NavLink>
+    <NavLink className="navbar-brand" to="/">{ title }</NavLink>
     <ul className="navbar-nav">
-      <li className="nav-item">
-        <NavLink className="nav-link" to="/devices">Devices</NavLink>
+      {links.map((link, index) =>
+      <li className="nav-item" key={index}>
+        <NavLink className="nav-link" to={link.path}>{link.name}</NavLink>
       </li>
+      )}
     </ul>
   </nav>
 )

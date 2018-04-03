@@ -1,13 +1,12 @@
 import React from 'react'
 import { connect } from 'react-redux'
 
-
 import Navbar from '../components/navbar'
 
 const mapState = state => {
-  const { title } = state.app
+  const { title, links } = state.app
 
-  return { brand: title }
+  return { title, links }
 }
 
 export default connect(
