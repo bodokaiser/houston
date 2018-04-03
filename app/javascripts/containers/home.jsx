@@ -1,8 +1,10 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
+import React, {
+  Component
+} from 'react'
+import {connect} from 'react-redux'
 
-import Jumbotron from '../components/jumbotron'
-import Container from '../components/container'
+import {Jumbotron} from '../components/misc'
+import {Container} from '../components/layout'
 
 class Home extends Component {
 

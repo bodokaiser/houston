@@ -1,7 +1,7 @@
 import React from 'react'
-import { connect } from 'react-redux'
+import {connect} from 'react-redux'
 
-import Navbar from '../components/navbar'
+import {Navbar} from '../components/nav'
 
 const mapState = state => {
   const { title, links } = state.app

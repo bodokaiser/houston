@@ -1,9 +1,13 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
+import React, {
+  Component,
+  Fragment
+} from 'react'
+import {connect} from 'react-redux'
 
-import Card from '../components/card'
-import Tabs from '../components/tabs'
-import Container from '../components/container'
+import {DetailedCard} from '../components/card'
+import {InlineForm} from '../components/form'
+import {NavTabs} from '../components/nav'
+import {Container} from '../components/layout'
 
 import {
   fetchDevicesIfNeeded,
@@ -32,9 +36,12 @@ class Devices extends Component {
         {devices.map((device, index) => (
           <div className="row mt-3" key={index}>
             <div className="col-sm">
-              <Card key={index} title={device.name}>
-                <Tabs links={links} />
-              </Card>
+              <DetailedCard key={index} title={device.name}>
+                <Fragment>
+                  <NavTabs links={links} />
+                  <InlineForm />
+                </Fragment>
+              </DetailedCard>
             </div>
           </div>
         ))}

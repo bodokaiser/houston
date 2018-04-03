@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Card = ({ title, children }) => (
+export const DetailedCard = ({ title, children }) => (
   <div className="card">
     <div className="card-header">
       { title }
@@ -10,5 +10,3 @@ const Card = ({ title, children }) => (
     </div>
   </div>
 )
-
-export default Card
