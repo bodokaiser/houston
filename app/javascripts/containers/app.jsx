@@ -19,9 +19,9 @@ class App extends Component {
       <Router>
         <Fragment>
           <Navbar />
-          <Switch>
+          <Switch location={location}>
             <Route exact path="/" component={Home} />
-            <Route path="/devices" component={Devices} />
+            <Route exact path="/devices" component={Devices} />
           </Switch>
         </Fragment>
       </Router>

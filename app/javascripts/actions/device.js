@@ -1,5 +1,10 @@
 export const REQUEST_DEVICES = 'REQUEST_DEVICES'
 export const RECEIVE_DEVICES = 'RECEIVE_DEVICES'
+export const SELECT_DEVICE_TAB = 'SELECT_DEVICE_TAB'
+
+export function selectDeviceTab() {
+  return { type: SELECT_DEVICE_TAB }
+}
 
 export function requestDevices() {
   return { type: REQUEST_DEVICES }

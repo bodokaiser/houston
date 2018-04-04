@@ -14,11 +14,12 @@ export const Navbar = ({ title, links }) => (
   </nav>
 )
 
-export const NavTabs = ({ links }) => (
+export const NavTabs = ({ links, onClick }) => (
   <ul className="nav nav-tabs mb-3">
     {links.map((link, index) => (
       <li className="nav-item" key={index}>
-        <a className={`nav-link ${link.active ? 'active' : ''}`} href="#">
+        <a className={`nav-link ${link.active ? 'active' : ''}`}
+           onClick={onClick}>
           {link.name}
         </a>
       </li>
