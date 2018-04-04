@@ -15,7 +15,7 @@ export const Navbar = ({ title, links }) => (
 )
 
 export const NavTabs = ({ links }) => (
-  <ul className="nav nav-tabs">
+  <ul className="nav nav-tabs mb-3">
     {links.map((link, index) => (
       <li className="nav-item" key={index}>
         <a className={`nav-link ${link.active ? 'active' : ''}`} href="#">

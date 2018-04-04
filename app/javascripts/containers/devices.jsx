@@ -29,13 +29,8 @@ class Devices extends Component {
     return (
       <Container>
         <div className="row">
-          <div className="col-sm">
-            <h2 className="text-center">Devices</h2>
-          </div>
-        </div>
-        {devices.map((device, index) => (
-          <div className="row mt-3" key={index}>
-            <div className="col-sm">
+          {devices.map((device, index) => (
+            <div className="col-sm-6">
               <DetailedCard key={index} title={device.name}>
                 <Fragment>
                   <NavTabs links={links} />
@@ -43,8 +38,8 @@ class Devices extends Component {
                 </Fragment>
               </DetailedCard>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </Container>
     )
   }
