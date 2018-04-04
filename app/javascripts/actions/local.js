@@ -5,6 +5,11 @@ export function updateDeviceMode(device, mode) {
     dispatch(updateDevice({ ...device, mode }))
   }
 }
+export function updateDeviceName(device, name) {
+  return dispatch => {
+    dispatch(updateDevice({ ...device, name }))
+  }
+}
 
 export function updateDevice(device) {
   return { type: UPDATE_DEVICE, device }

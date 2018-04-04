@@ -23,7 +23,12 @@ export const NavTabs = ({ links, onClick }) => (
     {links.map((link, index) => (
       <li className="nav-item" key={index}>
         <a className={`nav-link ${link.active ? 'active' : ''}`}
-           onClick={e => onClick(link.name, e)} href={link.href || '/'}>
+           href={link.href || '/'}
+           onClick={e => {
+             e.preventDefault()
+
+             onClick(link.name, e)
+           }}>
           {link.name}
         </a>
       </li>

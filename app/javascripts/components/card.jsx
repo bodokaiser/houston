@@ -1,6 +1,6 @@
 import React from 'react'
 
-export const DetailedCard = ({ title, children }) => (
+export const DetailedCard = ({ title, children, onChange }) => (
   <div className="card">
     <div className="card-header">
       { title }

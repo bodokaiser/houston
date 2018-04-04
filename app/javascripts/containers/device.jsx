@@ -5,11 +5,15 @@ import React, {
 import {connect} from 'react-redux'
 
 import {DetailedCard} from '../components/card'
-import {InlineForm} from '../components/form'
+import {
+  InlineForm,
+  InlineForm2
+} from '../components/form'
 import {NavTabs} from '../components/nav'
 
 import {
-  updateDeviceMode
+  updateDeviceMode,
+  updateDeviceName
 } from '../actions/local'
 import {
   fetchDevicesIfNeeded
@@ -24,9 +28,7 @@ class Device extends Component {
     this.handleTabClick = this.handleTabClick.bind(this)
   }
 
-  handleTabClick(mode, e) {
-    e.preventDefault()
-
+  handleTabClick(mode) {
     this.props.dispatch(updateDeviceMode(this.props.device, mode))
   }
 
@@ -41,7 +43,8 @@ class Device extends Component {
       <DetailedCard title={device.name}>
         <Fragment>
           <NavTabs links={links} onClick={this.handleTabClick} />
-          <InlineForm />
+          { device.mode == 'Single Tone' && <InlineForm /> }
+          { device.mode == 'Linear Sweep' && <InlineForm2 /> }
         </Fragment>
       </DetailedCard>
     )
