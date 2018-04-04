@@ -31,7 +31,7 @@ class App extends Component {
 }
 
 const mapState = state => {
-  const { devices } = state.device
+  const { devices } = state
 
   return { devices }
 }

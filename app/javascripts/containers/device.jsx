@@ -9,11 +9,11 @@ import {InlineForm} from '../components/form'
 import {NavTabs} from '../components/nav'
 
 import {
-  selectDeviceTab,
-  fetchDevicesIfNeeded,
-  requestDevices,
-  receiveDevices
-} from '../actions/device'
+  updateDeviceMode
+} from '../actions/local'
+import {
+  fetchDevicesIfNeeded
+} from '../actions/remote'
 
 
 class Device extends Component {
@@ -24,17 +24,18 @@ class Device extends Component {
     this.handleTabClick = this.handleTabClick.bind(this)
   }
 
-  handleTabClick() {
-    this.props.dispatch(selectDeviceTab())
+  handleTabClick(mode, e) {
+    e.preventDefault()
+
+    this.props.dispatch(updateDeviceMode(this.props.device, mode))
   }
 
   render() {
-    const { device } = this.props
+    const { device, links } = this.props
 
-    const links = [
-      { name: 'Constant', active: true },
-      { name: 'Sweep' }
-    ]
+    links.forEach(link => {
+      if (link.name == device.mode) link.active = true
+    })
 
     return (
       <DetailedCard title={device.name}>
@@ -55,9 +56,11 @@ class Device extends Component {
 }
 
 const mapState = (state) => {
-  const { devices } = state.device
+  const { params } = state
 
-  return { devices }
+  return {
+    links: params.modes.map(mode => ({ name: mode }))
+  }
 }
 
 export default connect(
