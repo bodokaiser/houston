@@ -7,7 +7,6 @@ import {connect} from 'react-redux'
 import {DetailedCard} from '../components/card'
 import {InlineForm} from '../components/form'
 import {NavTabs} from '../components/nav'
-import {Container} from '../components/layout'
 
 import {
   selectDeviceTab,
@@ -17,7 +16,7 @@ import {
 } from '../actions/device'
 
 
-class Devices extends Component {
+class Device extends Component {
 
   constructor(props) {
     super(props)
@@ -30,7 +29,7 @@ class Devices extends Component {
   }
 
   render() {
-    const { devices } = this.props
+    const { device } = this.props
 
     const links = [
       { name: 'Constant', active: true },
@@ -38,20 +37,12 @@ class Devices extends Component {
     ]
 
     return (
-      <Container>
-        <div className="row">
-          {devices.map((device, index) => (
-            <div className="col-sm-6" key={index}>
-              <DetailedCard key={index} title={device.name}>
-                <Fragment>
-                  <NavTabs links={links} onClick={this.handleTabClick} />
-                  <InlineForm />
-                </Fragment>
-              </DetailedCard>
-            </div>
-          ))}
-        </div>
-      </Container>
+      <DetailedCard title={device.name}>
+        <Fragment>
+          <NavTabs links={links} onClick={this.handleTabClick} />
+          <InlineForm />
+        </Fragment>
+      </DetailedCard>
     )
   }
 
@@ -71,4 +62,4 @@ const mapState = (state) => {
 
 export default connect(
   mapState
-)(Devices)
+)(Device)
