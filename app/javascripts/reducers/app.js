@@ -1,8 +1,5 @@
 const initialState = {
-  title: 'Beagle',
-  links: [
-    { name: 'Devices', path: '/devices' }
-  ]
+  title: 'Beagle'
 }
 
 export default (state = initialState, action) => {

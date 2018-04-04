@@ -1,12 +1,17 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
+import {Provider} from 'react-redux'
 
-import Redux from './redux'
+import store from './store'
 
 const render = Component => {
-  const Redux = require('./redux').default
+  const App = require('./containers/app').default
 
-  ReactDOM.render(<Redux />, document.querySelector('main'))
+  ReactDOM.render(
+    <Provider store={store}>
+      <App />
+    </Provider>,
+    document.querySelector('main'))
 }
 
 render()
