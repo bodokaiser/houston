@@ -20,9 +20,20 @@ const setupStore = (state) => {
     store.replaceReducer(require('./reducers').default)
   })
 
+  store.subscribe(() => (
+    localStorage.setItem('state', JSON.stringify(store.getState()))
+  ))
+
   return store
 }
 
-const store = setupStore()
+const restoreState = () => {
+  const stateString = localStorage.getItem('state')
+
+  return (stateString) ? JSON.parse(stateString) : {}
+}
+
+const store = setupStore(restoreState())
+
 
 export default store

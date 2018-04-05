@@ -1,7 +1,7 @@
 const initialState = {
   modes: [
     'Single Tone',
-    'Linear Sweep'
+    'Sweep'
   ],
   frequency: {
     min: 0,

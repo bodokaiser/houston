@@ -72,11 +72,31 @@ class Device extends Component {
   constructor(props) {
     super(props)
 
+    this.state = { nameEditable: false }
     this.handleTabClick = this.handleTabClick.bind(this)
+    this.handleEditClick = this.handleEditClick.bind(this)
+    this.handleNameSubmit = this.handleNameSubmit.bind(this)
+    this.handleNameChange = this.handleNameChange.bind(this)
+  }
+
+  handleEditClick(element) {
+    element.preventDefault()
+
+    this.setState({ nameEditable: true })
   }
 
   handleTabClick(mode) {
     this.props.dispatch(updateDeviceMode(this.props.device, mode))
+  }
+
+  handleNameSubmit(element) {
+    element.preventDefault()
+
+    this.setState({ nameEditable: false })
+  }
+
+  handleNameChange(name) {
+    this.props.dispatch(updateDeviceName(this.props.device, name))
   }
 
   componentDidMount() {
@@ -87,6 +107,7 @@ class Device extends Component {
 
   render() {
     const { device, links } = this.props
+    const { nameEditable } = this.state
 
     links.forEach(link => {
       if (link.name == device.mode) link.active = true
@@ -96,9 +117,12 @@ class Device extends Component {
       <div className="card">
         <div className="card-header">
           <div className="btn-toolbar justify-content-between">
-            <InputGroup value={device.name} readOnly={true} />
-            <div className="btn-group">
-              <button className="btn btn-light" type="button">
+            <form onSubmit={this.handleNameSubmit}>
+              <InputGroup value={device.name} readOnly={!nameEditable} onChange={this.handleNameChange} />
+            </form>
+            <div className="btn-group" hidden={nameEditable}>
+              <button className="btn btn-light" type="button"
+                onClick={this.handleEditClick}>
                 <EditIcon />
               </button>
             </div>
@@ -108,8 +132,8 @@ class Device extends Component {
           <NavTabs links={links} onClick={this.handleTabClick} />
           { device.mode == 'Single Tone' &&
             <SingleToneForm {...device.params.singleTone} /> }
-          { device.mode == 'Linear Sweep' &&
-            <LinearSweepForm {...device.params.linearSweep} /> }
+          { device.mode == 'Sweep' &&
+            <LinearSweepForm {...device.params.sweep} /> }
         </div>
       </div>
     )

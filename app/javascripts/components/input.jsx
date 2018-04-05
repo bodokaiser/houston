@@ -1,6 +1,7 @@
 import React, {Fragment} from 'react'
 
-export const InputGroup = ({ name, type, value, label, append, prepend, validation, placeholder, readOnly }) => (
+export const InputGroup = ({ name, type, value, label, append, prepend,
+  validation, placeholder, readOnly, onChange }) => (
   <Fragment>
     { label &&
     <label htmlFor={name}>
@@ -14,8 +15,9 @@ export const InputGroup = ({ name, type, value, label, append, prepend, validati
       <input className={`form-control${readOnly ? '-plaintext' : ''}`}
         id={name}
         type={type || 'text'}
-        defaultValue={value}
+        value={value}
         readOnly={readOnly}
+        onChange={e => onChange(e.target.value)}
         placeholder={placeholder} />
       <div className="valid-feedback">{ validation }</div>
       { append &&

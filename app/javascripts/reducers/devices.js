@@ -16,7 +16,7 @@ const initialState = [
         amplitude: 0,
         frequency: 250e6,
       },
-      linearSweep: {
+      sweep: {
         startFrequency: 100e6,
         stopFrequency: 200e6,
         timerInterval: 1,
@@ -26,13 +26,13 @@ const initialState = [
   {
     id: 1,
     name: 'Signal Generator 1',
-    mode: 'Linear Sweep',
+    mode: 'Sweep',
     params: {
       singleTone: {
         amplitude: -80,
         frequency: 300e6,
       },
-      linearSweep: {
+      sweep: {
         startFrequency: 10e6,
         stopFrequency: 20e6,
         timerInterval: .5,
