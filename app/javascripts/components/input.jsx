@@ -1,6 +1,6 @@
 import React, {Fragment} from 'react'
 
-export const TextInput = ({ name, type, value, label, append, prepend, validation, placeholder }) => (
+export const InputGroup = ({ name, type, value, label, append, prepend, validation, placeholder, readOnly }) => (
   <Fragment>
     { label &&
     <label htmlFor={name}>
@@ -11,10 +11,11 @@ export const TextInput = ({ name, type, value, label, append, prepend, validatio
       <div className="input-group-prepend">
         <div className="input-group-text">{ prepend }</div>
       </div> }
-      <input className="form-control"
+      <input className={`form-control${readOnly ? '-plaintext' : ''}`}
         id={name}
         type={type || 'text'}
-        value={value}
+        defaultValue={value}
+        readOnly={readOnly}
         placeholder={placeholder} />
       <div className="valid-feedback">{ validation }</div>
       { append &&

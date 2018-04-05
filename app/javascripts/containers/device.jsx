@@ -4,11 +4,14 @@ import React, {
 } from 'react'
 import {connect} from 'react-redux'
 
-import {DetailedCard} from '../components/card'
 import {DefaultForm} from '../components/form'
-import {TextInput} from '../components/input'
+import {InputGroup} from '../components/input'
 import {SubmitButton} from '../components/button'
 import {NavTabs} from '../components/nav'
+import {
+  EditIcon,
+  MicrochipIcon
+} from '../components/icon'
 
 import {
   updateDeviceMode,
@@ -21,17 +24,17 @@ import {
 const SingleToneForm = ({ amplitude, frequency }) => (
   <DefaultForm>
     <div className="form-row">
-      <div className="form-group col-sm-6">
-        <TextInput name="amplitude" label="Amplitude" type="number"
+      <div className="form-group col-sm-12">
+        <InputGroup name="amplitude" label="Amplitude" type="number"
           append="dB" value={amplitude} />
       </div>
-      <div className="form-group col-sm-6">
-        <TextInput name="frequency" label="Frequency" type="number"
+      <div className="form-group col-sm-12">
+        <InputGroup name="frequency" label="Frequency" type="number"
           append="Hz" value={frequency} />
       </div>
     </div>
     <div className="form-row">
-      <div className="form-group col-sm-3">
+      <div className="form-group col-sm-12">
         <SubmitButton>Update</SubmitButton>
       </div>
     </div>
@@ -41,23 +44,23 @@ const SingleToneForm = ({ amplitude, frequency }) => (
 const LinearSweepForm = ({ startFrequency, stopFrequency, timerInterval }) => (
   <DefaultForm>
     <div className="form-row">
-      <div className="form-group col-sm-6">
-        <TextInput name="startFrequency" type="number" label="Start Frequency"
+      <div className="form-group col-sm-12">
+        <InputGroup name="startFrequency" type="number" label="Start Frequency"
           append="Hz" value={startFrequency} />
       </div>
-      <div className="form-group col-sm-6">
-        <TextInput name="stopFrequency" type="number" label="Stop Frequency"
+      <div className="form-group col-sm-12">
+        <InputGroup name="stopFrequency" type="number" label="Stop Frequency"
           append="Hz" value={stopFrequency} />
       </div>
     </div>
     <div className="form-row">
-      <div className="form-group col-sm-6">
-        <TextInput name="timerInterval" type="number" label="Timer Interval"
+      <div className="form-group col-sm-12">
+        <InputGroup name="timerInterval" type="number" label="Timer Interval"
           append="s" value={timerInterval} />
       </div>
     </div>
     <div className="form-row">
-      <div className="form-group col-sm-3">
+      <div className="form-group col-sm-12">
         <SubmitButton>Update</SubmitButton>
       </div>
     </div>
@@ -76,6 +79,12 @@ class Device extends Component {
     this.props.dispatch(updateDeviceMode(this.props.device, mode))
   }
 
+  componentDidMount() {
+    const { dispatch } = this.props
+
+    dispatch(fetchDevicesIfNeeded())
+  }
+
   render() {
     const { device, links } = this.props
 
@@ -84,24 +93,26 @@ class Device extends Component {
     })
 
     return (
-      <DetailedCard title={device.name}>
-        <Fragment>
+      <div className="card">
+        <div className="card-header">
+          <div className="btn-toolbar justify-content-between">
+            <InputGroup value={device.name} readOnly={true} />
+            <div className="btn-group">
+              <button className="btn btn-light" type="button">
+                <EditIcon />
+              </button>
+            </div>
+          </div>
+        </div>
+        <div className="card-body">
           <NavTabs links={links} onClick={this.handleTabClick} />
           { device.mode == 'Single Tone' &&
-            <SingleToneForm {...device.params.singleTone} />
-          }
+            <SingleToneForm {...device.params.singleTone} /> }
           { device.mode == 'Linear Sweep' &&
-            <LinearSweepForm {...device.params.linearSweep} />
-          }
-        </Fragment>
-      </DetailedCard>
+            <LinearSweepForm {...device.params.linearSweep} /> }
+        </div>
+      </div>
     )
-  }
-
-  componentDidMount() {
-    const { dispatch } = this.props
-
-    dispatch(fetchDevicesIfNeeded())
   }
 
 }
