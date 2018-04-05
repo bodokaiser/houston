@@ -45,8 +45,8 @@ func (c *Context) Accepts(mtype string) bool {
 	return false
 }
 
-// ExtendContext wraps echo.Context as Context.
-func ExtendContext(h echo.HandlerFunc) echo.HandlerFunc {
+// WrapContext wraps echo.Context as Context.
+func WrapContext(h echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := &Context{c}
 

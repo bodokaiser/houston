@@ -26,7 +26,7 @@ func (s *HandlerTestSuite) TestListDevicesHTML() {
 	rec := httptest.NewRecorder()
 	ctx := s.echo.NewContext(req, rec)
 
-	h := ExtendContext(ListDevicesHandler)
+	h := WrapContext(ListDevicesHandler)
 
 	assert.Equal(s.T(), h(ctx), echo.ErrUnsupportedMediaType)
 }
@@ -37,7 +37,7 @@ func (s *HandlerTestSuite) TestListDevicesJSON() {
 	rec := httptest.NewRecorder()
 	ctx := s.echo.NewContext(req, rec)
 
-	h := ExtendContext(ListDevicesHandler)
+	h := WrapContext(ListDevicesHandler)
 
 	if assert.NoError(s.T(), h(ctx)) {
 		assert.Equal(s.T(), http.StatusNoContent, rec.Code)
@@ -50,7 +50,7 @@ func (s *HandlerTestSuite) TestShowDeviceHTML() {
 	rec := httptest.NewRecorder()
 	ctx := s.echo.NewContext(req, rec)
 
-	h := ExtendContext(ShowDeviceHandler)
+	h := WrapContext(ShowDeviceHandler)
 
 	assert.Equal(s.T(), h(ctx), echo.ErrUnsupportedMediaType)
 }
@@ -61,7 +61,7 @@ func (s *HandlerTestSuite) TestShowDeviceJSON() {
 	rec := httptest.NewRecorder()
 	ctx := s.echo.NewContext(req, rec)
 
-	h := ExtendContext(ShowDeviceHandler)
+	h := WrapContext(ShowDeviceHandler)
 
 	if assert.NoError(s.T(), h(ctx)) {
 		assert.Equal(s.T(), http.StatusNoContent, rec.Code)
@@ -74,7 +74,7 @@ func (s *HandlerTestSuite) TestUpdateDevice() {
 	rec := httptest.NewRecorder()
 	ctx := s.echo.NewContext(req, rec)
 
-	h := ExtendContext(UpdateDeviceHandler)
+	h := WrapContext(UpdateDeviceHandler)
 
 	if assert.NoError(s.T(), h(ctx)) {
 		assert.Equal(s.T(), http.StatusNoContent, rec.Code)

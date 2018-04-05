@@ -28,14 +28,14 @@ export const InputGroup = ({ name, type, value, label, append, prepend,
   </Fragment>
 )
 
-export const SelectGroup = ({ name, label, value, options, validation }) => (
+export const SelectGroup = ({ name, label, value, options, validation, onChange }) => (
   <Fragment>
     { label &&
     <label htmlFor={name}>
       { label }
     </label> }
     <div className="input-group">
-      <select className="custom-select" value={value}>
+      <select className="custom-select" value={value} onChange={e => onChange(e.target.value)}>
         { options.map((option, index) => (
           <option key={index} value={option}>
             {option}

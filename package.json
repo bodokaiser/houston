@@ -11,11 +11,12 @@
     "react-dom": "^16.3.0",
     "react-redux": "^5.0.7",
     "redux": "^3.7.2",
+    "redux-create-reducer": "^1.1.1",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.2.0"
   },
   "scripts": {
-    "serve": "parcel app/index.html"
+    "serve": "RESOURCE=http://localhost:8000 parcel app/index.html"
   },
   "babel": {
     "presets": [

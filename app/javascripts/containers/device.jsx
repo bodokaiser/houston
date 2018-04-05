@@ -3,6 +3,7 @@ import React, {
   Fragment
 } from 'react'
 import {connect} from 'react-redux'
+import {bindActionCreators} from 'redux'
 
 import {DefaultForm} from '../components/form'
 import {
@@ -19,10 +20,7 @@ import {
 import {
   updateDeviceMode,
   updateDeviceName
-} from '../actions/local'
-import {
-  fetchDevicesIfNeeded
-} from '../actions/remote'
+} from '../actions/device'
 
 const SingleToneForm = ({ amplitude, frequency }) => (
   <DefaultForm>
@@ -44,8 +42,7 @@ const SingleToneForm = ({ amplitude, frequency }) => (
   </DefaultForm>
 )
 
-const SweepForm = ({ startFrequency, stopFrequency, timerInterval,
-  waveform, waveforms }) => (
+const SweepForm = ({ startFrequency, stopFrequency, interval, waveform, waveforms }) => (
   <DefaultForm>
     <div className="form-row">
       <div className="form-group col-sm-12">
@@ -60,7 +57,7 @@ const SweepForm = ({ startFrequency, stopFrequency, timerInterval,
     <div className="form-row">
       <div className="form-group col-sm-12">
         <InputGroup name="timerInterval" type="number" label="Timer Interval"
-          append="s" value={timerInterval} />
+          append="s" value={interval} />
       </div>
     </div>
     <div className="form-row">
@@ -96,7 +93,7 @@ class Device extends Component {
   }
 
   handleTabClick(mode) {
-    this.props.dispatch(updateDeviceMode(this.props.device, mode))
+    this.props.updateMode(this.props.device, mode)
   }
 
   handleNameSubmit(element) {
@@ -106,13 +103,7 @@ class Device extends Component {
   }
 
   handleNameChange(name) {
-    this.props.dispatch(updateDeviceName(this.props.device, name))
-  }
-
-  componentDidMount() {
-    const { dispatch } = this.props
-
-    dispatch(fetchDevicesIfNeeded())
+    this.props.updateName(this.props.device, name)
   }
 
   render() {
@@ -141,9 +132,9 @@ class Device extends Component {
         <div className="card-body">
           <NavTabs links={links} onClick={this.handleTabClick} />
           { device.mode == 'Single Tone' &&
-            <SingleToneForm {...device.params.singleTone} /> }
+            <SingleToneForm {...device.singleTone} /> }
           { device.mode == 'Sweep' &&
-            <SweepForm {...{...device.params.sweep, waveforms}} /> }
+            <SweepForm {...{...device.sweep, waveforms}} /> }
         </div>
       </div>
     )
@@ -151,15 +142,17 @@ class Device extends Component {
 
 }
 
-const mapState = (state) => {
-  const { params } = state
+const mapState = state => ({
+  links: state.specs.AD9910.modes.map(mode => ({ name: mode })),
+  waveforms: state.specs.AD9910.modes
+})
 
-  return {
-    links: params.modes.map(mode => ({ name: mode })),
-    waveforms: params.waveforms,
-  }
-}
+const mapDispatch = dispatch => ({
+  updateName: bindActionCreators(updateDeviceName, dispatch),
+  updateMode: bindActionCreators(updateDeviceMode, dispatch)
+})
 
 export default connect(
-  mapState
+  mapState,
+  mapDispatch
 )(Device)

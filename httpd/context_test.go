@@ -18,7 +18,7 @@ type ContextTestSuite struct {
 
 func (s *ContextTestSuite) SetupTest() {
 	s.echo = echo.New()
-	s.echo.Use(ExtendContext)
+	s.echo.Use(WrapContext)
 }
 
 func (s *HandlerTestSuite) TestContentTypeHTML() {
@@ -68,13 +68,13 @@ func (s *HandlerTestSuite) TestAcceptsHTML() {
 	assert.False(s.T(), ctx.Accepts(echo.MIMEApplicationJavaScript))
 }
 
-func (s *HandlerTestSuite) TestExtendContext() {
+func (s *HandlerTestSuite) TestWrapContext() {
 	req := httptest.NewRequest(echo.GET, "/", nil)
 	req.Header.Set(echo.HeaderAccept, "text/html,application/xhtml+xml")
 	rec := httptest.NewRecorder()
 	ctx := s.echo.NewContext(req, rec)
 
-	h := ExtendContext(func(c echo.Context) error {
+	h := WrapContext(func(c echo.Context) error {
 		return c.(*Context).NoContent(http.StatusOK)
 	})
 
