@@ -19,19 +19,21 @@ import {
 
 import {
   updateDeviceMode,
-  updateDeviceName
+  updateDeviceName,
+  updateDeviceSweep,
+  updateDeviceSingleTone
 } from '../actions/device'
 
-const SingleToneForm = ({ amplitude, frequency }) => (
-  <DefaultForm>
+const SingleToneForm = ({ amplitude, frequency, onChange }) => (
+  <form>
     <div className="form-row">
       <div className="form-group col-sm-12">
         <InputGroup name="amplitude" label="Amplitude" type="number"
-          append="dB" value={amplitude} />
+          append="dB" value={amplitude} onChange={onChange}/>
       </div>
       <div className="form-group col-sm-12">
         <InputGroup name="frequency" label="Frequency" type="number"
-          append="Hz" value={frequency} />
+          append="Hz" value={frequency} onChange={onChange} />
       </div>
     </div>
     <div className="form-row">
@@ -39,31 +41,32 @@ const SingleToneForm = ({ amplitude, frequency }) => (
         <SubmitButton>Update</SubmitButton>
       </div>
     </div>
-  </DefaultForm>
+  </form>
 )
 
-const SweepForm = ({ startFrequency, stopFrequency, interval, waveform, waveforms }) => (
-  <DefaultForm>
+const SweepForm = ({ startFrequency, stopFrequency, interval, waveform,
+  waveforms, onChange }) => (
+  <form>
     <div className="form-row">
       <div className="form-group col-sm-12">
         <InputGroup name="startFrequency" type="number" label="Start Frequency"
-          append="Hz" value={startFrequency} />
+          append="Hz" value={startFrequency} onChange={onChange} />
       </div>
       <div className="form-group col-sm-12">
         <InputGroup name="stopFrequency" type="number" label="Stop Frequency"
-          append="Hz" value={stopFrequency} />
+          append="Hz" value={stopFrequency} onChange={onChange} />
       </div>
     </div>
     <div className="form-row">
       <div className="form-group col-sm-12">
         <InputGroup name="timerInterval" type="number" label="Timer Interval"
-          append="s" value={interval} />
+          append="s" value={interval} onChange={onChange} />
       </div>
     </div>
     <div className="form-row">
       <div className="form-group col-sm-12">
         <SelectGroup name="waveform" label="Waveform"
-          value={waveform} options={waveforms} />
+          value={waveform} options={waveforms} onChange={onChange} />
       </div>
     </div>
     <div className="form-row">
@@ -71,7 +74,7 @@ const SweepForm = ({ startFrequency, stopFrequency, interval, waveform, wavefor
         <SubmitButton>Update</SubmitButton>
       </div>
     </div>
-  </DefaultForm>
+  </form>
 )
 
 class Device extends Component {
@@ -84,6 +87,8 @@ class Device extends Component {
     this.handleEditClick = this.handleEditClick.bind(this)
     this.handleNameSubmit = this.handleNameSubmit.bind(this)
     this.handleNameChange = this.handleNameChange.bind(this)
+    this.handleSingleToneChange = this.handleSingleToneChange.bind(this)
+    this.handleSweepChange = this.handleSweepChange.bind(this)
   }
 
   handleEditClick(element) {
@@ -104,6 +109,14 @@ class Device extends Component {
 
   handleNameChange(name) {
     this.props.updateName(this.props.device, name)
+  }
+
+  handleSingleToneChange(name, value) {
+    this.props.updateSingleTone(this.props.device, { name: value })
+  }
+
+  handleSweepChange(name, value) {
+    this.props.updateSweep(this.props.device, { name: value })
   }
 
   render() {
@@ -131,10 +144,13 @@ class Device extends Component {
         </div>
         <div className="card-body">
           <NavTabs links={links} onClick={this.handleTabClick} />
-          { device.mode == 'Single Tone' &&
-            <SingleToneForm {...device.singleTone} /> }
-          { device.mode == 'Sweep' &&
-            <SweepForm {...{...device.sweep, waveforms}} /> }
+          {console.log(device.mode)}
+          <div className={(device.mode == 'Single Tone') ? '' : 'd-none'}>
+            <SingleToneForm onChange={this.handleSingleToneChange} {...device.singleTone} />
+          </div>
+          <div className={(device.mode == 'Sweep') ? '' : 'd-none'}>
+            <SweepForm onChange={this.handleSweepChange} {...{...device.sweep, waveforms}} />
+          </div>
         </div>
       </div>
     )
@@ -149,7 +165,9 @@ const mapState = state => ({
 
 const mapDispatch = dispatch => ({
   updateName: bindActionCreators(updateDeviceName, dispatch),
-  updateMode: bindActionCreators(updateDeviceMode, dispatch)
+  updateMode: bindActionCreators(updateDeviceMode, dispatch),
+  updateSweep: bindActionCreators(updateDeviceSweep, dispatch),
+  updateSingleTone: bindActionCreators(updateDeviceSingleTone, dispatch)
 })
 
 export default connect(

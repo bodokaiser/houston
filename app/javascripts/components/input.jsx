@@ -15,9 +15,9 @@ export const InputGroup = ({ name, type, value, label, append, prepend,
       <input className={`form-control${readOnly ? '-plaintext' : ''}`}
         id={name}
         type={type || 'text'}
-        value={value}
+        defaultValue={value}
         readOnly={readOnly}
-        onChange={e => onChange(e.target.value)}
+        onChange={e => onChange(e.target.name, e.target.value, e.target)}
         placeholder={placeholder} />
       <div className="valid-feedback">{ validation }</div>
       { append &&
@@ -35,7 +35,7 @@ export const SelectGroup = ({ name, label, value, options, validation, onChange 
       { label }
     </label> }
     <div className="input-group">
-      <select className="custom-select" value={value} onChange={e => onChange(e.target.value)}>
+      <select className="custom-select" defaultValue={value} onChange={e => onChange(e.target.value)}>
         { options.map((option, index) => (
           <option key={index} value={option}>
             {option}

@@ -21,6 +21,24 @@ export function updateDeviceName(device, name) {
   }
 }
 
+export function updateDeviceSingleTone(device, singleTone) {
+  device.singleTone = {
+    singleTone: { ...device.singleTone, ...singleTone }
+  }
+  return dispatch => {
+    dispatch(updateDevice(device))
+  }
+}
+
+export function updateDeviceSweep(device, sweep) {
+  device.sweep = {
+    sweep: { ...device.sweep, ...sweep }
+  }
+  return dispatch => {
+    dispatch(updateDevice(device))
+  }
+}
+
 export function requestDevices() {
   return { type: REQUEST_DEVICES }
 }
