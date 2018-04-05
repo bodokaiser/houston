@@ -27,3 +27,22 @@ export const InputGroup = ({ name, type, value, label, append, prepend,
     </div>
   </Fragment>
 )
+
+export const SelectGroup = ({ name, label, value, options, validation }) => (
+  <Fragment>
+    { label &&
+    <label htmlFor={name}>
+      { label }
+    </label> }
+    <div className="input-group">
+      <select className="custom-select" value={value}>
+        { options.map((option, index) => (
+          <option key={index} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+      <div className="valid-feedback">{ validation }</div>
+    </div>
+  </Fragment>
+)

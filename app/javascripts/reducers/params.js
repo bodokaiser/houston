@@ -10,7 +10,11 @@ const initialState = {
   amplitude: {
     min: -85,
     max: 0
-  }
+  },
+  waveforms: [
+    "Triangle",
+    "Sawtooth"
+  ]
 }
 
 export default (state = initialState, action) => {

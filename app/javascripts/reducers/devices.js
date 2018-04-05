@@ -20,6 +20,7 @@ const initialState = [
         startFrequency: 100e6,
         stopFrequency: 200e6,
         timerInterval: 1,
+        waveform: 'Triangle'
       }
     }
   },
@@ -36,6 +37,7 @@ const initialState = [
         startFrequency: 10e6,
         stopFrequency: 20e6,
         timerInterval: .5,
+        waveform: 'Sawtooth'
       }
     }
   },

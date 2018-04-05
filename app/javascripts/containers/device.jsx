@@ -5,7 +5,10 @@ import React, {
 import {connect} from 'react-redux'
 
 import {DefaultForm} from '../components/form'
-import {InputGroup} from '../components/input'
+import {
+  InputGroup,
+  SelectGroup
+} from '../components/input'
 import {SubmitButton} from '../components/button'
 import {NavTabs} from '../components/nav'
 import {
@@ -41,7 +44,8 @@ const SingleToneForm = ({ amplitude, frequency }) => (
   </DefaultForm>
 )
 
-const LinearSweepForm = ({ startFrequency, stopFrequency, timerInterval }) => (
+const SweepForm = ({ startFrequency, stopFrequency, timerInterval,
+  waveform, waveforms }) => (
   <DefaultForm>
     <div className="form-row">
       <div className="form-group col-sm-12">
@@ -57,6 +61,12 @@ const LinearSweepForm = ({ startFrequency, stopFrequency, timerInterval }) => (
       <div className="form-group col-sm-12">
         <InputGroup name="timerInterval" type="number" label="Timer Interval"
           append="s" value={timerInterval} />
+      </div>
+    </div>
+    <div className="form-row">
+      <div className="form-group col-sm-12">
+        <SelectGroup name="waveform" label="Waveform"
+          value={waveform} options={waveforms} />
       </div>
     </div>
     <div className="form-row">
@@ -106,7 +116,7 @@ class Device extends Component {
   }
 
   render() {
-    const { device, links } = this.props
+    const { device, links, waveforms } = this.props
     const { nameEditable } = this.state
 
     links.forEach(link => {
@@ -133,7 +143,7 @@ class Device extends Component {
           { device.mode == 'Single Tone' &&
             <SingleToneForm {...device.params.singleTone} /> }
           { device.mode == 'Sweep' &&
-            <LinearSweepForm {...device.params.sweep} /> }
+            <SweepForm {...{...device.params.sweep, waveforms}} /> }
         </div>
       </div>
     )
@@ -145,7 +155,8 @@ const mapState = (state) => {
   const { params } = state
 
   return {
-    links: params.modes.map(mode => ({ name: mode }))
+    links: params.modes.map(mode => ({ name: mode })),
+    waveforms: params.waveforms,
   }
 }
 

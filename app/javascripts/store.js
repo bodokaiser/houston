@@ -20,9 +20,11 @@ const setupStore = (state) => {
     store.replaceReducer(require('./reducers').default)
   })
 
-  store.subscribe(() => (
-    localStorage.setItem('state', JSON.stringify(store.getState()))
-  ))
+  if (process.env.NODE_ENV == 'production') {
+    store.subscribe(() => (
+      localStorage.setItem('state', JSON.stringify(store.getState()))
+    ))
+  }
 
   return store
 }
