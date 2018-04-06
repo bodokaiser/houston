@@ -58,10 +58,28 @@
   version = "v0.0.3"
 
 [[projects]]
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
+  version = "v0.8.0"
+
+[[projects]]
   name = "github.com/pmezard/go-difflib"
   packages = ["difflib"]
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
   version = "v1.0.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/sigurn/crc8"
+  packages = ["."]
+  revision = "e55481d6f45c5a8f040343bace9013571dae103e"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/sigurn/utils"
+  packages = ["."]
+  revision = "f19e41f79f8f006116f682c1af454591bc278ad4"
 
 [[projects]]
   name = "github.com/stretchr/testify"
@@ -90,7 +108,10 @@
   packages = [
     ".",
     "drivers/gpio",
-    "drivers/spi"
+    "drivers/i2c",
+    "drivers/spi",
+    "platforms/beaglebone",
+    "sysfs"
   ]
   revision = "59aaba08eba8b081a9541f77aed19aba919437ac"
   version = "v1.9.0"
@@ -122,6 +143,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b6f2f6ca12e4209a28420a52f6bc87d99c27865b8480a761a1772876b842bfd9"
+  inputs-digest = "27c48b8dbf0288a4549fe83a6e987d5dc6c20f09ef406a23af0bc0b7b75e9df1"
   solver-name = "gps-cdcl"
   solver-version = 1
