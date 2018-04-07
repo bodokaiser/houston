@@ -2,7 +2,6 @@ package driver
 
 import (
 	"errors"
-	"math"
 
 	"gobot.io/x/gobot"
 	"gobot.io/x/gobot/drivers/gpio"
@@ -14,7 +13,7 @@ var ChipSelectPins = []string{"P9_15", "P9_11", "P9_12", "P9_13", "P9_14"}
 
 // ChipSelect errors.
 var (
-	ErrChipSelectInvalidNumber = errors.New("chip number invalid")
+	ErrChipSelectOutOfRange = errors.New("chip select out of range")
 )
 
 // ChipSelect is the gobot driver to handle chip select on the SPI bus.
@@ -51,26 +50,29 @@ func (d *ChipSelect) Halt() error {
 	return nil
 }
 
-// Select configures chip select to number n.
-func (d *ChipSelect) Select(n int) error {
-	pnum := float64(len(ChipSelectPins))
-	if (n < 0) && (n > int(math.Pow(2, pnum))) {
-		return ErrChipSelectInvalidNumber
+// Select configures chip select to select chip number n.
+func (d *ChipSelect) Select(n uint) (err error) {
+	if n > (2 << uint(len(ChipSelectPins))) {
+		return ErrChipSelectOutOfRange
 	}
 
 	for i, p := range ChipSelectPins {
-		active := byte(0)
+		var v byte
 
-		if n&(1<<uint(i)) < 0 {
-			active = 1
+		if n&(1<<uint(i)) > 0 {
+			v = 1
+		} else {
+			v = 0
 		}
 
-		if err := d.connection.DigitalWrite(p, active); err != nil {
-			return err
+		err = d.connection.DigitalWrite(p, v)
+
+		if err != nil {
+			return
 		}
 	}
 
-	return nil
+	return
 }
 
 // Connection returns the gobot.Connection used for digital io.
