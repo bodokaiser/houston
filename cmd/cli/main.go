@@ -5,7 +5,8 @@ import (
 
 	"gobot.io/x/gobot/platforms/beaglebone"
 
-	"github.com/bodokaiser/beagle/device/driver"
+	"github.com/bodokaiser/beagle/driver/dds"
+	"github.com/bodokaiser/beagle/driver/misc"
 )
 
 type config struct {
@@ -22,16 +23,16 @@ func main() {
 
 	beagle := beaglebone.NewAdaptor()
 
-	cs := driver.NewChipSelect(beagle)
+	cs := misc.NewChipSelect(beagle)
 	cs.Start()
 	cs.Select(0)
 
-	io := driver.NewControl(beagle)
+	io := misc.NewIOControl(beagle)
 	io.Start()
 
-	dds0 := driver.NewAD9910(beagle)
+	dds0 := dds.NewAD9910(beagle)
 	dds0.Start()
-	dds0.RunSingleTone(1<<15, 1<<30, 0)
+	dds0.RunSingleTone()
 
-	io.IOUpdate()
+	io.Update()
 }

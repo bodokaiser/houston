@@ -120,7 +120,14 @@ type AD9910 struct {
 	name       string
 	connector  spi.Connector
 	connection spi.Connection
-	config     ad9910Config
+}
+
+// NewAD9910 initializes a new instance of the AD9910 device driver.
+func NewAD9910(c spi.Connector) *AD9910 {
+	return &AD9910{
+		name:      gobot.DefaultName("AD9910"),
+		connector: c,
+	}
 }
 
 // Name returns the name of the device.

@@ -50,7 +50,7 @@ func (d *IOControl) Start() (err error) {
 		return
 	}
 
-	return d.connection.DigitalWrite(IOControlExtIOUpdatePin, 1)
+	return d.connection.DigitalWrite(IOControlExtUpdatePin, 1)
 }
 
 // Halt does nothing but is required by the Driver interface.
@@ -60,7 +60,7 @@ func (d *IOControl) Halt() error {
 
 // Reset triggers the reset pin.
 func (d *IOControl) Reset() (err error) {
-	err := d.connection.DigitalWrite(IOControlResetPin, 1)
+	err = d.connection.DigitalWrite(IOControlIntResetPin, 1)
 
 	if err != nil {
 		return
@@ -68,13 +68,13 @@ func (d *IOControl) Reset() (err error) {
 
 	time.Sleep(IOControlPulseWidth)
 
-	return d.connection.DigitalWrite(IOControlResetPin, 0)
+	return d.connection.DigitalWrite(IOControlIntResetPin, 0)
 }
 
 // Update triggers the I/O update pin which commands the DDS chips to update
 // there parameters from the registers.
 func (d *IOControl) Update() (err error) {
-	err = d.connection.DigitalWrite(IOControlIOUpdatePin, 1)
+	err = d.connection.DigitalWrite(IOControlIntUpdatePin, 1)
 
 	if err != nil {
 		return
@@ -82,7 +82,7 @@ func (d *IOControl) Update() (err error) {
 
 	time.Sleep(IOControlPulseWidth)
 
-	return d.connection.DigitalWrite(IOControlIOUpdatePin, 0)
+	return d.connection.DigitalWrite(IOControlIntUpdatePin, 0)
 }
 
 // Connection returns the gobot.Connection used for digital io.
