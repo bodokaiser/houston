@@ -3,8 +3,8 @@ package dds
 import (
 	"math"
 
-	"gobot.io/x/gobot"
-	"gobot.io/x/gobot/drivers/spi"
+	"periph.io/x/periph/conn/spi"
+	"periph.io/x/periph/conn/spi/spireg"
 )
 
 const (
@@ -117,32 +117,24 @@ const (
 
 // AD9910 is the SPI driver for the AD9910 DDS chip.
 type AD9910 struct {
-	name       string
-	connector  spi.Connector
-	connection spi.Connection
+	conn spi.Conn
 }
 
-// NewAD9910 initializes a new instance of the AD9910 device driver.
-func NewAD9910(c spi.Connector) *AD9910 {
-	return &AD9910{
-		name:      gobot.DefaultName("AD9910"),
-		connector: c,
+// NewAD9910 returns a new AD9910 device.
+func NewAD9910() *AD9910 {
+	return &AD9910{}
+}
+
+// Init initializes the AD9910 driver.
+func (d *AD9910) Init() error {
+	spi, err := spireg.Open("SPI1.0")
+	if err != nil {
+		return err
 	}
-}
 
-// Name returns the name of the device.
-func (d *AD9910) Name() string {
-	return d.name
-}
+	d.conn, err = spi.Connect(5e6, 0, 8)
 
-// SetName sets the name of the device.
-func (d *AD9910) SetName(s string) {
-	d.name = s
-}
-
-// Connection returns the spi connection used by the device.
-func (d *AD9910) Connection() gobot.Connection {
-	return d.connection.(gobot.Connection)
+	return err
 }
 
 // RunSingleTone configures the AD9910 to run in single tone mode.
@@ -154,7 +146,7 @@ func (d *AD9910) RunSingleTone() (err error) {
 	c.CFR1[3] |= ad9910FlagOSKEnable
 	c.CFR1[4] |= ad9910FlagSDIOInput
 
-	err = d.connection.Tx(c.CFR1[:], make([]byte, len(c.CFR1)))
+	err = d.conn.Tx(c.CFR1[:], make([]byte, len(c.CFR1)))
 	if err != nil {
 		return
 	}
@@ -165,16 +157,22 @@ func (d *AD9910) RunSingleTone() (err error) {
 	c.CFR2[3] |= ad9910FlagPDCLKEnable
 	c.CFR2[4] |= ad9910FlagSyncValidDisable
 
-	err = d.connection.Tx(c.CFR2[:], make([]byte, len(c.CFR2)))
+	err = d.conn.Tx(c.CFR2[:], make([]byte, len(c.CFR2)))
 	if err != nil {
 		return
 	}
+
+	c.CFR3[0] |= ad9910Write
+	c.CFR3[1] |= 0x1d
+	c.CFR3[2] |= 0x3f
+	c.CFR3[3] |= 0x41
+	c.CFR3[4] |= 0xc8
 
 	c.POW[0] |= ad9910Write
 	c.POW[1] = 0x00
 	c.POW[2] = 0x00
 
-	err = d.connection.Tx(c.POW[:], make([]byte, len(c.POW)))
+	err = d.conn.Tx(c.POW[:], make([]byte, len(c.POW)))
 	if err != nil {
 		return
 	}
@@ -183,7 +181,7 @@ func (d *AD9910) RunSingleTone() (err error) {
 	c.ASF[3] = 0xff
 	c.ASF[4] = 0xfc
 
-	err = d.connection.Tx(c.ASF[:], make([]byte, len(c.ASF)))
+	err = d.conn.Tx(c.ASF[:], make([]byte, len(c.ASF)))
 	if err != nil {
 		return
 	}
@@ -194,7 +192,7 @@ func (d *AD9910) RunSingleTone() (err error) {
 	c.FTW[3] = 0x99
 	c.FTW[4] = 0x9a
 
-	err = d.connection.Tx(c.FTW[:], make([]byte, len(c.FTW)))
+	err = d.conn.Tx(c.FTW[:], make([]byte, len(c.FTW)))
 	if err != nil {
 		return
 	}
@@ -206,29 +204,7 @@ func (d *AD9910) RunSingleTone() (err error) {
 	c.STProfile0[6] = 0x99
 	c.STProfile0[7] = 0x9a
 
-	return d.connection.Tx(c.STProfile0[:], make([]byte, len(c.STProfile0)))
-}
-
-// SPI default paramaeters.
-const (
-	AD9910SPIDefaultBus   = 2
-	AD9910SPIDefaultMode  = 0
-	AD9910SPIDefaultSpeed = 50e6
-)
-
-// Start initializes the driver.
-func (d *AD9910) Start() (err error) {
-	d.connection, err = d.connector.GetSpiConnection(
-		AD9910SPIDefaultBus,
-		AD9910SPIDefaultMode,
-		AD9910SPIDefaultSpeed)
-
-	return
-}
-
-// Halt stops the driver.
-func (d *AD9910) Halt() (err error) {
-	return d.connection.Close()
+	return d.conn.Tx(c.STProfile0[:], make([]byte, len(c.STProfile0)))
 }
 
 func frequencyToFTW(frequency float64) uint32 {

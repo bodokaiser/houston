@@ -2,8 +2,9 @@ package main
 
 import (
 	"flag"
+	"log"
 
-	"gobot.io/x/gobot/platforms/beaglebone"
+	"periph.io/x/periph/host"
 
 	"github.com/bodokaiser/beagle/driver/dds"
 	"github.com/bodokaiser/beagle/driver/misc"
@@ -21,18 +22,37 @@ func main() {
 	flag.Float64Var(&c.amplitude, "amplitude", 0, "")
 	flag.Parse()
 
-	beagle := beaglebone.NewAdaptor()
+	_, err := host.Init()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	cs := misc.NewChipSelect(beagle)
-	cs.Start()
-	cs.Select(0)
+	csel := misc.NewSelect()
+	ctrl := misc.NewControl()
+	fgen := dds.NewAD9910()
 
-	io := misc.NewIOControl(beagle)
-	io.Start()
+	err = csel.Init()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	dds0 := dds.NewAD9910(beagle)
-	dds0.Start()
-	dds0.RunSingleTone()
+	err = ctrl.Init()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	io.Update()
+	err = fgen.Init()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = fgen.RunSingleTone()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = ctrl.IOUpdate()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
