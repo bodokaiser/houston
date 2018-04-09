@@ -35,18 +35,16 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	err = ctrl.Init()
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	err = fgen.Init()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = fgen.RunSingleTone()
+	err = fgen.RunSingleTone(c.frequency)
 	if err != nil {
 		log.Fatal(err)
 	}

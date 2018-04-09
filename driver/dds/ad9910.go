@@ -1,6 +1,7 @@
 package dds
 
 import (
+	"encoding/binary"
 	"math"
 
 	"periph.io/x/periph/conn/spi"
@@ -138,7 +139,7 @@ func (d *AD9910) Init() error {
 }
 
 // RunSingleTone configures the AD9910 to run in single tone mode.
-func (d *AD9910) RunSingleTone() (err error) {
+func (d *AD9910) RunSingleTone(frequency float64) (err error) {
 	c := new(ad9910Config)
 
 	c.CFR1[0] |= ad9910AddrCFR1 | ad9910Write
@@ -191,11 +192,10 @@ func (d *AD9910) RunSingleTone() (err error) {
 		return
 	}
 
+	ftw := frequencyToFTW(frequency)
+
 	c.FTW[0] |= ad9910AddrFTW | ad9910Write
-	c.FTW[1] = 0x19
-	c.FTW[2] = 0x99
-	c.FTW[3] = 0x99
-	c.FTW[4] = 0x9a
+	binary.LittleEndian.PutUint32(c.FTW[1:], ftw)
 
 	err = d.conn.Tx(c.FTW[:], make([]byte, len(c.FTW)))
 	if err != nil {
@@ -204,10 +204,7 @@ func (d *AD9910) RunSingleTone() (err error) {
 
 	c.STProfile0[0] |= ad9910AddrProfile1 | ad9910Write
 	c.STProfile0[1] = 0xff
-	c.STProfile0[4] = 0x19
-	c.STProfile0[5] = 0x99
-	c.STProfile0[6] = 0x99
-	c.STProfile0[7] = 0x9a
+	binary.LittleEndian.PutUint32(c.STProfile0[3:], ftw)
 
 	return d.conn.Tx(c.STProfile0[:], make([]byte, len(c.STProfile0)))
 }
