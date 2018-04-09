@@ -15,12 +15,14 @@ type Select struct {
 }
 
 // NewSelect returns a new Select.
-func NewSelect() (d *Select) {
+func NewSelect() *Select {
+	d := &Select{}
+
 	for i, n := range selectPinNames {
 		d.pins[i] = gpioreg.ByName(n)
 	}
 
-	return
+	return d
 }
 
 // Init initializes the Select device.
