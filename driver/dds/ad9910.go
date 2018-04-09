@@ -141,7 +141,7 @@ func (d *AD9910) Init() error {
 func (d *AD9910) RunSingleTone() (err error) {
 	c := new(ad9910Config)
 
-	c.CFR1[0] |= ad9910Write
+	c.CFR1[0] |= ad9910AddrCFR1 | ad9910Write
 	c.CFR1[2] |= ad9910FlagManualOSK
 	c.CFR1[3] |= ad9910FlagOSKEnable
 	c.CFR1[4] |= ad9910FlagSDIOInput
@@ -151,7 +151,7 @@ func (d *AD9910) RunSingleTone() (err error) {
 		return
 	}
 
-	c.CFR2[0] |= ad9910Write
+	c.CFR2[0] |= ad9910AddrCFR2 | ad9910Write
 	c.CFR2[1] |= ad9910FlagAmplScaleEnable
 	c.CFR2[2] |= ad9910FlagSYNCCLKEnable
 	c.CFR2[3] |= ad9910FlagPDCLKEnable
@@ -162,13 +162,18 @@ func (d *AD9910) RunSingleTone() (err error) {
 		return
 	}
 
-	c.CFR3[0] |= ad9910Write
+	c.CFR3[0] |= ad9910AddrCFR3 | ad9910Write
 	c.CFR3[1] |= 0x1d
 	c.CFR3[2] |= 0x3f
 	c.CFR3[3] |= 0x41
 	c.CFR3[4] |= 0xc8
 
-	c.POW[0] |= ad9910Write
+	err = d.conn.Tx(c.CFR3[:], make([]byte, len(c.CFR3)))
+	if err != nil {
+		return
+	}
+
+	c.POW[0] |= ad9910AddrPOW | ad9910Write
 	c.POW[1] = 0x00
 	c.POW[2] = 0x00
 
@@ -177,7 +182,7 @@ func (d *AD9910) RunSingleTone() (err error) {
 		return
 	}
 
-	c.ASF[0] |= ad9910Write
+	c.ASF[0] |= ad9910AddrASF | ad9910Write
 	c.ASF[3] = 0xff
 	c.ASF[4] = 0xfc
 
@@ -186,7 +191,7 @@ func (d *AD9910) RunSingleTone() (err error) {
 		return
 	}
 
-	c.FTW[0] |= ad9910Write
+	c.FTW[0] |= ad9910AddrFTW | ad9910Write
 	c.FTW[1] = 0x19
 	c.FTW[2] = 0x99
 	c.FTW[3] = 0x99
@@ -197,7 +202,7 @@ func (d *AD9910) RunSingleTone() (err error) {
 		return
 	}
 
-	c.STProfile0[0] |= ad9910Write
+	c.STProfile0[0] |= ad9910AddrProfile1 | ad9910Write
 	c.STProfile0[1] = 0xff
 	c.STProfile0[4] = 0x19
 	c.STProfile0[5] = 0x99
