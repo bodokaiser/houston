@@ -28,7 +28,6 @@ func main() {
 	e.GET("/specs", httpd.ListSpecsHandler)
 
 	e.GET("/devices", httpd.ListDevicesHandler)
-	e.GET("/devices/:device", httpd.ShowDeviceHandler)
 	e.PUT("/devices/:device", httpd.UpdateDeviceHandler)
 
 	e.Static("/", "public")

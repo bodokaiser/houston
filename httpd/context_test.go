@@ -21,7 +21,7 @@ func (s *ContextTestSuite) SetupTest() {
 	s.echo.Use(WrapContext)
 }
 
-func (s *HandlerTestSuite) TestContentTypeHTML() {
+func (s *ContextTestSuite) TestContentTypeHTML() {
 	req := httptest.NewRequest(echo.GET, "/", nil)
 	req.Header.Set(echo.HeaderContentType, echo.MIMETextHTML)
 	rec := httptest.NewRecorder()
@@ -30,7 +30,7 @@ func (s *HandlerTestSuite) TestContentTypeHTML() {
 	assert.Equal(s.T(), echo.MIMETextHTML, ctx.ContentType())
 }
 
-func (s *HandlerTestSuite) TestContentTypeJSON() {
+func (s *ContextTestSuite) TestContentTypeJSON() {
 	req := httptest.NewRequest(echo.GET, "/", nil)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
@@ -39,7 +39,7 @@ func (s *HandlerTestSuite) TestContentTypeJSON() {
 	assert.Equal(s.T(), echo.MIMEApplicationJSON, ctx.ContentType())
 }
 
-func (s *HandlerTestSuite) TestContentTypeInvalid() {
+func (s *ContextTestSuite) TestContentTypeInvalid() {
 	req := httptest.NewRequest(echo.GET, "/", nil)
 	req.Header.Set(echo.HeaderContentType, "?")
 	rec := httptest.NewRecorder()
@@ -48,7 +48,7 @@ func (s *HandlerTestSuite) TestContentTypeInvalid() {
 	assert.Equal(s.T(), "", ctx.ContentType())
 }
 
-func (s *HandlerTestSuite) TestAcceptChrome() {
+func (s *ContextTestSuite) TestAcceptChrome() {
 	req := httptest.NewRequest(echo.GET, "/", nil)
 	req.Header.Set(echo.HeaderAccept, "text/html,application/xhtml+xml")
 	rec := httptest.NewRecorder()
@@ -58,7 +58,7 @@ func (s *HandlerTestSuite) TestAcceptChrome() {
 		ctx.Accept())
 }
 
-func (s *HandlerTestSuite) TestAcceptsHTML() {
+func (s *ContextTestSuite) TestAcceptsHTML() {
 	req := httptest.NewRequest(echo.GET, "/", nil)
 	req.Header.Set(echo.HeaderAccept, "text/html,application/xhtml+xml")
 	rec := httptest.NewRecorder()
@@ -68,7 +68,7 @@ func (s *HandlerTestSuite) TestAcceptsHTML() {
 	assert.False(s.T(), ctx.Accepts(echo.MIMEApplicationJavaScript))
 }
 
-func (s *HandlerTestSuite) TestWrapContext() {
+func (s *ContextTestSuite) TestWrapContext() {
 	req := httptest.NewRequest(echo.GET, "/", nil)
 	req.Header.Set(echo.HeaderAccept, "text/html,application/xhtml+xml")
 	rec := httptest.NewRecorder()
