@@ -11,6 +11,7 @@ import (
 )
 
 type config struct {
+	cselect   uint
 	frequency float64
 	amplitude float64
 }
@@ -18,8 +19,9 @@ type config struct {
 func main() {
 	c := config{}
 
-	flag.Float64Var(&c.frequency, "frequency", 200e6, "")
-	flag.Float64Var(&c.amplitude, "amplitude", 0, "")
+	flag.UintVar(&c.cselect, "select", 0, "DDS chip to configure")
+	flag.Float64Var(&c.frequency, "frequency", 200e6, "Frequency [Hz]")
+	flag.Float64Var(&c.amplitude, "amplitude", 0, "Amplitude [0, 1]")
 	flag.Parse()
 
 	_, err := host.Init()
@@ -31,7 +33,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	s.Address(0)
+
+	err = s.Address(c.cselect)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	d, err := dds.NewAD9910(dds.DefaultSysClock, dds.DefaultRefClock)
 	if err != nil {
