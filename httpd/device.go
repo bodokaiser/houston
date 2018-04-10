@@ -2,50 +2,58 @@ package httpd
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo"
+
+	"github.com/bodokaiser/beagle/driver/dds"
+	"github.com/bodokaiser/beagle/driver/misc"
+	"github.com/bodokaiser/beagle/model"
 )
 
-var defaultDevices = []*Device{
-	&Device{0, "DDS 0", "Sweep", SingleTone{0, 250e6}, Sweep{100e6, 200e6, 1, "Triangle"}},
-	&Device{1, "DDS 1", "Single Tone", SingleTone{-80, 30e6}, Sweep{10e6, 20e6, .5, "Triangle"}},
-}
-
-// Device is a device exposed by the HTTP api.
-type Device struct {
-	Id         int        `json:"id"`
-	Name       string     `json:"name"`
-	Mode       string     `json:"mode"`
-	SingleTone SingleTone `json:"singleTone"`
-	Sweep      Sweep      `json:"sweep"`
-}
-
-type SingleTone struct {
-	Amplitude float32 `json:"amplitude"`
-	Frequency float64 `json:"frequency"`
-}
-
-type Sweep struct {
-	StartFrequency float32 `json:"startFrequency"`
-	StopFrequency  float32 `json:"stopFrequency"`
-	Interval       float32 `json:"interval"`
-	Waveform       string  `json:"waveform"`
+type DeviceHandler struct {
+	Devices     []model.Device
+	ChipSelect  *misc.Select
+	Synthesizer *dds.AD9910
 }
 
 // ListDevicesHandler responds a list of available devices.
-func ListDevicesHandler(ctx echo.Context) error {
+func (h *DeviceHandler) List(ctx echo.Context) error {
 	c := ctx.(*Context)
 
 	if c.Accepts(echo.MIMEApplicationJSON) {
-		return c.JSON(http.StatusOK, defaultDevices)
+		return c.JSON(http.StatusOK, h.Devices)
 	}
 
 	return echo.ErrUnsupportedMediaType
 }
 
-// UpdateDeviceHandler updates configuration of specified device.
-func UpdateDeviceHandler(ctx echo.Context) error {
-	c := ctx.(*Context)
+type update struct {
+	Frequency float64 `json:"frequency"`
+}
 
-	return c.NoContent(http.StatusNoContent)
+// UpdateDeviceHandler updates configuration of specified device.
+func (h *DeviceHandler) Update(ctx echo.Context) error {
+	n, err := strconv.Atoi(ctx.Param("device"))
+	if err != nil {
+		return err
+	}
+
+	u := new(update)
+	err = ctx.Bind(u)
+	if err != nil {
+		return err
+	}
+
+	err = h.ChipSelect.Address(uint(n))
+	if err != nil {
+		return err
+	}
+
+	err = h.Synthesizer.SingleTone(u.Frequency)
+	if err != nil {
+		return err
+	}
+
+	return ctx.NoContent(http.StatusNoContent)
 }
