@@ -27,19 +27,18 @@ func main() {
 		log.Fatal(err)
 	}
 
-	csel := misc.NewSelect()
-	fgen := dds.NewAD9910()
-
-	err = csel.Init()
+	s, err := misc.NewSelect()
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = fgen.Init()
+	s.Address(0)
+
+	d, err := dds.NewAD9910(dds.DefaultSysClock, dds.DefaultRefClock)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = fgen.RunSingleTone(c.frequency)
+	err = d.SingleTone(c.frequency)
 	if err != nil {
 		log.Fatal(err)
 	}
