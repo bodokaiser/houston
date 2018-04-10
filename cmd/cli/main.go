@@ -28,14 +28,9 @@ func main() {
 	}
 
 	csel := misc.NewSelect()
-	ctrl := misc.NewControl()
 	fgen := dds.NewAD9910()
 
 	err = csel.Init()
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = ctrl.Init()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -43,17 +38,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = ctrl.Reset()
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	err = fgen.RunSingleTone(c.frequency)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = ctrl.IOUpdate()
 	if err != nil {
 		log.Fatal(err)
 	}

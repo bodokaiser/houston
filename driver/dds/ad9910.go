@@ -3,6 +3,7 @@ package dds
 import (
 	"math"
 
+	"github.com/bodokaiser/beagle/driver/misc"
 	"periph.io/x/periph/conn/spi"
 	"periph.io/x/periph/conn/spi/spireg"
 )
@@ -139,13 +140,50 @@ func (d *AD9910) Init() error {
 
 // RunSingleTone configures the AD9910 to run in single tone mode.
 func (d *AD9910) RunSingleTone(frequency float64) (err error) {
+	c := misc.NewControl()
+
+	err = c.Init()
+	if err != nil {
+		return
+	}
+
 	w := []byte{
-		8, 0, 0, 1, 3, 64, 8, 32, 14, 63, 255, 0, 0, 51, 51, 51, 51,
-		0, 0, 128, 2, 2, 9, 0, 0, 255, 252, 7, 51, 51, 51, 51,
+		0, 0, 0, 0, 2, 2, 31, 63, 64, 0, 1, 0, 64, 8, 32, 11, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 127, 8, 0, 0, 8, 0, 0, 9, 0, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 0, 0, 0, 0, 0, 0, 14, 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 0, 0, 0, 7, 0, 0, 0, 0, 4, 255, 255, 255, 255, 15, 0, 0, 0, 0, 0, 0, 0, 0, 14, 8, 181, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 19, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0,
 	}
 	r := make([]byte, len(w))
 
-	return d.conn.Tx(w, r)
+	err = d.conn.Tx(w, r)
+	if err != nil {
+		return
+	}
+	err = c.IOUpdate()
+	if err != nil {
+		return
+	}
+
+	w = []byte{0, 0, 128, 2, 2, 2, 29, 63, 65, 200, 1, 1, 64, 8, 32}
+	r = make([]byte, len(w))
+
+	err = d.conn.Tx(w, r)
+	if err != nil {
+		return
+	}
+	err = c.IOUpdate()
+	if err != nil {
+		return
+	}
+
+	w = []byte{
+		8, 0, 0, 1, 3, 64, 8, 32, 14, 63, 255, 0, 0, 51, 51, 51, 51,
+		0, 0, 128, 2, 2, 9, 0, 0, 255, 252, 7, 51, 51, 51, 51,
+	}
+	r = make([]byte, len(w))
+
+	err = d.conn.Tx(w, r)
+	if err != nil {
+		return
+	}
+	return c.IOUpdate()
 }
 
 func frequencyToFTW(frequency float64) uint32 {
