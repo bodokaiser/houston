@@ -24,7 +24,12 @@ func main() {
 	flag.Float64Var(&c.amplitude, "amplitude", 0, "Amplitude [0, 1]")
 	flag.Parse()
 
-	_, err := host.Init()
+	err := misc.DefaultConfig.Exec()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = host.Init()
 	if err != nil {
 		log.Fatal(err)
 	}
