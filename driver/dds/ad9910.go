@@ -148,96 +148,24 @@ func (d *AD9910) RunSingleTone(frequency float64) (err error) {
 	}
 
 	w := []byte{
-		// CFR1
-		0, 0, 0, 0, 2,
-		// CFR3
-		2, 31, 63, 64, 0,
-		// CFR2
-		1, 0, 64, 8, 32,
-		// Digital Ramp Limits
-		11, 0, 0, 0, 0, 0, 0, 0, 0,
-		// AuxDAC
-		3, 0, 0, 0, 127,
-		// POW
-		8, 0, 0,
-		// POW
-		8, 0, 0,
-		// ASF
-		9, 0, 0, 0, 0,
-		// Digital Ramp Step Size
-		12, 0, 0, 0, 0, 0, 0, 0, 0,
-		// Profile 1
-		15, 0, 0, 0, 0, 0, 0, 0, 0,
-		// Profile 0
-		14, 0, 0, 0, 0, 0, 0, 0, 0,
-		// Digital Ramp Rate
-		13, 0, 0, 0, 0,
-		// FTW
-		7, 0, 0, 0, 0,
-		// IO Update Rate
-		4, 255, 255, 255, 255,
-		// Profile 1
-		15, 0, 0, 0, 0, 0, 0, 0, 0,
-		// Profile 0
-		14, 8, 181, 0, 0, 0, 0, 0, 0,
-		// Profile 3
-		17, 0, 0, 0, 0, 0, 0, 0, 0,
-		// Profile 2
-		16, 0, 0, 0, 0, 0, 0, 0, 0,
-		// Profile 5
-		19, 0, 0, 0, 0, 0, 0, 0, 0,
-		// Profile 4
-		18, 0, 0, 0, 0, 0, 0, 0, 0,
-		// Profile 7
-		21, 0, 0, 0, 0, 0, 0, 0, 0,
-		// Profile 6
-		20, 0, 0, 0, 0, 0, 0, 0, 0,
-	}
-	r := make([]byte, len(w))
-
-	err = d.conn.Tx(w, r)
-	if err != nil {
-		return
-	}
-	err = c.IOUpdate()
-	if err != nil {
-		return
-	}
-
-	w = []byte{
-		// CFR1
-		0, 0, 128, 2, 2,
 		// CFR3
 		2, 29, 63, 65, 200,
 		// CFR2
 		1, 1, 64, 8, 32,
-	}
-	r = make([]byte, len(w))
-
-	err = d.conn.Tx(w, r)
-	if err != nil {
-		return
-	}
-	err = c.IOUpdate()
-	if err != nil {
-		return
-	}
-
-	w = []byte{
-		// POW
-		8, 0, 0,
-		// CFR2
-		1, 3, 64, 8, 32,
 		// Profile 0
-		14, 63, 255, 0, 0, 51, 51, 51, 51,
+		14, 63, 255, 0, 0, 25, 153, 153, 154,
 		// CFR1
 		0, 0, 128, 2, 2,
 		// ASF
 		9, 0, 0, 255, 252,
 		// FTW
-		7, 51, 51, 51, 51,
+		//7, 100, 100, 100, 100,
+		// AuxDAC
+		3, 0, 0, 0, 127,
+		// IO Update Rate
+		4, 255, 255, 255, 255,
 	}
-	r = make([]byte, len(w))
+	r := make([]byte, len(w))
 
 	err = d.conn.Tx(w, r)
 	if err != nil {
