@@ -17,7 +17,13 @@ export const InputGroup = ({ name, type, value, label, append, prepend,
         type={type || 'text'}
         defaultValue={value}
         readOnly={readOnly}
-        onChange={e => onChange(e.target.name, e.target.value, e.target)}
+        onChange={e => {
+          value = e.target.value
+
+          if (e.target.type == "number") value = parseFloat(value)
+
+          onChange(e.target.id, value, e.target)
+        }}
         placeholder={placeholder} />
       <div className="valid-feedback">{ validation }</div>
       { append &&

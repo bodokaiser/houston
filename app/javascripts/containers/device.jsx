@@ -18,14 +18,15 @@ import {
 } from '../components/icon'
 
 import {
+  submitDevice,
   updateDeviceMode,
   updateDeviceName,
   updateDeviceSweep,
   updateDeviceSingleTone
 } from '../actions/device'
 
-const SingleToneForm = ({ amplitude, frequency, onChange }) => (
-  <form>
+const SingleToneForm = ({ amplitude, frequency, onChange, onSubmit }) => (
+  <form onSubmit={onSubmit}>
     <div className="form-row">
       <div className="form-group col-sm-12">
         <InputGroup name="amplitude" label="Amplitude" type="number"
@@ -45,8 +46,8 @@ const SingleToneForm = ({ amplitude, frequency, onChange }) => (
 )
 
 const SweepForm = ({ startFrequency, stopFrequency, interval, waveform,
-  waveforms, onChange }) => (
-  <form>
+  waveforms, onChange, onSubmit }) => (
+  <form onSubmit={onSubmit}>
     <div className="form-row">
       <div className="form-group col-sm-12">
         <InputGroup name="startFrequency" type="number" label="Start Frequency"
@@ -88,6 +89,7 @@ class Device extends Component {
     this.handleNameSubmit = this.handleNameSubmit.bind(this)
     this.handleNameChange = this.handleNameChange.bind(this)
     this.handleSingleToneChange = this.handleSingleToneChange.bind(this)
+    this.handleSingleToneSubmit = this.handleSingleToneSubmit.bind(this)
     this.handleSweepChange = this.handleSweepChange.bind(this)
   }
 
@@ -112,7 +114,16 @@ class Device extends Component {
   }
 
   handleSingleToneChange(name, value) {
-    this.props.updateSingleTone(this.props.device, { name: value })
+    var data = {}
+    data[name] = value
+
+    this.props.updateSingleTone(this.props.device, data)
+  }
+
+  handleSingleToneSubmit(e) {
+    e.preventDefault()
+
+    this.props.submitSingleTone(this.props.device)
   }
 
   handleSweepChange(name, value) {
@@ -144,9 +155,11 @@ class Device extends Component {
         </div>
         <div className="card-body">
           <NavTabs links={links} onClick={this.handleTabClick} />
-          {console.log(device.mode)}
           <div className={(device.mode == 'Single Tone') ? '' : 'd-none'}>
-            <SingleToneForm onChange={this.handleSingleToneChange} {...device.singleTone} />
+            <SingleToneForm
+              onChange={this.handleSingleToneChange}
+              onSubmit={this.handleSingleToneSubmit}
+              {...device.singleTone} />
           </div>
           <div className={(device.mode == 'Sweep') ? '' : 'd-none'}>
             <SweepForm onChange={this.handleSweepChange} {...{...device.sweep, waveforms}} />
@@ -167,7 +180,8 @@ const mapDispatch = dispatch => ({
   updateName: bindActionCreators(updateDeviceName, dispatch),
   updateMode: bindActionCreators(updateDeviceMode, dispatch),
   updateSweep: bindActionCreators(updateDeviceSweep, dispatch),
-  updateSingleTone: bindActionCreators(updateDeviceSingleTone, dispatch)
+  updateSingleTone: bindActionCreators(updateDeviceSingleTone, dispatch),
+  submitSingleTone: bindActionCreators(submitDevice, dispatch)
 })
 
 export default connect(

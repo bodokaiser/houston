@@ -22,18 +22,16 @@ export function updateDeviceName(device, name) {
 }
 
 export function updateDeviceSingleTone(device, singleTone) {
-  device.singleTone = {
-    singleTone: { ...device.singleTone, ...singleTone }
-  }
+  device.singleTone = {...device.singleTone, ...singleTone }
+
   return dispatch => {
     dispatch(updateDevice(device))
   }
 }
 
 export function updateDeviceSweep(device, sweep) {
-  device.sweep = {
-    sweep: { ...device.sweep, ...sweep }
-  }
+  device.sweep = { ...device.sweep, ...sweep }
+
   return dispatch => {
     dispatch(updateDevice(device))
   }
@@ -45,6 +43,20 @@ export function requestDevices() {
 
 export function receiveDevices(devices) {
   return { type: RECEIVE_DEVICES, devices }
+}
+
+export function submitDevice(device) {
+  return dispatch => {
+    console.log(device)
+    return fetch(`${process.env.RESOURCE}/devices/${device.id}`, {
+      method: 'PUT',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ frequency: device.singleTone.frequency })
+    })
+  }
 }
 
 export function fetchDevices() {
