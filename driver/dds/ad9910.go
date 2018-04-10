@@ -1,7 +1,6 @@
 package dds
 
 import (
-	"encoding/binary"
 	"math"
 
 	"periph.io/x/periph/conn/spi"
@@ -112,8 +111,8 @@ type ad9910Config struct {
 // Default clock parameters required for PLL and conversion of frequency to
 // FTW.
 const (
-	AD9910DefaultREFCLK = 10e6
-	AD9910DefaultSYSCLK = 1e9
+	AD9910DefaultREFCLK = 1e7 // 10 MHz
+	AD9910DefaultSYSCLK = 1e9 // 1 GHz
 )
 
 // AD9910 is the SPI driver for the AD9910 DDS chip.
@@ -140,73 +139,13 @@ func (d *AD9910) Init() error {
 
 // RunSingleTone configures the AD9910 to run in single tone mode.
 func (d *AD9910) RunSingleTone(frequency float64) (err error) {
-	c := new(ad9910Config)
-
-	c.CFR1[0] |= ad9910AddrCFR1 | ad9910Write
-	c.CFR1[2] |= ad9910FlagManualOSK
-	c.CFR1[3] |= ad9910FlagOSKEnable
-	c.CFR1[4] |= ad9910FlagSDIOInput
-
-	err = d.conn.Tx(c.CFR1[:], make([]byte, len(c.CFR1)))
-	if err != nil {
-		return
+	w := []byte{
+		8, 0, 0, 1, 3, 64, 8, 32, 14, 63, 255, 0, 0, 51, 51, 51, 51,
+		0, 0, 128, 2, 2, 9, 0, 0, 255, 252, 7, 51, 51, 51, 51,
 	}
+	r := make([]byte, len(w))
 
-	c.CFR2[0] |= ad9910AddrCFR2 | ad9910Write
-	c.CFR2[1] |= ad9910FlagAmplScaleEnable
-	c.CFR2[2] |= ad9910FlagSYNCCLKEnable
-	c.CFR2[3] |= ad9910FlagPDCLKEnable
-	c.CFR2[4] |= ad9910FlagSyncValidDisable
-
-	err = d.conn.Tx(c.CFR2[:], make([]byte, len(c.CFR2)))
-	if err != nil {
-		return
-	}
-
-	c.CFR3[0] |= ad9910AddrCFR3 | ad9910Write
-	c.CFR3[1] |= 0x1d
-	c.CFR3[2] |= 0x3f
-	c.CFR3[3] |= 0x41
-	c.CFR3[4] |= 0xc8
-
-	err = d.conn.Tx(c.CFR3[:], make([]byte, len(c.CFR3)))
-	if err != nil {
-		return
-	}
-
-	c.POW[0] |= ad9910AddrPOW | ad9910Write
-	c.POW[1] = 0x00
-	c.POW[2] = 0x00
-
-	err = d.conn.Tx(c.POW[:], make([]byte, len(c.POW)))
-	if err != nil {
-		return
-	}
-
-	c.ASF[0] |= ad9910AddrASF | ad9910Write
-	c.ASF[3] = 0xff
-	c.ASF[4] = 0xfc
-
-	err = d.conn.Tx(c.ASF[:], make([]byte, len(c.ASF)))
-	if err != nil {
-		return
-	}
-
-	ftw := frequencyToFTW(frequency)
-
-	c.FTW[0] |= ad9910AddrFTW | ad9910Write
-	binary.LittleEndian.PutUint32(c.FTW[1:], ftw)
-
-	err = d.conn.Tx(c.FTW[:], make([]byte, len(c.FTW)))
-	if err != nil {
-		return
-	}
-
-	c.STProfile0[0] |= ad9910AddrProfile1 | ad9910Write
-	c.STProfile0[1] = 0xff
-	binary.LittleEndian.PutUint32(c.STProfile0[3:], ftw)
-
-	return d.conn.Tx(c.STProfile0[:], make([]byte, len(c.STProfile0)))
+	return d.conn.Tx(w, r)
 }
 
 func frequencyToFTW(frequency float64) uint32 {

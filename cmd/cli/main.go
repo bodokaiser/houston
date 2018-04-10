@@ -43,6 +43,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	err = ctrl.Reset()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	err = fgen.RunSingleTone(c.frequency)
 	if err != nil {
