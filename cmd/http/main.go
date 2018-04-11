@@ -11,39 +11,9 @@ import (
 	"github.com/bodokaiser/beagle/driver/dds"
 	"github.com/bodokaiser/beagle/driver/misc"
 	"github.com/bodokaiser/beagle/httpd"
+	"github.com/bodokaiser/beagle/httpd/handler"
 	"github.com/bodokaiser/beagle/model"
 )
-
-var defaultDevices = []model.Device{
-	model.Device{
-		ID:   0,
-		Name: "DDS 0",
-		Mode: "Sweep",
-		SingleTone: model.SingleTone{
-			Amplitude: 1.0,
-			Frequency: 250e6,
-		},
-		Sweep: model.Sweep{
-			StartFrequency: 100e6,
-			StopFrequency:  200e6,
-			Interval:       1,
-			Waveform:       "Triangle",
-		}},
-	model.Device{
-		ID:   1,
-		Name: "DDS 1",
-		Mode: "Single Tone",
-		SingleTone: model.SingleTone{
-			Amplitude: 1.0,
-			Frequency: 30e6,
-		},
-		Sweep: model.Sweep{
-			StartFrequency: 10e6,
-			StopFrequency:  20e6,
-			Interval:       .5,
-			Waveform:       "Triangle",
-		}},
-}
 
 type config struct {
 	address string
@@ -81,14 +51,16 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	e.GET("/specs", httpd.ListSpecsHandler)
+	sh := &handler.Spec{
+		Specs: model.DefaultDDSSpecs,
+	}
+	e.GET("/specs", sh.List)
 
-	dh := &httpd.DeviceHandler{
-		Devices:     defaultDevices,
+	dh := &handler.Device{
+		Devices:     model.DefaultDDSDevices,
 		ChipSelect:  s,
 		Synthesizer: d,
 	}
-
 	e.GET("/devices", dh.List)
 	e.PUT("/devices/:device", dh.Update)
 

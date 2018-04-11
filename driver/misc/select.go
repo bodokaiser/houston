@@ -31,7 +31,7 @@ func NewSelect() (*Select, error) {
 }
 
 // Address configures chip select to address chip numbered with n.
-func (d *Select) Address(n uint) (err error) {
+func (d *Select) Address(n uint8) (err error) {
 	if n > (2 << uint(len(pinNames))) {
 		return errors.New("chip number is out of range")
 	}
