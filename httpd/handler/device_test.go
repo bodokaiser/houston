@@ -17,30 +17,29 @@ type DeviceTestSuite struct {
 	suite.Suite
 
 	e *echo.Echo
-	h *Device
 }
 
 func (s *DeviceTestSuite) SetupTest() {
-	s.e = echo.New()
-	s.h = &Device{
+  h := &Device{
 		Devices: model.DefaultDDSDevices,
 	}
-}
+
+	s.e = echo.New()
+  s.e.Use(httpd.WrapContext)
+  s.e.GET("/devices")
+	s.e.PUT("/devices/:name")
 
 func (s *DeviceTestSuite) TestListJSON() {
 	req := httptest.NewRequest(echo.GET, "/devices", nil)
 	req.Header.Set(echo.HeaderAccept, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
-	ctx := s.e.NewContext(req, rec)
 
-	h := httpd.WrapContext(s.h.List)
+  s.e.ServeHTTP(rec, req)
 
-	if assert.NoError(s.T(), h(ctx)) {
-		assert.Equal(s.T(), http.StatusOK, rec.Code)
-	}
+	assert.Equal(s.T(), http.StatusOK, rec.Code)
 }
 
-func (s *DeviceTestSuite) TestUpdate() {
+func (s *DeviceTestSuite) TestUpdateJSON() {
 	req := httptest.NewRequest(echo.PUT, "/devices/DDS 0", nil)
 	req.Header.Set(echo.HeaderAccept, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
