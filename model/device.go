@@ -1,24 +1,16 @@
 package model
 
-// Device is a device exposed by the HTTP api.
+// Device is a generic device.
 type Device struct {
-	ID         int        `json:"id"`
-	Name       string     `json:"name"`
-	Mode       string     `json:"mode"`
-	SingleTone SingleTone `json:"singleTone"`
-	Sweep      Sweep      `json:"sweep"`
+	ID   int    `json:"id"`
+	Name string `json:"name"`
 }
 
-// SingleTone contains single tone configuration parameters.
-type SingleTone struct {
-	Amplitude float32 `json:"amplitude"`
-	Frequency float64 `json:"frequency"`
-}
-
-// Sweep contains sweep configuration parameters.
-type Sweep struct {
-	StartFrequency float32 `json:"startFrequency"`
-	StopFrequency  float32 `json:"stopFrequency"`
-	Interval       float32 `json:"interval"`
-	Waveform       string  `json:"waveform"`
+// DDSDevice is direct digital synthesizer device.
+type DDSDevice struct {
+	Device
+	Amplitude      float64    `json:"amplitude"`
+	AmplitudeRange [2]float64 `json:"amplitudeRange"`
+	Frequency      float64    `json:"frequency"`
+	FrequencyRange [2]float64 `json:"frequencyRange"`
 }
