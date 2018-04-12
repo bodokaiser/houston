@@ -1,4 +1,4 @@
-package device
+package handler
 
 import (
 	"net/http"
@@ -10,12 +10,13 @@ import (
 	"github.com/bodokaiser/beagle/model"
 )
 
-type DDS struct {
+// DDSDevices exposes HTTP handlers to interact with a DDS array.
+type DDSDevices struct {
 	Devices []model.DDSDevice
-	Driver  *driver.DDSArray
+	Driver  driver.DDSArray
 }
 
-func (h *DDS) findByName(name string) *model.DDSDevice {
+func (h *DDSDevices) findByName(name string) *model.DDSDevice {
 	for _, d := range h.Devices {
 		if d.Name == name {
 			return &d
@@ -26,7 +27,7 @@ func (h *DDS) findByName(name string) *model.DDSDevice {
 }
 
 // List handles responds a list of available devices.
-func (h *DDS) List(ctx echo.Context) error {
+func (h *DDSDevices) List(ctx echo.Context) error {
 	c := ctx.(*httpd.Context)
 
 	if c.Accepts(echo.MIMEApplicationJSON) {
@@ -39,8 +40,8 @@ func (h *DDS) List(ctx echo.Context) error {
 	return echo.ErrUnsupportedMediaType
 }
 
-// UpdateDeviceHandler updates configuration of specified device.
-func (h *DDS) Update(ctx echo.Context) error {
+// Update updates configuration of specified device.
+func (h *DDSDevices) Update(ctx echo.Context) error {
 	d := h.findByName(ctx.Param("name"))
 	if d == nil {
 		return echo.ErrNotFound

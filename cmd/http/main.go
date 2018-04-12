@@ -4,16 +4,16 @@ import (
 	"flag"
 	"log"
 
+	"periph.io/x/periph/host"
+
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-
-	"periph.io/x/periph/host"
 
 	"github.com/bodokaiser/beagle/driver"
 	"github.com/bodokaiser/beagle/driver/dds/ad99xx"
 	"github.com/bodokaiser/beagle/driver/mux"
 	"github.com/bodokaiser/beagle/httpd"
-	"github.com/bodokaiser/beagle/httpd/handler/device"
+	"github.com/bodokaiser/beagle/httpd/handler"
 	"github.com/bodokaiser/beagle/model"
 )
 
@@ -48,17 +48,15 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	dh := &device.DDS{
+	dh := &handler.DDSDevices{
 		Devices: model.DefaultDDSDevices,
-		Driver: &driver.DDSArray{
+		Driver: &driver.AD9910DDSArray{
 			DDS: dds,
 			Mux: csel,
 		},
 	}
 	e.GET("/devices/dds", dh.List)
 	e.PUT("/devices/dds/:name", dh.Update)
-
-	e.Static("/", "public")
 
 	e.Logger.Fatal(e.Start(c.address))
 }

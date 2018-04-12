@@ -13,12 +13,12 @@ type DDSDevice struct {
 // DefaultDDSDevices are the default direct digital synthesizer available.
 var DefaultDDSDevices = []DDSDevice{
 	DDSDevice{
-		Name:      "DDS 0",
+		Name:      "DDS0",
 		Amplitude: 1.0,
 		Frequency: 250e6,
 	},
 	DDSDevice{
-		Name:           "DDS 1",
+		Name:           "DDS1",
 		FrequencyRange: [2]float64{10e6, 20e6},
 	},
 }

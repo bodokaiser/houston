@@ -1,4 +1,4 @@
-package device
+package handler
 
 import (
 	"net/http"
@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
+	"github.com/bodokaiser/beagle/driver"
 	"github.com/bodokaiser/beagle/httpd"
 	"github.com/bodokaiser/beagle/model"
 )
@@ -20,18 +21,19 @@ type DDSTestSuite struct {
 }
 
 func (s *DDSTestSuite) SetupTest() {
-	h := &DDS{
+	h := &DDSDevices{
 		Devices: model.DefaultDDSDevices,
+		Driver:  &driver.MockedDDSArray{},
 	}
 
 	s.e = echo.New()
 	s.e.Use(httpd.WrapContext)
-	s.e.GET("/devices/dds/", h.List)
+	s.e.GET("/devices/dds", h.List)
 	s.e.PUT("/devices/dds/:name", h.Update)
 }
 
 func (s *DDSTestSuite) TestListJSON() {
-	req := httptest.NewRequest(echo.GET, "/devices", nil)
+	req := httptest.NewRequest(echo.GET, "/devices/dds", nil)
 	req.Header.Set(echo.HeaderAccept, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 
@@ -41,7 +43,7 @@ func (s *DDSTestSuite) TestListJSON() {
 }
 
 func (s *DDSTestSuite) TestUpdateJSON() {
-	req := httptest.NewRequest(echo.PUT, "/devices/1", nil)
+	req := httptest.NewRequest(echo.PUT, "/devices/dds/DDS0", nil)
 	req.Header.Set(echo.HeaderAccept, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 
