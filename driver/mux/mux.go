@@ -1,3 +1,4 @@
+// Package mux provides drivers for hardware multiplexers.
 package mux
 
 // Mux implements a hardware multiplexer driver.

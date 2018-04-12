@@ -7,7 +7,7 @@ import (
 	"periph.io/x/periph/conn/gpio/gpioreg"
 )
 
-// Digital is the driver to a digital multiplexer.
+// Digital implements Mux for a digital multiplexer.
 type Digital struct {
 	pins []gpio.PinIO
 }
