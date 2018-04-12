@@ -13,7 +13,6 @@ import (
 	"github.com/bodokaiser/beagle/driver/dds/ad99xx"
 	"github.com/bodokaiser/beagle/driver/mux"
 	"github.com/bodokaiser/beagle/httpd"
-	"github.com/bodokaiser/beagle/httpd/handler"
 	"github.com/bodokaiser/beagle/httpd/handler/device"
 	"github.com/bodokaiser/beagle/model"
 )
@@ -48,11 +47,6 @@ func main() {
 	e.Use(middleware.CORS())
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-
-	sh := &handler.Spec{
-		Specs: model.DefaultDDSSpecs,
-	}
-	e.GET("/specs", sh.List)
 
 	dh := &device.DDS{
 		Devices: model.DefaultDDSDevices,
