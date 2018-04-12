@@ -14,16 +14,3 @@ type DDSDevice struct {
 	Frequency      float64    `json:"frequency"`
 	FrequencyRange [2]float64 `json:"frequencyRange"`
 }
-
-// DefaultDDSDevices are the default direct digital synthesizer available.
-var DefaultDDSDevices = []DDSDevice{
-	DDSDevice{
-		Name:      "DDS0",
-		Amplitude: 1.0,
-		Frequency: 250e6,
-	},
-	DDSDevice{
-		Name:           "DDS1",
-		FrequencyRange: [2]float64{10e6, 20e6},
-	},
-}

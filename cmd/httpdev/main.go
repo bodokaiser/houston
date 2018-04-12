@@ -13,6 +13,18 @@ import (
 	"github.com/bodokaiser/houston/model"
 )
 
+var defaultDDSDevices = []model.DDSDevice{
+	model.DDSDevice{
+		Name:      "DDS0",
+		Amplitude: 1.0,
+		Frequency: 250e6,
+	},
+	model.DDSDevice{
+		Name:           "DDS1",
+		FrequencyRange: [2]float64{10e6, 20e6},
+	},
+}
+
 type config struct {
 	address string
 }
@@ -30,7 +42,7 @@ func main() {
 	e.Use(middleware.Recover())
 
 	dh := &handler.DDSDevices{
-		Devices: model.DefaultDDSDevices,
+		Devices: defaultDDSDevices,
 		Driver:  &driver.MockedDDSArray{},
 	}
 	e.GET("/devices/dds", dh.List)

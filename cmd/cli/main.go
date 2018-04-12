@@ -11,6 +11,24 @@ import (
 	"github.com/bodokaiser/houston/driver/mux"
 )
 
+const (
+	defaultSysClock = 1e9
+	defaultRefClock = 1e7
+)
+
+const (
+	defaultSPIDevice  = "SPI1.0"
+	defaultSPIMaxFreq = 5e6
+	defaultSPIMode    = 0
+)
+
+const (
+	defaultResetPin    = "65"
+	defaultIOUpdatePin = "27"
+)
+
+var defaultMuxPins = []string{"48", "30", "60", "31", "50"}
+
 type config struct {
 	cselect   uint
 	frequency float64
@@ -30,12 +48,20 @@ func main() {
 		log.Fatal(err)
 	}
 
-	csel, err := mux.NewDigital(mux.DefaultDigitalPins)
+	csel, err := mux.NewDigital(defaultMuxPins)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	dds, err := ad99xx.NewAD9910(ad99xx.AD9910DefaultConfig)
+	dds, err := ad99xx.NewAD9910(ad99xx.Config{
+		SysClock:    defaultSysClock,
+		RefClock:    defaultRefClock,
+		ResetPin:    defaultResetPin,
+		IOUpdatePin: defaultIOUpdatePin,
+		SPIDevice:   defaultSPIDevice,
+		SPIMaxFreq:  defaultSPIMaxFreq,
+		SPIMode:     defaultSPIMode,
+	})
 	if err != nil {
 		log.Fatal(err)
 	}

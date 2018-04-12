@@ -19,14 +19,3 @@ type Config struct {
 	// SPIMode is the SPI mode. See spi.Mode for details.
 	SPIMode spi.Mode
 }
-
-// AD9910DefaultConfig is the default configuration for the AD9910 dds.
-var AD9910DefaultConfig = Config{
-	SysClock:    1e9,
-	RefClock:    1e7,
-	ResetPin:    "65",
-	IOUpdatePin: "27",
-	SPIDevice:   "SPI1.0",
-	SPIMaxFreq:  5e6,
-	SPIMode:     0,
-}

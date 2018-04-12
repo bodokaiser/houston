@@ -18,6 +18,36 @@ import (
 	"github.com/bodokaiser/houston/model"
 )
 
+const (
+	defaultSysClock = 1e9
+	defaultRefClock = 1e7
+)
+
+const (
+	defaultSPIDevice  = "SPI1.0"
+	defaultSPIMaxFreq = 5e6
+	defaultSPIMode    = 0
+)
+
+const (
+	defaultResetPin    = "65"
+	defaultIOUpdatePin = "27"
+)
+
+var defaultMuxPins = []string{"48", "30", "60", "31", "50"}
+
+var defaultDDSDevices = []model.DDSDevice{
+	model.DDSDevice{
+		Name:      "DDS0",
+		Amplitude: 1.0,
+		Frequency: 250e6,
+	},
+	model.DDSDevice{
+		Name:           "DDS1",
+		FrequencyRange: [2]float64{10e6, 20e6},
+	},
+}
+
 type config struct {
 	address string
 }
@@ -33,12 +63,20 @@ func main() {
 		log.Fatal(err)
 	}
 
-	csel, err := mux.NewDigital(mux.DefaultDigitalPins)
+	csel, err := mux.NewDigital(defaultMuxPins)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	dds, err := ad99xx.NewAD9910(ad99xx.AD9910DefaultConfig)
+	dds, err := ad99xx.NewAD9910(ad99xx.Config{
+		SysClock:    defaultSysClock,
+		RefClock:    defaultRefClock,
+		ResetPin:    defaultResetPin,
+		IOUpdatePin: defaultIOUpdatePin,
+		SPIDevice:   defaultSPIDevice,
+		SPIMaxFreq:  defaultSPIMaxFreq,
+		SPIMode:     defaultSPIMode,
+	})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -50,7 +88,7 @@ func main() {
 	e.Use(middleware.Recover())
 
 	dh := &handler.DDSDevices{
-		Devices: model.DefaultDDSDevices,
+		Devices: defaultDDSDevices,
 		Driver: &driver.AD9910DDSArray{
 			DDS: dds,
 			Mux: csel,
