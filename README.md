@@ -112,6 +112,14 @@ the command scripts.
 
 ## Appendix
 
+### How to render docs
+
+You can serve the documentation of the Go packages with
+
+    godoc -http=:6060
+
+and then visiting [http://localhost:6060](http://localhost:6060).
+
 ### How to enable SPI pins
 
 Some Beaglebone pins are multi purpose and have to be configured accordingly.
