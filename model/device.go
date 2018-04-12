@@ -12,7 +12,7 @@ type DDSDevice struct {
 	Address        uint8      `json:"-"`
 	Amplitude      float64    `json:"amplitude"`
 	Frequency      float64    `json:"frequency"`
-	FrequencyRange [2]float64 `json:"frequency"`
+	FrequencyRange [2]float64 `json:"frequencyRange"`
 }
 
 // DefaultDDSDevices are the default direct digital synthesizer available.

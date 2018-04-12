@@ -68,6 +68,16 @@ func (s *ContextTestSuite) TestAcceptsHTML() {
 	assert.False(s.T(), ctx.Accepts(echo.MIMEApplicationJavaScript))
 }
 
+func (s *ContextTestSuite) TestAcceptsAll() {
+	req := httptest.NewRequest(echo.GET, "/", nil)
+	req.Header.Set(echo.HeaderAccept, "*/*")
+	rec := httptest.NewRecorder()
+	ctx := Context{s.echo.NewContext(req, rec)}
+
+	assert.True(s.T(), ctx.Accepts(echo.MIMETextHTML))
+	assert.True(s.T(), ctx.Accepts(echo.MIMEApplicationJavaScript))
+}
+
 func (s *ContextTestSuite) TestWrapContext() {
 	req := httptest.NewRequest(echo.GET, "/", nil)
 	req.Header.Set(echo.HeaderAccept, "text/html,application/xhtml+xml")

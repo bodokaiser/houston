@@ -10,20 +10,24 @@ import (
 	"github.com/bodokaiser/houston/model"
 )
 
-// DDSDevices exposes HTTP handlers to interact with a DDS array.
+// DDSDevices has HTTP handlers to interact with a DDS array.
+//
+// The Devices field contains the list of available devices which will be kept
+// in memory to store the recent configuration.
+// The Driver field contains the interface to the dds array.
 type DDSDevices struct {
 	Devices []model.DDSDevice
 	Driver  driver.DDSArray
 }
 
-func (h *DDSDevices) findByName(name string) *model.DDSDevice {
-	for _, d := range h.Devices {
+func (h *DDSDevices) findByName(name string) int {
+	for i, d := range h.Devices {
 		if d.Name == name {
-			return &d
+			return i
 		}
 	}
 
-	return nil
+	return -1
 }
 
 // List handles responds a list of available devices.
@@ -42,15 +46,16 @@ func (h *DDSDevices) List(ctx echo.Context) error {
 
 // Update updates configuration of specified device.
 func (h *DDSDevices) Update(ctx echo.Context) error {
-	d := h.findByName(ctx.Param("name"))
-	if d == nil {
+	i := h.findByName(ctx.Param("name"))
+	if i == -1 {
 		return echo.ErrNotFound
 	}
 
-	err := ctx.Bind(d)
+	err := ctx.Bind(&h.Devices[i])
 	if err != nil {
 		return err
 	}
+	d := h.Devices[i]
 
 	err = h.Driver.Select(d.Address)
 	if err != nil {
