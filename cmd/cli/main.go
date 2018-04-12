@@ -1,3 +1,4 @@
+// cli controls a DDS array via command line.
 package main
 
 import (

@@ -1,3 +1,4 @@
+// httpdev starts a HTTP server with mocked hardware.
 package main
 
 import (
