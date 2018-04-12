@@ -1,4 +1,8 @@
-# Beagle
+# Houston
+
+Houston provides an interface with your lab equipment.
+
+## Preface
 
 This project is composed of a single page web application written in
 javascript and a hardware abstraction backend written in go which communicate
@@ -52,31 +56,17 @@ methods. At the time of writing serialization format used is JSON, however
 XML support (built into go) can be added in the future by adding additional
 content accept header handlers. We will now discuss the available resources.
 
-1. Specs
+1. Devices
 
-The `/specs` resource only supports a `GET` request and will return the
-registered device specifications. These can be extended in future to support
-different device classes or in present if we want to validate user input
-against the operational specifications. From the command line we can use the
-`curl` tool available on most UNIX machines.
-
-```shell
-curl -X GET \
-     -H "Accept: application/json" \
-     http://localhost:8000/specs
-```
-
-2. Devices
-
-The `/devices` resource supports a `GET` request which will return the
-configured state of all available devices. Further a `PATCH` to `/devices/0`
-can be used to amend device parameters i.e. frequency.
+The `/devices/dds` resource supports a `GET` request which will return the
+configured state of all available devices. Further a `PATCH` to
+`/devices/dds/<name>` can be used to amend device parameters i.e. frequency.
 
 ```shell
 curl -X PATCH \
      -H "Content-Type: application/json" \
      -d '{"singleTone":{"frequency":100000000}}'\
-     http://localhost:8000/devices/0
+     http://localhost:8000/devices/dds/DDS0
 ```
 
 ### Driver

@@ -3,8 +3,8 @@ package driver
 import (
 	"fmt"
 
-	"github.com/bodokaiser/beagle/driver/dds"
-	"github.com/bodokaiser/beagle/driver/mux"
+	"github.com/bodokaiser/houston/driver/dds"
+	"github.com/bodokaiser/houston/driver/mux"
 )
 
 // DDSArray combines a multiplexer and a direct digital synthesizer driver

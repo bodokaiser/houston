@@ -6,8 +6,8 @@ import (
 
 	"periph.io/x/periph/host"
 
-	"github.com/bodokaiser/beagle/driver/dds/ad99xx"
-	"github.com/bodokaiser/beagle/driver/mux"
+	"github.com/bodokaiser/houston/driver/dds/ad99xx"
+	"github.com/bodokaiser/houston/driver/mux"
 )
 
 type config struct {

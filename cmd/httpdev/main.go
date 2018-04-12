@@ -6,10 +6,10 @@ import (
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 
-	"github.com/bodokaiser/beagle/driver"
-	"github.com/bodokaiser/beagle/httpd"
-	"github.com/bodokaiser/beagle/httpd/handler"
-	"github.com/bodokaiser/beagle/model"
+	"github.com/bodokaiser/houston/driver"
+	"github.com/bodokaiser/houston/httpd"
+	"github.com/bodokaiser/houston/httpd/handler"
+	"github.com/bodokaiser/houston/model"
 )
 
 type config struct {

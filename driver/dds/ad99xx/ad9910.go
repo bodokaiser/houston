@@ -12,7 +12,7 @@ import (
 	"periph.io/x/periph/conn/spi"
 	"periph.io/x/periph/conn/spi/spireg"
 
-	"github.com/bodokaiser/beagle/register/dds/ad99xx"
+	"github.com/bodokaiser/houston/register/dds/ad99xx"
 )
 
 // AD9910 drives the AD9910 dds.

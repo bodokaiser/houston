@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/bodokaiser/beagle/driver"
-	"github.com/bodokaiser/beagle/httpd"
-	"github.com/bodokaiser/beagle/model"
+	"github.com/bodokaiser/houston/driver"
+	"github.com/bodokaiser/houston/httpd"
+	"github.com/bodokaiser/houston/model"
 )
 
 type DDSTestSuite struct {

@@ -5,9 +5,9 @@ import (
 
 	"github.com/labstack/echo"
 
-	"github.com/bodokaiser/beagle/driver"
-	"github.com/bodokaiser/beagle/httpd"
-	"github.com/bodokaiser/beagle/model"
+	"github.com/bodokaiser/houston/driver"
+	"github.com/bodokaiser/houston/httpd"
+	"github.com/bodokaiser/houston/model"
 )
 
 // DDSDevices exposes HTTP handlers to interact with a DDS array.
