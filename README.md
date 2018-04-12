@@ -110,6 +110,8 @@ You can serve the documentation of the Go packages with
 
 and then visiting [http://localhost:6060](http://localhost:6060).
 
+![Screenshot](https://user-images.githubusercontent.com/1780466/38686091-cff5b534-3e73-11e8-9d18-807160e37330.png)
+
 ### How to enable SPI pins
 
 Some Beaglebone pins are multi purpose and have to be configured accordingly.
