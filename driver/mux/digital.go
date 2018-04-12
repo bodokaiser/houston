@@ -1,4 +1,4 @@
-package misc
+package mux
 
 import (
 	"errors"
@@ -14,14 +14,18 @@ type Digital struct {
 
 // NewDigital creates a new Digital multiplexer using the given pins in the
 // given order for selection.
-func NewDigital(pins []string) *Digital {
+func NewDigital(pins []string) (*Digital, error) {
 	d := &Digital{}
 
 	for i, n := range pins {
 		d.pins[i] = gpioreg.ByName(n)
+
+		if d.pins[i] == nil {
+			return nil, errors.New("invalid pin name")
+		}
 	}
 
-	return d
+	return d, nil
 }
 
 // Select selects the given address.

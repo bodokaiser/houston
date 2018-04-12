@@ -6,8 +6,8 @@ import (
 
 	"periph.io/x/periph/host"
 
-	"github.com/bodokaiser/beagle/driver/dds"
-	"github.com/bodokaiser/beagle/driver/misc"
+	"github.com/bodokaiser/beagle/driver/dds/ad99xx"
+	"github.com/bodokaiser/beagle/driver/mux"
 )
 
 type config struct {
@@ -19,37 +19,32 @@ type config struct {
 func main() {
 	c := config{}
 
-	flag.UintVar(&c.cselect, "select", 0, "DDS chip to configure")
-	flag.Float64Var(&c.frequency, "frequency", 200e6, "Frequency [Hz]")
-	flag.Float64Var(&c.amplitude, "amplitude", 0, "Amplitude [0, 1]")
+	flag.UintVar(&c.cselect, "select", 0, "address to select")
+	flag.Float64Var(&c.frequency, "frequency", 200e6, "frequency in Hz")
+	flag.Float64Var(&c.amplitude, "amplitude", 1.0, "amplitude from 0.0 to 1.0")
 	flag.Parse()
 
-	err := misc.DefaultConfig.Exec()
+	_, err := host.Init()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	_, err = host.Init()
+	csel, err := mux.NewDigital(mux.DefaultDigitalPins)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	s, err := misc.NewSelect()
+	dds, err := ad99xx.NewAD9910(ad99xx.AD9910DefaultConfig)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = s.Address(c.cselect)
+	err = csel.Select(uint8(c.cselect))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	d, err := dds.NewAD9910(dds.DefaultSysClock, dds.DefaultRefClock)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = d.SingleTone(c.frequency)
+	err = dds.SingleTone(c.frequency)
 	if err != nil {
 		log.Fatal(err)
 	}

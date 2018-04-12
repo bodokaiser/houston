@@ -1,23 +1,21 @@
-package handler
+package device
 
 import (
 	"net/http"
 
 	"github.com/labstack/echo"
 
-	"github.com/bodokaiser/beagle/driver/dds"
-	"github.com/bodokaiser/beagle/driver/misc"
+	"github.com/bodokaiser/beagle/driver"
 	"github.com/bodokaiser/beagle/httpd"
 	"github.com/bodokaiser/beagle/model"
 )
 
-type Device struct {
-	Devices     []model.DDSDevice
-	ChipSelect  *misc.Select
-	Synthesizer *dds.AD9910
+type DDS struct {
+	Devices []model.DDSDevice
+	Driver  *driver.DDSArray
 }
 
-func (h *Device) findByName(name string) *model.DDSDevice {
+func (h *DDS) findByName(name string) *model.DDSDevice {
 	for _, d := range h.Devices {
 		if d.Name == name {
 			return &d
@@ -28,7 +26,7 @@ func (h *Device) findByName(name string) *model.DDSDevice {
 }
 
 // List handles responds a list of available devices.
-func (h *Device) List(ctx echo.Context) error {
+func (h *DDS) List(ctx echo.Context) error {
 	c := ctx.(*httpd.Context)
 
 	if c.Accepts(echo.MIMEApplicationJSON) {
@@ -42,7 +40,7 @@ func (h *Device) List(ctx echo.Context) error {
 }
 
 // UpdateDeviceHandler updates configuration of specified device.
-func (h *Device) Update(ctx echo.Context) error {
+func (h *DDS) Update(ctx echo.Context) error {
 	d := h.findByName(ctx.Param("name"))
 	if d == nil {
 		return echo.ErrNotFound
@@ -53,12 +51,12 @@ func (h *Device) Update(ctx echo.Context) error {
 		return err
 	}
 
-	err = h.ChipSelect.Address(d.Address)
+	err = h.Driver.Select(d.Address)
 	if err != nil {
 		return err
 	}
 
-	err = h.Synthesizer.SingleTone(d.Frequency)
+	err = h.Driver.SingleTone(d.Frequency)
 	if err != nil {
 		return err
 	}

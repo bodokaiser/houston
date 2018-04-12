@@ -1,4 +1,4 @@
-package ad9910
+package ad99xx
 
 import (
 	"bytes"
@@ -15,17 +15,6 @@ import (
 	"github.com/bodokaiser/beagle/register/dds/ad99xx"
 )
 
-// AD9910Config is the config for the AD9910 driver.
-type AD9910Config struct {
-	SysClock    float64
-	RefClock    float64
-	ResetPin    string
-	IOUpdatePin string
-	SPIDevice   string
-	SPIMaxFreq  int64
-	SPIMode     spi.Mode
-}
-
 // AD9910 drives the AD9910 dds.
 type AD9910 struct {
 	register    *ad99xx.AD9910
@@ -37,7 +26,7 @@ type AD9910 struct {
 }
 
 // NewAD9910 returns an initialized AD9910 driver.
-func NewAD9910(c AD9910Config) (*AD9910, error) {
+func NewAD9910(c Config) (*AD9910, error) {
 	d := &AD9910{
 		register:    ad99xx.NewAD9910(),
 		refClock:    c.RefClock,

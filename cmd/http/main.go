@@ -6,12 +6,15 @@ import (
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+
 	"periph.io/x/periph/host"
 
-	"github.com/bodokaiser/beagle/driver/dds"
-	"github.com/bodokaiser/beagle/driver/misc"
+	"github.com/bodokaiser/beagle/driver"
+	"github.com/bodokaiser/beagle/driver/dds/ad99xx"
+	"github.com/bodokaiser/beagle/driver/mux"
 	"github.com/bodokaiser/beagle/httpd"
 	"github.com/bodokaiser/beagle/httpd/handler"
+	"github.com/bodokaiser/beagle/httpd/handler/device"
 	"github.com/bodokaiser/beagle/model"
 )
 
@@ -25,22 +28,17 @@ func main() {
 	flag.StringVar(&c.address, "address", ":8000", "")
 	flag.Parse()
 
-	err := misc.DefaultConfig.Exec()
+	_, err := host.Init()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	_, err = host.Init()
+	csel, err := mux.NewDigital(mux.DefaultDigitalPins)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	s, err := misc.NewSelect()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	d, err := dds.NewAD9910(dds.DefaultSysClock, dds.DefaultRefClock)
+	dds, err := ad99xx.NewAD9910(ad99xx.AD9910DefaultConfig)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -56,13 +54,15 @@ func main() {
 	}
 	e.GET("/specs", sh.List)
 
-	dh := &handler.Device{
-		Devices:     model.DefaultDDSDevices,
-		ChipSelect:  s,
-		Synthesizer: d,
+	dh := &device.DDS{
+		Devices: model.DefaultDDSDevices,
+		Driver: &driver.DDSArray{
+			DDS: dds,
+			Mux: csel,
+		},
 	}
-	e.GET("/devices", dh.List)
-	e.PUT("/devices/:device", dh.Update)
+	e.GET("/devices/dds", dh.List)
+	e.PUT("/devices/dds/:name", dh.Update)
 
 	e.Static("/", "public")
 

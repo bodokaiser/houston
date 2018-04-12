@@ -1,4 +1,4 @@
-package handler
+package device
 
 import (
 	"net/http"
@@ -13,45 +13,41 @@ import (
 	"github.com/bodokaiser/beagle/model"
 )
 
-type DeviceTestSuite struct {
+type DDSTestSuite struct {
 	suite.Suite
 
 	e *echo.Echo
 }
 
-func (s *DeviceTestSuite) SetupTest() {
-  h := &Device{
+func (s *DDSTestSuite) SetupTest() {
+	h := &DDS{
 		Devices: model.DefaultDDSDevices,
 	}
 
 	s.e = echo.New()
-  s.e.Use(httpd.WrapContext)
-  s.e.GET("/devices")
-	s.e.PUT("/devices/:name")
+	s.e.Use(httpd.WrapContext)
+	s.e.GET("/devices/dds/", h.List)
+	s.e.PUT("/devices/dds/:name", h.Update)
+}
 
-func (s *DeviceTestSuite) TestListJSON() {
+func (s *DDSTestSuite) TestListJSON() {
 	req := httptest.NewRequest(echo.GET, "/devices", nil)
 	req.Header.Set(echo.HeaderAccept, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 
-  s.e.ServeHTTP(rec, req)
+	s.e.ServeHTTP(rec, req)
 
 	assert.Equal(s.T(), http.StatusOK, rec.Code)
 }
 
-func (s *DeviceTestSuite) TestUpdateJSON() {
-	req := httptest.NewRequest(echo.PUT, "/devices/DDS 0", nil)
+func (s *DDSTestSuite) TestUpdateJSON() {
+	req := httptest.NewRequest(echo.PUT, "/devices/1", nil)
 	req.Header.Set(echo.HeaderAccept, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
-	ctx := s.e.NewContext(req, rec)
 
-	h := httpd.WrapContext(s.h.Update)
-
-	if assert.NoError(s.T(), h(ctx)) {
-		assert.Equal(s.T(), http.StatusNoContent, rec.Code)
-	}
+	s.e.ServeHTTP(rec, req)
 }
 
 func TestDeviceTestSuite(t *testing.T) {
-	suite.Run(t, new(DeviceTestSuite))
+	suite.Run(t, new(DDSTestSuite))
 }
