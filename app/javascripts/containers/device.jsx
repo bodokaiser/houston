@@ -21,8 +21,7 @@ import {
   submitDevice,
   updateDeviceMode,
   updateDeviceName,
-  updateDeviceSweep,
-  updateDeviceSingleTone
+  updateDevice
 } from '../actions/device'
 
 const SingleToneForm = ({ amplitude, frequency, onChange, onSubmit }) => (
@@ -45,27 +44,27 @@ const SingleToneForm = ({ amplitude, frequency, onChange, onSubmit }) => (
   </form>
 )
 
-const SweepForm = ({ startFrequency, stopFrequency, interval, waveform,
-  waveforms, onChange, onSubmit }) => (
+const SweepForm = ({ waveform, waveforms, onChange, onSubmit }) => (
   <form onSubmit={onSubmit}>
     <div className="form-row">
       <div className="form-group col-sm-12">
         <InputGroup name="startFrequency" type="number" label="Start Frequency"
-          append="Hz" value={startFrequency} onChange={onChange} />
+          append="Hz" value={10e6} onChange={onChange} />
       </div>
       <div className="form-group col-sm-12">
         <InputGroup name="stopFrequency" type="number" label="Stop Frequency"
-          append="Hz" value={stopFrequency} onChange={onChange} />
+          append="Hz" value={200e6} onChange={onChange} />
       </div>
     </div>
     <div className="form-row">
       <div className="form-group col-sm-12">
         <InputGroup name="timerInterval" type="number" label="Timer Interval"
-          append="s" value={interval} onChange={onChange} />
+          append="s" value={2} onChange={onChange} />
       </div>
     </div>
     <div className="form-row">
       <div className="form-group col-sm-12">
+      {console.log(waveform, waveforms)}
         <SelectGroup name="waveform" label="Waveform"
           value={waveform} options={waveforms} onChange={onChange} />
       </div>
@@ -88,9 +87,8 @@ class Device extends Component {
     this.handleEditClick = this.handleEditClick.bind(this)
     this.handleNameSubmit = this.handleNameSubmit.bind(this)
     this.handleNameChange = this.handleNameChange.bind(this)
-    this.handleSingleToneChange = this.handleSingleToneChange.bind(this)
+    this.handleDeviceChange = this.handleDeviceChange.bind(this)
     this.handleSingleToneSubmit = this.handleSingleToneSubmit.bind(this)
-    this.handleSweepChange = this.handleSweepChange.bind(this)
   }
 
   handleEditClick(element) {
@@ -113,11 +111,10 @@ class Device extends Component {
     this.props.updateName(this.props.device, name)
   }
 
-  handleSingleToneChange(name, value) {
-    var data = {}
-    data[name] = value
+  handleDeviceChange(name, value) {
+    this.props.device[name] = value
 
-    this.props.updateSingleTone(this.props.device, data)
+    this.props.updateDevice(this.props.device)
   }
 
   handleSingleToneSubmit(e) {
@@ -126,16 +123,16 @@ class Device extends Component {
     this.props.submitSingleTone(this.props.device)
   }
 
-  handleSweepChange(name, value) {
-    this.props.updateSweep(this.props.device, { name: value })
-  }
-
   render() {
-    const { device, links, waveforms } = this.props
+    const { device, modes, waveforms } = this.props
     const { nameEditable } = this.state
 
-    links.forEach(link => {
+    var links = modes.map(mode => {
+      var link = { name: mode }
+
       if (link.name == device.mode) link.active = true
+
+      return link
     })
 
     return (
@@ -157,12 +154,12 @@ class Device extends Component {
           <NavTabs links={links} onClick={this.handleTabClick} />
           <div className={(device.mode == 'Single Tone') ? '' : 'd-none'}>
             <SingleToneForm
-              onChange={this.handleSingleToneChange}
+              onChange={this.handleDeviceChange}
               onSubmit={this.handleSingleToneSubmit}
-              {...device.singleTone} />
+              {...device} />
           </div>
           <div className={(device.mode == 'Sweep') ? '' : 'd-none'}>
-            <SweepForm onChange={this.handleSweepChange} {...{...device.sweep, waveforms}} />
+            <SweepForm onChange={this.handleDeviceChange} {...{...device, waveforms}} />
           </div>
         </div>
       </div>
@@ -172,15 +169,14 @@ class Device extends Component {
 }
 
 const mapState = state => ({
-  links: state.specs.AD9910.modes.map(mode => ({ name: mode })),
-  waveforms: state.specs.AD9910.modes
+  modes: ['Single Tone', 'Sweep'],
+  waveforms: ['Triangle', 'Sawtooth']
 })
 
 const mapDispatch = dispatch => ({
   updateName: bindActionCreators(updateDeviceName, dispatch),
   updateMode: bindActionCreators(updateDeviceMode, dispatch),
-  updateSweep: bindActionCreators(updateDeviceSweep, dispatch),
-  updateSingleTone: bindActionCreators(updateDeviceSingleTone, dispatch),
+  updateDevice: bindActionCreators(updateDevice, dispatch),
   submitSingleTone: bindActionCreators(submitDevice, dispatch)
 })
 

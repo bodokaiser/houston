@@ -1,6 +1,8 @@
 package driver
 
 import (
+	"fmt"
+
 	"github.com/bodokaiser/beagle/driver/dds"
 	"github.com/bodokaiser/beagle/driver/mux"
 )
@@ -40,12 +42,16 @@ type MockedDDSArray struct {
 func (d *MockedDDSArray) Select(address uint8) error {
 	d.Address = address
 
+	fmt.Printf("selected address %v\n", address)
+
 	return nil
 }
 
 // SingleTone implements DDSArray.
 func (d *MockedDDSArray) SingleTone(frequency float64) error {
 	d.Frequency = frequency
+
+	fmt.Printf("running single tone at frequency %v\n", frequency)
 
 	return nil
 }

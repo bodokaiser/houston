@@ -48,13 +48,13 @@ export function receiveDevices(devices) {
 export function submitDevice(device) {
   return dispatch => {
     console.log(device)
-    return fetch(`${process.env.RESOURCE}/devices/${device.id}`, {
+    return fetch(`${process.env.RESOURCE}/devices/dds/${device.name}`, {
       method: 'PUT',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ frequency: device.singleTone.frequency })
+      body: JSON.stringify({ frequency: device.frequency })
     })
   }
 }
@@ -63,7 +63,7 @@ export function fetchDevices() {
   return dispatch => {
     dispatch(requestDevices())
 
-    return fetch(`${process.env.RESOURCE}/devices`)
+    return fetch(`${process.env.RESOURCE}/devices/dds`)
       .then(resp => resp.json())
       .then(json => dispatch(receiveDevices(json)))
   }

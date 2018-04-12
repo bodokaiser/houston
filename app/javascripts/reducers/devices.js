@@ -7,12 +7,16 @@ import {
 } from '../actions/device'
 
 function receiveDevices(state, action) {
-  return action.devices
+  return action.devices.map(device => {
+    device.mode = (device.frequency == 0) ? 'Sweep' : 'Single Tone'
+
+    return device
+  })
 }
 
 function updateDevice(state, action) {
   return state.map(device => {
-    if (device.id == action.device.id) {
+    if (device.name == action.device.name) {
       device = action.device
     }
     return device
