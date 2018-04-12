@@ -1,41 +1,60 @@
 package ad99xx
 
-import (
-	"math"
-)
-
-// AD9910 instruction byte flags.
-const (
-	FlagOpRead  = 0x80
-	FlagOpWrite = 0x00
-)
-
 // AD9910 register addresses.
 const (
-	AddrCFR1          = 0x00
-	AddrCFR2          = 0x01
-	AddrCFR3          = 0x02
-	AddrAuxDAC        = 0x03
-	AddrIOUpdateRate  = 0x04
-	AddrFTW           = 0x07
-	AddrPOW           = 0x08
-	AddrASF           = 0x09
-	AddrMultiChip     = 0x0a
+	// The control function registers hold the main configuration parameters.
+	AddrCFR1 = 0x00
+	AddrCFR2 = 0x01
+	AddrCFR3 = 0x02
+
+	// The auxiliary digital analogue converter register can be used to control
+	// the output current but it can also be disabled.
+	AddrAuxDAC = 0x03
+
+	// The I/O update rate register configures the pulse width required to apply
+	// on the I/O update pin to trigger an operation update.
+	AddrIOUpdateRate = 0x04
+
+	// The frequency tuning word registers are used to configure the output
+	// frequency.
+	AddrFTW = 0x07
+
+	// The phase offset word register is used to configure the output phase offset.
+	AddrPOW = 0x08
+
+	// The amplitude scale factor register is used to configure the output
+	// amplitude scale.
+	AddrASF = 0x09
+
+	// The multi chip register is used to configure additional syncronisation
+	// features when operating multiple AD9910.
+	AddrMultiChip = 0x0a
+
+	// The digital ramp register is used to define a sweep of amplitude, phase
+	// or frequency.
 	AddrDRampLimit    = 0x0b
 	AddrDRampStepSize = 0x0c
 	AddrDRampRate     = 0x0d
-	AddrProfile0      = 0x0e
-	AddrProfile1      = 0x0f
-	AddrProfile2      = 0x10
-	AddrProfile3      = 0x11
-	AddrProfile4      = 0x12
-	AddrProfile5      = 0x13
-	AddrProfile6      = 0x14
-	AddrProfile7      = 0x15
-	AddrRAM           = 0x16
+
+	// The profile register is used to save different single tone or RAM
+	// configurations.
+	AddrProfile0 = 0x0e
+	AddrProfile1 = 0x0f
+	AddrProfile2 = 0x10
+	AddrProfile3 = 0x11
+	AddrProfile4 = 0x12
+	AddrProfile5 = 0x13
+	AddrProfile6 = 0x14
+	AddrProfile7 = 0x15
+
+	// The RAM register is used to save custom waveform shapes.
+	AddrRAM = 0x16
 )
 
 // AD9910 control function register byte flags.
+//
+// Check the last pages of the datasheet to get more detailed information of
+// what these flags will do.
 const (
 	FlagRAMEnable         = 1 << 7
 	FlagManualOSK         = 1 << 7
@@ -192,20 +211,4 @@ func NewAD9910() *AD9910 {
 		RAMProfile7: [9]byte{AddrProfile7},
 		RAMWord:     [5]byte{AddrRAM},
 	}
-}
-
-// FrequencyToFTW returns the 32 bit FTW given desired output frequency
-// and system frequency.
-func FrequencyToFTW(sys float64, out float64) uint32 {
-	return uint32(math.Round(out) / sys * (1 << 32))
-}
-
-// AmplitudeToASF returns the 14 bit ASF given amplitude scale from 0 to 1.
-func AmplitudeToASF(ampl float64) uint16 {
-	return uint16(math.Round(ampl * (1 << 14)))
-}
-
-// PhaseToPOW returns the 16 bit POW given phase in radiants.
-func PhaseToPOW(phase float64) uint16 {
-	return uint16(math.Round(phase / (2 * math.Pi) * (1 << 16)))
 }
