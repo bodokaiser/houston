@@ -20,22 +20,7 @@ const setupStore = (state) => {
     store.replaceReducer(require('./reducers').default)
   })
 
-  if (process.env.NODE_ENV == 'production') {
-    store.subscribe(() => (
-      localStorage.setItem('state', JSON.stringify(store.getState()))
-    ))
-  }
-
   return store
 }
 
-const restoreState = () => {
-  const stateString = localStorage.getItem('state')
-
-  return (stateString) ? JSON.parse(stateString) : {}
-}
-
-const store = setupStore(restoreState())
-
-
-export default store
+export default setupStore()
