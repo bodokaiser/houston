@@ -51,7 +51,7 @@ func (s *DDSTestSuite) TestListJSON() {
 
 	assert.Equal(s.T(), http.StatusOK, rec.Code)
 	assert.Equal(s.T(),
-		`[{"name":"DDS0","amplitude":1,"frequency":250000000,"frequencyRange":[0,0]}]`,
+		`[{"name":"DDS0","amplitude":1,"frequency":250000000}]`,
 		rec.Body.String())
 }
 
@@ -64,6 +64,16 @@ func (s *DDSTestSuite) TestListXML() {
 
 	assert.Equal(s.T(), http.StatusOK, rec.Code)
 	assert.True(s.T(), strings.HasPrefix(rec.Body.String(), `<?xml version="1.0"`))
+}
+
+func (s *DDSTestSuite) TestUpdate() {
+	req := httptest.NewRequest(echo.PUT, "/devices/dds/DDS5", nil)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+
+	s.e.ServeHTTP(rec, req)
+
+	assert.Equal(s.T(), http.StatusNotFound, rec.Code)
 }
 
 func (s *DDSTestSuite) TestUpdateJSON() {

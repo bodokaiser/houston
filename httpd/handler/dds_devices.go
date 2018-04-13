@@ -16,18 +16,8 @@ import (
 // in memory to store the recent configuration.
 // The Driver field contains the interface to the dds array.
 type DDSDevices struct {
-	Devices []model.DDSDevice
+	Devices model.DDSDevices
 	Driver  driver.DDSArray
-}
-
-func (h *DDSDevices) findByName(name string) int {
-	for i, d := range h.Devices {
-		if d.Name == name {
-			return i
-		}
-	}
-
-	return -1
 }
 
 // List handles responds a list of available devices.
@@ -46,7 +36,7 @@ func (h *DDSDevices) List(ctx echo.Context) error {
 
 // Update updates configuration of specified device.
 func (h *DDSDevices) Update(ctx echo.Context) error {
-	i := h.findByName(ctx.Param("name"))
+	i := h.Devices.FindByName(ctx.Param("name"))
 	if i == -1 {
 		return echo.ErrNotFound
 	}

@@ -34,28 +34,20 @@ const (
 	defaultIOUpdatePin = "27"
 )
 
-var defaultMuxPins = []string{"48", "30", "60", "31", "50"}
-
-var defaultDDSDevices = []model.DDSDevice{
-	model.DDSDevice{
-		Name:      "DDS0",
-		Amplitude: 1.0,
-		Frequency: 250e6,
-	},
-	model.DDSDevice{
-		Name:           "DDS1",
-		FrequencyRange: [2]float64{10e6, 20e6},
-	},
+var defaultMuxPins = []string{
+	"48", "30", "60", "31", "50",
 }
 
 type config struct {
 	address string
+	devices model.DDSDevices
 }
 
 func main() {
 	c := config{}
 
-	flag.StringVar(&c.address, "address", ":8000", "")
+	flag.StringVar(&c.address, "address", ":8000", "address to listen to")
+	flag.Var(&c.devices, "devices", "devices to expose")
 	flag.Parse()
 
 	_, err := host.Init()
@@ -88,7 +80,7 @@ func main() {
 	e.Use(middleware.Recover())
 
 	dh := &handler.DDSDevices{
-		Devices: defaultDDSDevices,
+		Devices: c.devices,
 		Driver: &driver.AD9910DDSArray{
 			DDS: dds,
 			Mux: csel,

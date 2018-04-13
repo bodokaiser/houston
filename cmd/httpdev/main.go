@@ -16,12 +16,14 @@ import (
 var defaultDDSDevices = []model.DDSDevice{
 	model.DDSDevice{
 		Name:      "DDS0",
+		Address:   0,
 		Amplitude: 1.0,
 		Frequency: 250e6,
 	},
 	model.DDSDevice{
-		Name:           "DDS1",
-		FrequencyRange: [2]float64{10e6, 20e6},
+		Name:      "DDS1",
+		Address:   1,
+		Frequency: 10e6,
 	},
 }
 

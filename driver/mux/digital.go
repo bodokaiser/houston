@@ -16,6 +16,7 @@ type Digital struct {
 // given order for selection.
 func NewDigital(pins []string) (*Digital, error) {
 	d := &Digital{}
+	d.pins = make([]gpio.PinIO, len(pins))
 
 	for i, n := range pins {
 		d.pins[i] = gpioreg.ByName(n)
