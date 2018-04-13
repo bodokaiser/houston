@@ -60,7 +60,7 @@ func (h *DDSDevices) Update(ctx echo.Context) error {
 		return err
 	}
 
-	err = h.Driver.SingleTone(d.Frequency)
+	err = h.Driver.SingleTone(d.Amplitude, d.Frequency, d.Phase)
 	if err != nil {
 		return err
 	}

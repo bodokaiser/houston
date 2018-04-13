@@ -22,14 +22,14 @@ type AD9910DDSArray struct {
 }
 
 // Select configures the multiplexer to address given address.
-func (d *AD9910DDSArray) Select(address uint8) error {
-	return d.Mux.Select(address)
+func (d *AD9910DDSArray) Select(a uint8) error {
+	return d.Mux.Select(a)
 }
 
 // SingleTone configures the addressed dds to run in single tone mode with
 // given frequency.
-func (d *AD9910DDSArray) SingleTone(frequency float64) error {
-	return d.DDS.SingleTone(frequency)
+func (d *AD9910DDSArray) SingleTone(a float64, f float64, p float64) error {
+	return d.DDS.SingleTone(a, f, p)
 }
 
 // MockedDDSArray mocks a DDSArray.
@@ -40,6 +40,8 @@ func (d *AD9910DDSArray) SingleTone(frequency float64) error {
 // running some tests.
 type MockedDDSArray struct {
 	Frequency float64
+	Amplitude float64
+	Phase     float64
 	Address   uint8
 }
 
@@ -47,10 +49,10 @@ type MockedDDSArray struct {
 //
 // This will assign the structs Address field value to the given address and
 // print the new address to stdout.
-func (d *MockedDDSArray) Select(address uint8) error {
-	d.Address = address
+func (d *MockedDDSArray) Select(a uint8) error {
+	d.Address = a
 
-	fmt.Printf("selected address %v\n", address)
+	fmt.Printf("selected address %v\n", a)
 
 	return nil
 }
@@ -59,10 +61,12 @@ func (d *MockedDDSArray) Select(address uint8) error {
 //
 // This will assign the structs Frequency field value to the given address and
 // print the new frequency to stdout.
-func (d *MockedDDSArray) SingleTone(frequency float64) error {
-	d.Frequency = frequency
+func (d *MockedDDSArray) SingleTone(a float64, f float64, p float64) error {
+	d.Phase = p
+	d.Amplitude = a
+	d.Frequency = f
 
-	fmt.Printf("running single tone at frequency %v\n", frequency)
+	fmt.Printf("running single tone at frequency %v\n", f)
 
 	return nil
 }

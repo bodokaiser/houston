@@ -12,6 +12,7 @@ import (
 	"periph.io/x/periph/conn/spi"
 	"periph.io/x/periph/conn/spi/spireg"
 
+	"github.com/bodokaiser/houston/driver/dds"
 	"github.com/bodokaiser/houston/register/dds/ad99xx"
 )
 
@@ -74,8 +75,16 @@ func (d *AD9910) IOUpdate() error {
 }
 
 // SingleTone configures the AD9910 to single tone mode at given frequency.
-func (d *AD9910) SingleTone(freq float64) error {
-	ftw := ad99xx.FrequencyToFTW(d.sysClock, freq)
+func (d *AD9910) SingleTone(a float64, f float64, p float64) error {
+	if a < 0 || a > 1 {
+		return dds.ErrInvalidAmplitude
+	}
+	if f < 1 || f > 500e6 {
+		return dds.ErrInvalidFrequency
+	}
+	if p < 0 || p > 2*math.Pi {
+		return dds.ErrInvalidPhase
+	}
 
 	d.register.CFR1[2] = ad99xx.FlagManualOSK
 	d.register.CFR1[3] = ad99xx.FlagOSKEnable
@@ -91,18 +100,14 @@ func (d *AD9910) SingleTone(freq float64) error {
 	d.register.CFR3[3] = ad99xx.FlagREFCLKDivReset | ad99xx.FlagPLLEnable
 	d.register.CFR3[4] = d.divider() << 1
 
-	d.register.AuxDAC[4] = 0x7f
+	pow := ad99xx.PhaseToPOW(p)
+	asf := ad99xx.AmplitudeToASF(a)
+	ftw := ad99xx.FrequencyToFTW(d.sysClock, f)
 
-	d.register.ASF[3] = 0xff
-	d.register.ASF[4] = 0xfc
-
-	d.register.IOUpdateRate[1] = 0xff
-	d.register.IOUpdateRate[2] = 0xff
-	d.register.IOUpdateRate[3] = 0xff
-	d.register.IOUpdateRate[4] = 0xff
-
-	d.register.STProfile0[1] = 0x3f
-	d.register.STProfile0[2] = 0xff
+	// for some reason ASF register has to be written
+	binary.BigEndian.PutUint16(d.register.ASF[3:], asf<<2)
+	binary.BigEndian.PutUint16(d.register.STProfile0[1:3], asf)
+	binary.BigEndian.PutUint16(d.register.STProfile0[3:5], pow)
 	binary.BigEndian.PutUint32(d.register.STProfile0[5:], ftw)
 
 	w := bytes.Join([][]byte{

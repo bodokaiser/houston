@@ -33,6 +33,7 @@ type config struct {
 	cselect   uint
 	frequency float64
 	amplitude float64
+	phaseOff  float64
 }
 
 func main() {
@@ -41,6 +42,7 @@ func main() {
 	flag.UintVar(&c.cselect, "select", 0, "address to select")
 	flag.Float64Var(&c.frequency, "frequency", 200e6, "frequency in Hz")
 	flag.Float64Var(&c.amplitude, "amplitude", 1.0, "amplitude from 0.0 to 1.0")
+	flag.Float64Var(&c.phaseOff, "phase", 0.0, "phase offset from 0 to 2π")
 	flag.Parse()
 
 	_, err := host.Init()
@@ -71,7 +73,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = dds.SingleTone(c.frequency)
+	err = dds.SingleTone(c.amplitude, c.frequency, c.phaseOff)
 	if err != nil {
 		log.Fatal(err)
 	}

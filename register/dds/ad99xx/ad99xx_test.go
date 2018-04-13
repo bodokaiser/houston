@@ -12,7 +12,7 @@ func TestFrequencyToFTW(t *testing.T) {
 }
 
 func TestAmplitudeToASF(t *testing.T) {
-	assert.Equal(t, uint16(1<<14), AmplitudeToASF(1.0))
+	assert.Equal(t, uint16(1<<14)-1, AmplitudeToASF(1.0))
 	assert.Equal(t, uint16(1<<13), AmplitudeToASF(0.5))
 	assert.Equal(t, uint16(0), AmplitudeToASF(0.0))
 }

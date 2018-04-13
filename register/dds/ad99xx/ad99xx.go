@@ -26,7 +26,7 @@ func FrequencyToFTW(sys float64, out float64) uint32 {
 
 // AmplitudeToASF returns the 14 bit ASF given amplitude scale from 0 to 1.
 func AmplitudeToASF(ampl float64) uint16 {
-	return uint16(math.Round(ampl * (1 << 14)))
+	return uint16(math.Round(ampl * ((1 << 14) - 1)))
 }
 
 // PhaseToPOW returns the 16 bit POW given phase in radiants.
