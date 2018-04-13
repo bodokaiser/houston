@@ -90,5 +90,7 @@ func main() {
 	e.GET("/devices/dds", dh.List)
 	e.PUT("/devices/dds/:name", dh.Update)
 
+	e.Static("/", "public")
+
 	e.Logger.Fatal(e.Start(c.address))
 }

@@ -102,7 +102,7 @@ the command scripts.
 
 ## Appendix
 
-### How to compile
+### How to compile the cli tool
 
 You can compile the commands on your workstation such that you only have to
 copy the binary to your target device.
@@ -122,6 +122,27 @@ and execute the binary
     ./ddsctrl -h
 
 which will give help text for the command line arguments.
+
+### How to compile the http tool
+
+To compile the http server you can do
+
+    GOARM=7 GOARCH=arm GOOS=linux go build cmd/http/main.go
+
+further you need to compile the frontend with
+
+    npm run build
+
+and you now have to do
+
+    scp main debian@beaglebone.local:~/ddshttp
+    scp -r dist debian@beaglebone.local:~/public
+
+and execute it
+
+    ./ddshttp -devices 0,1,2,3,4,5,6,7
+
+if dds boards 0-7 are connected.
 
 ### How to render docs
 

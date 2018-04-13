@@ -14,7 +14,8 @@
     "redux-thunk": "^2.2.0"
   },
   "scripts": {
-    "serve": "RESOURCE=http://localhost:8000 parcel app/index.html"
+    "serve": "RESOURCE=http://localhost:8000 parcel app/index.html",
+    "build": "parcel build app/index.html"
   },
   "babel": {
     "presets": [
