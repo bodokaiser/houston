@@ -22,7 +22,7 @@ class App extends Component {
 
     return (
       <Fragment>
-        <Navbar title="Beagle" />
+        <Navbar title="Houston" />
         <div className="container mt-5">
           <div className="row">
             {devices.map((device, index) => (
