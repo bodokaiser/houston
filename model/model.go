@@ -6,3 +6,7 @@
 // configurations at an early stage on the other side we can hide
 // (complicated) implementation details from the API user.
 package model
+
+import "gopkg.in/go-playground/validator.v9"
+
+var validate = validator.New()

@@ -42,6 +42,7 @@ func main() {
 	e.Use(middleware.CORS())
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+	e.HTTPErrorHandler = handler.HTTPError
 
 	dh := &handler.DDSDevices{
 		Devices: defaultDDSDevices,

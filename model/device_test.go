@@ -7,6 +7,37 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
+type DDSDeviceTestSuite struct {
+	suite.Suite
+}
+
+func (s *DDSDeviceTestSuite) TestValidation() {
+	assert.NoError(s.T(), DDSDevice{
+		Name:      "DDS0",
+		Address:   0,
+		Amplitude: 1.0,
+		Frequency: 200e6,
+	}.Validate())
+
+	assert.Error(s.T(), DDSDevice{
+		Name:      "DDS0",
+		Address:   0,
+		Amplitude: 1.0,
+		Frequency: 800e6,
+	}.Validate())
+
+	assert.Error(s.T(), DDSDevice{
+		Name:      "DDS0",
+		Address:   0,
+		Amplitude: 1.1,
+		Frequency: 200e6,
+	}.Validate())
+}
+
+func TestDeviceTestSuite(t *testing.T) {
+	suite.Run(t, new(DDSDeviceTestSuite))
+}
+
 type DDSDevicesTestSuite struct {
 	suite.Suite
 

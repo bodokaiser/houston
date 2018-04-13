@@ -42,6 +42,16 @@ func (s *DDSTestSuite) SetupTest() {
 	s.e.PUT("/devices/dds/:name", s.h.Update)
 }
 
+func (s *DDSTestSuite) TestList() {
+	req := httptest.NewRequest(echo.GET, "/devices/dds", nil)
+	req.Header.Set(echo.HeaderAccept, echo.MIMETextHTML)
+	rec := httptest.NewRecorder()
+
+	s.e.ServeHTTP(rec, req)
+
+	assert.Equal(s.T(), http.StatusUnsupportedMediaType, rec.Code)
+}
+
 func (s *DDSTestSuite) TestListJSON() {
 	req := httptest.NewRequest(echo.GET, "/devices/dds", nil)
 	req.Header.Set(echo.HeaderAccept, echo.MIMEApplicationJSON)

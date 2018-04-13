@@ -15,11 +15,16 @@ import (
 // property wherein in sweep mode we expect to have a frequency range defined
 // over a single frequency.
 type DDSDevice struct {
-	Name      string  `json:"name"`
-	Address   uint8   `json:"-"`
-	Amplitude float64 `json:"amplitude"`
-	Frequency float64 `json:"frequency"`
-	Phase     float64 `json:"phase,omitempty"`
+	Name      string  `json:"name"             validate:"required"`
+	Address   uint8   `json:"-"                validate:"gte=0,lte=31"`
+	Amplitude float64 `json:"amplitude"        validate:"gte=0,lte=1"`
+	Frequency float64 `json:"frequency"        validate:"gt=0,lte=5e8"`
+	Phase     float64 `json:"phase,omitempty"  validate:"gte=0"`
+}
+
+// Validate validates DDSDevice.
+func (d DDSDevice) Validate() error {
+	return validate.Struct(d)
 }
 
 // DDSDevices is a collection of DDSDevices.

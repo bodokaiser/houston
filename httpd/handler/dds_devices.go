@@ -36,16 +36,24 @@ func (h *DDSDevices) List(ctx echo.Context) error {
 
 // Update updates configuration of specified device.
 func (h *DDSDevices) Update(ctx echo.Context) error {
+	d := new(model.DDSDevice)
+
 	i := h.Devices.FindByName(ctx.Param("name"))
 	if i == -1 {
 		return echo.ErrNotFound
 	}
 
-	err := ctx.Bind(&h.Devices[i])
+	err := ctx.Bind(d)
 	if err != nil {
 		return err
 	}
-	d := h.Devices[i]
+
+	err = d.Validate()
+	if err != nil {
+		return err
+	}
+	d.Address = h.Devices[i].Address
+	h.Devices[i] = *d
 
 	err = h.Driver.Select(d.Address)
 	if err != nil {
