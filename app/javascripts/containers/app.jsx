@@ -3,7 +3,6 @@ import React, {
   Fragment
 } from 'react'
 import {connect} from 'react-redux'
-import {bindActionCreators} from 'redux'
 
 import Device from './device'
 import {Navbar} from '../components/nav'
@@ -15,11 +14,11 @@ import {fetchDevicesLazy} from '../actions/device'
 class App extends Component {
 
   componentDidMount() {
-    this.props.fetchDevicesLazy()
+    this.props.dispatch(fetchDevicesLazy())
   }
 
   render() {
-    const { devices } = this.props
+    const { device, devices, isUpdating, isFetching } = this.props
 
     return (
       <Fragment>
@@ -27,19 +26,22 @@ class App extends Component {
         <div className="container mt-5">
           <div className="row justify-content-center">
             <div className="col-sm-8 align-self-center">
-              { !devices.isFetching && devices.length == 0 &&
-                <div class="alert alert-danger">
-                  <h4 class="alert-heading">Failed to receive devices.</h4>
+              { isUpdating &&
+                <div className="alert alert-success">
+                  Updated device {device.name}.
+                </div> }
+              { !isFetching && devices.length == 0 &&
+                <div className="alert alert-danger">
+                  <h4 className="alert-heading">Failed to receive devices.</h4>
                   <p>
                     Check if the device server is running and if the app uses the
                     correct url.
                   </p>
-                  <ClickButton className="btn-danger"
-                    onClick={this.props.fetchDevicesLazy}>
+                  <ClickButton className="btn-danger" onClick={this.props.dispatch(fetchDevicesLazy)}>
                     Retry
                   </ClickButton>
                 </div> }
-              { devices.isFetching &&
+              { isFetching &&
                 <p className="lead mt-5 text-center">
                   Fetching available devices for you ...
                 </p> }
@@ -60,14 +62,12 @@ class App extends Component {
 }
 
 const mapState = state => ({
-  devices: state.devices
-})
-
-const mapDispatch = dispatch => ({
-    fetchDevicesLazy: bindActionCreators(fetchDevicesLazy, dispatch)
+  device: state.device.device,
+  devices: state.device.devices,
+  isUpdating: state.device.isUpdating,
+  isFetching: state.device.isFetching
 })
 
 export default connect(
-  mapState,
-  mapDispatch
+  mapState
 )(App)

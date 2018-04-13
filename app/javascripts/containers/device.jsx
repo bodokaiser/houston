@@ -3,44 +3,32 @@ import React, {
   Fragment
 } from 'react'
 import {connect} from 'react-redux'
-import {bindActionCreators} from 'redux'
 
 import {DefaultForm} from '../components/form'
-import {
-  InputGroup,
-  SelectGroup
-} from '../components/input'
+import {InputGroup} from '../components/input'
 import {SubmitButton} from '../components/button'
-import {NavTabs} from '../components/nav'
-import {
-  EditIcon,
-  MicrochipIcon
-} from '../components/icon'
 
 import {
   submitDevice,
-  updateDeviceMode,
-  updateDeviceName,
   updateDevice
 } from '../actions/device'
 
-const Form = ({ amplitude, frequency, phase, onChange, onSubmit }) => (
-  <form onSubmit={onSubmit}>
+const DeviceForm = ({ amplitude, frequency, phase, onSubmit, onChange }) => (
+  <DefaultForm onSubmit={onSubmit} onChange={onChange}>
     <div className="form-row">
       <div className="form-group col-sm-12">
         <InputGroup name="amplitude" label="Amplitude" type="number"
-          min="0" max="1"
-          append="%" value={amplitude} onChange={onChange}/>
+          min="0" max="100" append="%" value={amplitude} />
       </div>
       <div className="form-group col-sm-12">
         <InputGroup name="frequency" label="Frequency" type="number"
           min="1" max="500"
-          append="MHz" value={frequency} onChange={onChange} />
+          append="MHz" value={frequency} />
       </div>
       <div className="form-group col-sm-12">
         <InputGroup name="phase" label="Phase" type="number"
           min="0" max={2*Math.PI}
-          append="rad" value={frequency} onChange={onChange} />
+          append="rad" value={phase} />
       </div>
     </div>
     <div className="form-row">
@@ -48,7 +36,7 @@ const Form = ({ amplitude, frequency, phase, onChange, onSubmit }) => (
         <SubmitButton>Update</SubmitButton>
       </div>
     </div>
-  </form>
+  </DefaultForm>
 )
 
 class Device extends Component {
@@ -56,71 +44,31 @@ class Device extends Component {
   constructor(props) {
     super(props)
 
-    this.state = { nameEditable: false }
-    this.handleTabClick = this.handleTabClick.bind(this)
-    this.handleEditClick = this.handleEditClick.bind(this)
-    this.handleNameSubmit = this.handleNameSubmit.bind(this)
-    this.handleNameChange = this.handleNameChange.bind(this)
-    this.handleDeviceChange = this.handleDeviceChange.bind(this)
-    this.handleSingleToneSubmit = this.handleSingleToneSubmit.bind(this)
+    this.handleSubmit = this.handleSubmit.bind(this)
+    this.handleChange = this.handleChange.bind(this)
   }
 
-  handleEditClick(element) {
-    element.preventDefault()
-
-    this.setState({ nameEditable: true })
+  handleSubmit() {
+    this.props.dispatch(submitDevice(this.props.device))
   }
 
-  handleTabClick(mode) {
-    this.props.updateMode(this.props.device, mode)
-  }
-
-  handleNameSubmit(element) {
-    element.preventDefault()
-
-    this.setState({ nameEditable: false })
-  }
-
-  handleNameChange(name) {
-    this.props.updateName(this.props.device, name)
-  }
-
-  handleDeviceChange(name, value) {
+  handleChange(name, value) {
     this.props.device[name] = value
-
-    this.props.updateDevice(this.props.device)
-  }
-
-  handleSingleToneSubmit(e) {
-    e.preventDefault()
-
-    this.props.submitSingleTone(this.props.device)
+    this.props.dispatch(updateDevice(this.props.device))
   }
 
   render() {
     const { device } = this.props
-    const { nameEditable } = this.state
 
     return (
       <div className="card">
         <div className="card-header">
-          <div className="btn-toolbar justify-content-between">
-            <form onSubmit={this.handleNameSubmit}>
-              <InputGroup value={device.name} readOnly={!nameEditable} onChange={this.handleNameChange} />
-            </form>
-            <div className="btn-group" hidden={nameEditable}>
-              <button className="btn btn-light" type="button"
-                onClick={this.handleEditClick}>
-                <EditIcon />
-              </button>
-            </div>
-          </div>
+          {device.name}
         </div>
         <div className="card-body">
-          <Form
-            onChange={this.handleDeviceChange}
-            onSubmit={this.handleSingleToneSubmit}
-            {...device} />
+          <DeviceForm onSubmit={this.handleSubmit}
+                      onChange={this.handleChange}
+                      {...device} />
         </div>
       </div>
     )
@@ -128,16 +76,4 @@ class Device extends Component {
 
 }
 
-const mapState = state => ({})
-
-const mapDispatch = dispatch => ({
-  updateName: bindActionCreators(updateDeviceName, dispatch),
-  updateMode: bindActionCreators(updateDeviceMode, dispatch),
-  updateDevice: bindActionCreators(updateDevice, dispatch),
-  submitSingleTone: bindActionCreators(submitDevice, dispatch)
-})
-
-export default connect(
-  mapState,
-  mapDispatch
-)(Device)
+export default connect()(Device)

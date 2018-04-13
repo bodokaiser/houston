@@ -1,7 +1,7 @@
 import React, {Fragment} from 'react'
 
 export const InputGroup = ({ name, type, value, label, append, prepend,
-  min, max, step, validation, placeholder, readOnly, onChange }) => (
+  min, max, step, validation, placeholder }) => (
   <Fragment>
     { label &&
     <label htmlFor={name}>
@@ -12,20 +12,9 @@ export const InputGroup = ({ name, type, value, label, append, prepend,
       <div className="input-group-prepend">
         <div className="input-group-text">{ prepend }</div>
       </div> }
-      <input className={`form-control${readOnly ? '-plaintext' : ''}`}
-        id={name}
-        type={type || 'text'}
-        defaultValue={value}
-        readOnly={readOnly}
-        onChange={e => {
-          value = e.target.value
-
-          if (e.target.type == "number") value = parseFloat(value)
-
-          onChange(e.target.id, value, e.target)
-        }}
-        min={min} max={max} step={step}
-        placeholder={placeholder} />
+      <input className="form-control"
+        id={name} type={type || 'text'} defaultValue={value}
+        min={min} max={max} step={step} placeholder={placeholder} />
       <div className="valid-feedback">{ validation }</div>
       { append &&
       <div className="input-group-append">
