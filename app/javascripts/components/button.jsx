@@ -5,3 +5,11 @@ export const SubmitButton = ({ children }) => (
     { children }
   </button>
 )
+
+export const ClickButton = ({ children, className, onClick }) => (
+  <button type="click"
+    className={`btn btn-primary ${className || ''}`}
+    onClick={e => onClick()}>
+    { children }
+  </button>
+)

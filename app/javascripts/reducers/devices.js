@@ -7,11 +7,7 @@ import {
 } from '../actions/device'
 
 function receiveDevices(state, action) {
-  return action.devices.map(device => {
-    device.mode = (device.frequency == 0) ? 'Sweep' : 'Single Tone'
-
-    return device
-  })
+  return action.devices
 }
 
 function updateDevice(state, action) {

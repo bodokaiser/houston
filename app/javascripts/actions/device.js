@@ -1,3 +1,5 @@
+import axios from 'axios'
+
 export const UPDATE_DEVICE = 'UPDATE_DEVICE'
 export const REQUEST_DEVICES = 'REQUEST_DEVICES'
 export const RECEIVE_DEVICES = 'RECEIVE_DEVICES'
@@ -10,52 +12,25 @@ export function updateDevice(device) {
   return { type: UPDATE_DEVICE, device }
 }
 
-export function updateDeviceMode(device, mode) {
-  return dispatch => {
-    dispatch(updateDevice({ ...device, mode }))
-  }
-}
-export function updateDeviceName(device, name) {
-  return dispatch => {
-    dispatch(updateDevice({ ...device, name }))
-  }
-}
-
-export function updateDeviceSingleTone(device, singleTone) {
-  device.singleTone = {...device.singleTone, ...singleTone }
-
-  return dispatch => {
-    dispatch(updateDevice(device))
-  }
-}
-
-export function updateDeviceSweep(device, sweep) {
-  device.sweep = { ...device.sweep, ...sweep }
-
-  return dispatch => {
-    dispatch(updateDevice(device))
-  }
-}
-
 export function requestDevices() {
-  return { type: REQUEST_DEVICES }
+  return { type: REQUEST_DEVICES, isFetching: true }
 }
 
 export function receiveDevices(devices) {
-  return { type: RECEIVE_DEVICES, devices }
+  return { type: RECEIVE_DEVICES, isFetching: false, devices }
 }
 
 export function submitDevice(device) {
   return dispatch => {
-    console.log(device)
-    return fetch(`${process.env.RESOURCE}/devices/dds/${device.name}`, {
-      method: 'PUT',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ frequency: device.frequency })
-    })
+    return axios.put(`/devices/dds/${device.name}`, {
+        name: device.name,
+        amplitude: device.amplitude,
+        frequency: device.frequency,
+        phase: device.phase
+      }, { baseURL: process.env.RESOURCE })
+      .then(resp => {
+        console.log(resp)
+      })
   }
 }
 
@@ -63,9 +38,11 @@ export function fetchDevices() {
   return dispatch => {
     dispatch(requestDevices())
 
-    return fetch(`${process.env.RESOURCE}/devices/dds`)
-      .then(resp => resp.json())
-      .then(json => dispatch(receiveDevices(json)))
+    return axios.get('/devices/dds', {
+        baseURL: process.env.RESOURCE
+      })
+      .then(res => dispatch(receiveDevices(res.json)))
+      .catch(err => dispatch(receiveDevices([])))
   }
 }
 
