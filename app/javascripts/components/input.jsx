@@ -1,7 +1,7 @@
 import React, {Fragment} from 'react'
 
 export const InputGroup = ({ name, type, value, label, append, prepend,
-  validation, placeholder, readOnly, onChange }) => (
+  min, max, step, validation, placeholder, readOnly, onChange }) => (
   <Fragment>
     { label &&
     <label htmlFor={name}>
@@ -24,6 +24,7 @@ export const InputGroup = ({ name, type, value, label, append, prepend,
 
           onChange(e.target.id, value, e.target)
         }}
+        min={min} max={max} step={step}
         placeholder={placeholder} />
       <div className="valid-feedback">{ validation }</div>
       { append &&

@@ -24,49 +24,23 @@ import {
   updateDevice
 } from '../actions/device'
 
-const SingleToneForm = ({ amplitude, frequency, onChange, onSubmit }) => (
+const Form = ({ amplitude, frequency, phase, onChange, onSubmit }) => (
   <form onSubmit={onSubmit}>
     <div className="form-row">
       <div className="form-group col-sm-12">
         <InputGroup name="amplitude" label="Amplitude" type="number"
-          append="dB" value={amplitude} onChange={onChange}/>
+          min="0" max="1"
+          append="%" value={amplitude} onChange={onChange}/>
       </div>
       <div className="form-group col-sm-12">
         <InputGroup name="frequency" label="Frequency" type="number"
-          append="Hz" value={frequency} onChange={onChange} />
-      </div>
-    </div>
-    <div className="form-row">
-      <div className="form-group col-sm-12">
-        <SubmitButton>Update</SubmitButton>
-      </div>
-    </div>
-  </form>
-)
-
-const SweepForm = ({ waveform, waveforms, onChange, onSubmit }) => (
-  <form onSubmit={onSubmit}>
-    <div className="form-row">
-      <div className="form-group col-sm-12">
-        <InputGroup name="startFrequency" type="number" label="Start Frequency"
-          append="Hz" value={10e6} onChange={onChange} />
+          min="1" max="500"
+          append="MHz" value={frequency} onChange={onChange} />
       </div>
       <div className="form-group col-sm-12">
-        <InputGroup name="stopFrequency" type="number" label="Stop Frequency"
-          append="Hz" value={200e6} onChange={onChange} />
-      </div>
-    </div>
-    <div className="form-row">
-      <div className="form-group col-sm-12">
-        <InputGroup name="timerInterval" type="number" label="Timer Interval"
-          append="s" value={2} onChange={onChange} />
-      </div>
-    </div>
-    <div className="form-row">
-      <div className="form-group col-sm-12">
-      {console.log(waveform, waveforms)}
-        <SelectGroup name="waveform" label="Waveform"
-          value={waveform} options={waveforms} onChange={onChange} />
+        <InputGroup name="phase" label="Phase" type="number"
+          min="0" max={2*Math.PI}
+          append="rad" value={frequency} onChange={onChange} />
       </div>
     </div>
     <div className="form-row">
@@ -124,16 +98,8 @@ class Device extends Component {
   }
 
   render() {
-    const { device, modes, waveforms } = this.props
+    const { device } = this.props
     const { nameEditable } = this.state
-
-    var links = modes.map(mode => {
-      var link = { name: mode }
-
-      if (link.name == device.mode) link.active = true
-
-      return link
-    })
 
     return (
       <div className="card">
@@ -151,16 +117,10 @@ class Device extends Component {
           </div>
         </div>
         <div className="card-body">
-          <NavTabs links={links} onClick={this.handleTabClick} />
-          <div className={(device.mode == 'Single Tone') ? '' : 'd-none'}>
-            <SingleToneForm
-              onChange={this.handleDeviceChange}
-              onSubmit={this.handleSingleToneSubmit}
-              {...device} />
-          </div>
-          <div className={(device.mode == 'Sweep') ? '' : 'd-none'}>
-            <SweepForm onChange={this.handleDeviceChange} {...{...device, waveforms}} />
-          </div>
+          <Form
+            onChange={this.handleDeviceChange}
+            onSubmit={this.handleSingleToneSubmit}
+            {...device} />
         </div>
       </div>
     )
@@ -168,10 +128,7 @@ class Device extends Component {
 
 }
 
-const mapState = state => ({
-  modes: ['Single Tone', 'Sweep'],
-  waveforms: ['Triangle', 'Sawtooth']
-})
+const mapState = state => ({})
 
 const mapDispatch = dispatch => ({
   updateName: bindActionCreators(updateDeviceName, dispatch),
