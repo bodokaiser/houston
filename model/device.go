@@ -19,7 +19,7 @@ type DDSDevice struct {
 	Address   uint8   `json:"-"                validate:"gte=0,lte=31"`
 	Amplitude float64 `json:"amplitude"        validate:"gte=0,lte=1"`
 	Frequency float64 `json:"frequency"        validate:"gt=0,lte=5e8"`
-	Phase     float64 `json:"phase,omitempty"  validate:"gte=0"`
+	Phase     float64 `json:"phase"            validate:"gte=0"`
 }
 
 // Validate validates DDSDevice.

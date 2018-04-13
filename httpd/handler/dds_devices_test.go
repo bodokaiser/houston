@@ -61,7 +61,7 @@ func (s *DDSTestSuite) TestListJSON() {
 
 	assert.Equal(s.T(), http.StatusOK, rec.Code)
 	assert.Equal(s.T(),
-		`[{"name":"DDS0","amplitude":1,"frequency":250000000}]`,
+		`[{"name":"DDS0","amplitude":1,"frequency":250000000,"phase":0}]`,
 		rec.Body.String())
 }
 
