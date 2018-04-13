@@ -102,6 +102,27 @@ the command scripts.
 
 ## Appendix
 
+### How to compile
+
+You can compile the commands on your workstation such that you only have to
+copy the binary to your target device.
+
+    GOARM=7 GOARCH=arm GOOS=linux go build cmd/cli/main.go
+
+Copy the binary to the device
+
+    scp main debian@beaglebone.local:~/ddsctrl
+
+connect with it (i.e. through ssh)
+
+    ssh debian@beaglebone.local
+
+and execute the binary
+
+    ./ddsctrl -h
+
+which will give help text for the command line arguments.
+
 ### How to render docs
 
 You can serve the documentation of the Go packages with
