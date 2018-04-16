@@ -16,7 +16,7 @@ import (
 	"github.com/bodokaiser/houston/register/dds/ad99xx"
 )
 
-// AD9910 drives the AD9910 dds.
+// AD9910 implements DDS interface for the AD9910.
 type AD9910 struct {
 	register    *ad99xx.AD9910
 	refClock    float64
@@ -74,15 +74,15 @@ func (d *AD9910) IOUpdate() error {
 	return strobe(d.ioUpdatePin)
 }
 
-// SingleTone configures the AD9910 to single tone mode at given frequency.
-func (d *AD9910) SingleTone(a float64, f float64, p float64) error {
-	if a < 0 || a > 1 {
+// SingleTone implements DDS interface for AD9910.
+func (d *AD9910) SingleTone(c dds.SingleToneConfig) error {
+	if c.Amplitude < 0 || c.Amplitude > 1 {
 		return dds.ErrInvalidAmplitude
 	}
-	if f < 1 || f > 500e6 {
+	if c.Frequency < 1 || c.Frequency > 500e6 {
 		return dds.ErrInvalidFrequency
 	}
-	if p < 0 || p > 2*math.Pi {
+	if c.PhaseOffset < 0 || c.PhaseOffset > 2*math.Pi {
 		return dds.ErrInvalidPhase
 	}
 
@@ -95,16 +95,18 @@ func (d *AD9910) SingleTone(a float64, f float64, p float64) error {
 	d.register.CFR2[3] = ad99xx.FlagPDCLKEnable
 	d.register.CFR2[4] = ad99xx.FlagSyncValidDisable
 
+	// TODO: ModeVCORangeX should be inferred from SysClock.
 	d.register.CFR3[1] = ad99xx.ModeDRV0OutputCurrentLow | ad99xx.ModeVCORange5
 	d.register.CFR3[2] = ad99xx.ModeChargePumpCurrent387
 	d.register.CFR3[3] = ad99xx.FlagREFCLKDivReset | ad99xx.FlagPLLEnable
 	d.register.CFR3[4] = d.divider() << 1
 
-	pow := ad99xx.PhaseToPOW(p)
-	asf := ad99xx.AmplitudeToASF(a)
-	ftw := ad99xx.FrequencyToFTW(d.sysClock, f)
+	pow := ad99xx.PhaseToPOW(c.PhaseOffset)
+	asf := ad99xx.AmplitudeToASF(c.Amplitude)
+	ftw := ad99xx.FrequencyToFTW(d.sysClock, c.Frequency)
 
-	// for some reason ASF register has to be written
+	// for some reason ASF register has to be written and cannot be omitted
+	// as done with FTW, POW
 	binary.BigEndian.PutUint16(d.register.ASF[3:], asf<<2)
 	binary.BigEndian.PutUint16(d.register.STProfile0[1:3], asf)
 	binary.BigEndian.PutUint16(d.register.STProfile0[3:5], pow)
@@ -127,6 +129,16 @@ func (d *AD9910) SingleTone(a float64, f float64, p float64) error {
 	}
 
 	return d.IOUpdate()
+}
+
+// DigitalRamp implements DDS interface.
+func (d *AD9910) DigitalRamp(c dds.DigitalRampConfig) error {
+	return nil
+}
+
+// Playback implements DDS interace.
+func (d *AD9910) Playback(c dds.PlaybackConfig) error {
+	return nil
 }
 
 func (d *AD9910) divider() uint8 {

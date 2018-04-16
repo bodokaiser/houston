@@ -1,8 +1,6 @@
 package driver
 
 import (
-	"fmt"
-
 	"github.com/bodokaiser/houston/driver/dds"
 	"github.com/bodokaiser/houston/driver/mux"
 )
@@ -26,10 +24,9 @@ func (d *AD9910DDSArray) Select(a uint8) error {
 	return d.Mux.Select(a)
 }
 
-// SingleTone configures the addressed dds to run in single tone mode with
-// given frequency.
-func (d *AD9910DDSArray) SingleTone(a float64, f float64, p float64) error {
-	return d.DDS.SingleTone(a, f, p)
+// SingleTone implements dds.DDS.SingleTone.
+func (d *AD9910DDSArray) SingleTone(c dds.SingleToneConfig) error {
+	return d.DDS.SingleTone(c)
 }
 
 // MockedDDSArray mocks a DDSArray.
@@ -39,10 +36,10 @@ func (d *AD9910DDSArray) SingleTone(a float64, f float64, p float64) error {
 // machine which does not have the required sysfs interface or for just
 // running some tests.
 type MockedDDSArray struct {
-	Frequency float64
-	Amplitude float64
-	Phase     float64
-	Address   uint8
+	Address           uint8
+	SingleToneConfig  dds.SingleToneConfig
+	DigitalRampConfig dds.DigitalRampConfig
+	PlaybackConfig    dds.PlaybackConfig
 }
 
 // Select implements the DDSArray interface.
@@ -52,8 +49,6 @@ type MockedDDSArray struct {
 func (d *MockedDDSArray) Select(a uint8) error {
 	d.Address = a
 
-	fmt.Printf("selected address %v\n", a)
-
 	return nil
 }
 
@@ -61,12 +56,22 @@ func (d *MockedDDSArray) Select(a uint8) error {
 //
 // This will assign the structs Frequency field value to the given address and
 // print the new frequency to stdout.
-func (d *MockedDDSArray) SingleTone(a float64, f float64, p float64) error {
-	d.Phase = p
-	d.Amplitude = a
-	d.Frequency = f
+func (d *MockedDDSArray) SingleTone(c dds.SingleToneConfig) error {
+	d.SingleToneConfig = c
 
-	fmt.Printf("running single tone at frequency %v\n", f)
+	return nil
+}
+
+// DigitalRamp implements the DDSArray interface.
+func (d *MockedDDSArray) DigitalRamp(c dds.DigitalRampConfig) error {
+	d.DigitalRampConfig = c
+
+	return nil
+}
+
+// Playback implements DDSArray interace.
+func (d *MockedDDSArray) Playback(c dds.PlaybackConfig) error {
+	d.PlaybackConfig = c
 
 	return nil
 }
