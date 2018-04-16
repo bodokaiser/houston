@@ -45,8 +45,7 @@ type DigitalRampConfig struct {
 	Limits      [2]float64
 	StepSize    [2]float64
 	SlopeRate   [2]float64
-	NoDwellHigh bool
-	NoDwellLow  bool
+	NoDwell     [2]bool
 	Destination ControlParam
 }
 
