@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"math"
 	"time"
 
@@ -162,8 +163,8 @@ func (d *AD9910) DigitalRamp(c dds.DigitalRampConfig) error {
 	ftw := ad99xx.FrequencyToFTW(d.sysClock, c.Frequency)
 
 	binary.BigEndian.PutUint16(d.register.ASF[3:], asf<<2)
-	binary.BigEndian.PutUint32(d.register.FTW[:], ftw)
-	binary.BigEndian.PutUint16(d.register.POW[:], pow)
+	binary.BigEndian.PutUint32(d.register.FTW[1:], ftw)
+	binary.BigEndian.PutUint16(d.register.POW[1:], pow)
 
 	switch c.Destination {
 	case dds.Amplitude:
@@ -185,18 +186,21 @@ func (d *AD9910) DigitalRamp(c dds.DigitalRampConfig) error {
 		binary.BigEndian.PutUint16(d.register.DRampRate[1:3], uint16(s))
 		binary.BigEndian.PutUint16(d.register.DRampRate[3:], uint16(s))
 	case dds.PhaseOffset:
-		u := ad99xx.PhaseToPOW(c.Limits[1])
-		l := ad99xx.PhaseToPOW(c.Limits[0])
-		s := math.Round(c.Duration.Seconds() * d.sysClock / (4 * float64(u-l)))
+		//u := (1 << 32) - 1 //ad99xx.PhaseToPOW(c.Limits[1])
+		//l := 0             //ad99xx.PhaseToPOW(c.Limits[0])
+		//s := math.Round(c.Duration.Seconds() * d.sysClock / (4 * float64(u-l)))
 
-		binary.BigEndian.PutUint16(d.register.DRampLimit[1:3], u)
-		binary.BigEndian.PutUint16(d.register.DRampLimit[5:7], l)
-		binary.BigEndian.PutUint16(d.register.DRampRate[1:3], uint16(s))
-		binary.BigEndian.PutUint16(d.register.DRampRate[3:], uint16(s))
+		d.register.DRampLimit = [9]byte{13, 255, 255, 255, 255, 0, 0, 0, 0}
+		//binary.BigEndian.PutUint32(d.register.DRampLimit[1:5], uint32(u))
+		//binary.BigEndian.PutUint32(d.register.DRampLimit[5:], uint32(l))
+		binary.BigEndian.PutUint16(d.register.DRampRate[1:3], 400)
+		binary.BigEndian.PutUint16(d.register.DRampRate[3:], 400)
 	}
 	// the smallest possible step size gives us the highest resolution
 	binary.BigEndian.PutUint32(d.register.DRampStepSize[1:5], uint32(1))
 	binary.BigEndian.PutUint32(d.register.DRampStepSize[5:], uint32(1))
+
+	fmt.Printf("%+v\n", d.register)
 
 	w := bytes.Join([][]byte{
 		d.register.CFR1[:],
