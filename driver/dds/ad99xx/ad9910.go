@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"math"
 	"time"
 
@@ -77,13 +78,13 @@ func (d *AD9910) IOUpdate() error {
 // SingleTone implements DDS interface for AD9910.
 func (d *AD9910) SingleTone(c dds.SingleToneConfig) error {
 	if c.Amplitude < 0 || c.Amplitude > 1 {
-		return dds.ErrInvalidAmplitude
+		return errors.New("amplitude not between 0.0 and 1.0")
 	}
 	if c.Frequency < 1 || c.Frequency > 500e6 {
-		return dds.ErrInvalidFrequency
+		return errors.New("frequency not between 1 Hz and 500 MHz")
 	}
 	if c.PhaseOffset < 0 || c.PhaseOffset > 2*math.Pi {
-		return dds.ErrInvalidPhase
+		return errors.New("phase offset not between 0 and 2π")
 	}
 
 	d.register.CFR1[2] = ad99xx.FlagManualOSK
@@ -132,8 +133,208 @@ func (d *AD9910) SingleTone(c dds.SingleToneConfig) error {
 }
 
 // DigitalRamp implements DDS interface.
-func (d *AD9910) DigitalRamp(c dds.DigitalRampConfig) error {
-	return nil
+func (d *AD9910) SweepAmplitude(c dds.DigitalRampConfig) error {
+	d.register.CFR1[4] = ad99xx.FlagSDIOInput
+
+	d.register.CFR2[2] = ad99xx.FlagSYNCCLKEnable
+	d.register.CFR2[3] = ad99xx.FlagPDCLKEnable
+	d.register.CFR2[4] = ad99xx.FlagSyncValidDisable
+
+	// TODO: ModeVCORangeX should be inferred from SysClock.
+	d.register.CFR3[1] = ad99xx.ModeDRV0OutputCurrentLow | ad99xx.ModeVCORange5
+	d.register.CFR3[2] = ad99xx.ModeChargePumpCurrent387
+	d.register.CFR3[3] = ad99xx.FlagREFCLKDivReset | ad99xx.FlagPLLEnable
+	d.register.CFR3[4] = d.divider() << 1
+
+	d.register.CFR2[2] |= ad99xx.FlagDRampEnable
+	if c.NoDwell[0] {
+		d.register.CFR2[2] |= ad99xx.FlagDRampNoDwellLow
+	}
+	if c.NoDwell[1] {
+		d.register.CFR2[2] |= ad99xx.FlagDRampNoDwellHigh
+	}
+	d.register.CFR2[2] |= byte(dds.Amplitude) << 4
+
+	pow := ad99xx.PhaseToPOW(c.PhaseOffset)
+	ftw := ad99xx.FrequencyToFTW(d.sysClock, c.Frequency)
+
+	u := ad99xx.AmplitudeToASF(c.Limits[1])
+	l := ad99xx.AmplitudeToASF(c.Limits[0])
+	s := uint16(math.Round(c.Duration.Seconds() * d.sysClock / (4 * float64(u-l))))
+
+	d.register.DRampLimit[1] = 255
+	d.register.DRampLimit[2] = 255
+	d.register.DRampLimit[3] = 255
+	d.register.DRampLimit[4] = 255
+	//binary.BigEndian.PutUint16(d.register.DRampLimit[1:3], u<<2)
+	//binary.BigEndian.PutUint16(d.register.DRampLimit[5:7], l)
+	binary.BigEndian.PutUint16(d.register.DRampRate[1:3], s)
+	binary.BigEndian.PutUint16(d.register.DRampRate[3:], s)
+
+	// the smallest possible step size gives us the highest resolution
+	binary.BigEndian.PutUint32(d.register.DRampStepSize[1:5], uint32(1))
+	binary.BigEndian.PutUint32(d.register.DRampStepSize[5:], uint32(1))
+
+	binary.BigEndian.PutUint16(d.register.STProfile0[3:5], pow)
+	binary.BigEndian.PutUint32(d.register.STProfile0[5:], ftw)
+
+	fmt.Printf("%+v\n", d.register)
+
+	w := bytes.Join([][]byte{
+		d.register.CFR1[:],
+		d.register.CFR2[:],
+		d.register.CFR3[:],
+		d.register.AuxDAC[:],
+		d.register.IOUpdateRate[:],
+		d.register.FTW[:],
+		d.register.POW[:],
+		d.register.ASF[:],
+		d.register.DRampLimit[:],
+		d.register.DRampStepSize[:],
+		d.register.DRampRate[:],
+		d.register.STProfile0[:],
+	}, []byte{})
+	r := make([]byte, len(w))
+
+	err := d.spiConn.Tx(w, r)
+	if err != nil {
+		return err
+	}
+
+	return d.IOUpdate()
+}
+
+func (d *AD9910) SweepPhase(c dds.DigitalRampConfig) error {
+	d.register.CFR1[4] = ad99xx.FlagSDIOInput
+	d.register.CFR1[2] = ad99xx.FlagManualOSK
+	d.register.CFR1[3] = ad99xx.FlagOSKEnable
+
+	d.register.CFR2[2] = ad99xx.FlagSYNCCLKEnable
+	d.register.CFR2[3] = ad99xx.FlagPDCLKEnable
+	d.register.CFR2[4] = ad99xx.FlagSyncValidDisable
+
+	// TODO: ModeVCORangeX should be inferred from SysClock.
+	d.register.CFR3[1] = ad99xx.ModeDRV0OutputCurrentLow | ad99xx.ModeVCORange5
+	d.register.CFR3[2] = ad99xx.ModeChargePumpCurrent387
+	d.register.CFR3[3] = ad99xx.FlagREFCLKDivReset | ad99xx.FlagPLLEnable
+	d.register.CFR3[4] = d.divider() << 1
+
+	d.register.CFR2[2] |= ad99xx.FlagDRampEnable
+	if c.NoDwell[0] {
+		d.register.CFR2[2] |= ad99xx.FlagDRampNoDwellLow
+	}
+	if c.NoDwell[1] {
+		d.register.CFR2[2] |= ad99xx.FlagDRampNoDwellHigh
+	}
+	d.register.CFR2[2] |= byte(dds.PhaseOffset) << 4
+
+	asf := ad99xx.AmplitudeToASF(c.Amplitude)
+	ftw := ad99xx.FrequencyToFTW(d.sysClock, c.Frequency)
+
+	u := ad99xx.PhaseToPOW(c.Limits[1])
+	l := ad99xx.PhaseToPOW(c.Limits[0])
+	s := uint16(math.Round(c.Duration.Seconds() * d.sysClock / (4 * float64(u-l))))
+
+	binary.BigEndian.PutUint16(d.register.ASF[3:], asf<<2)
+	binary.BigEndian.PutUint16(d.register.DRampLimit[1:3], u)
+	binary.BigEndian.PutUint16(d.register.DRampLimit[5:7], l)
+	binary.BigEndian.PutUint16(d.register.DRampRate[1:3], s)
+	binary.BigEndian.PutUint16(d.register.DRampRate[3:], s)
+
+	// the smallest possible step size gives us the highest resolution
+	binary.BigEndian.PutUint32(d.register.DRampStepSize[1:5], uint32(1))
+	binary.BigEndian.PutUint32(d.register.DRampStepSize[5:], uint32(1))
+
+	binary.BigEndian.PutUint32(d.register.STProfile0[5:], ftw)
+
+	fmt.Printf("%+v\n", d.register)
+
+	w := bytes.Join([][]byte{
+		d.register.CFR1[:],
+		d.register.CFR2[:],
+		d.register.CFR3[:],
+		d.register.AuxDAC[:],
+		d.register.IOUpdateRate[:],
+		d.register.ASF[:],
+		d.register.DRampLimit[:],
+		d.register.DRampStepSize[:],
+		d.register.DRampRate[:],
+		d.register.STProfile0[:],
+	}, []byte{})
+	r := make([]byte, len(w))
+
+	err := d.spiConn.Tx(w, r)
+	if err != nil {
+		return err
+	}
+
+	return d.IOUpdate()
+}
+
+// DigitalRamp implements DDS interface.
+func (d *AD9910) SweepFrequency(c dds.DigitalRampConfig) error {
+	d.register.CFR1[2] = ad99xx.FlagManualOSK
+	d.register.CFR1[3] = ad99xx.FlagOSKEnable
+	d.register.CFR1[4] = ad99xx.FlagSDIOInput
+
+	d.register.CFR2[1] = ad99xx.FlagAmplScaleEnable
+	d.register.CFR2[2] = ad99xx.FlagSYNCCLKEnable
+	d.register.CFR2[3] = ad99xx.FlagPDCLKEnable
+	d.register.CFR2[4] = ad99xx.FlagSyncValidDisable
+
+	// TODO: ModeVCORangeX should be inferred from SysClock.
+	d.register.CFR3[1] = ad99xx.ModeDRV0OutputCurrentLow | ad99xx.ModeVCORange5
+	d.register.CFR3[2] = ad99xx.ModeChargePumpCurrent387
+	d.register.CFR3[3] = ad99xx.FlagREFCLKDivReset | ad99xx.FlagPLLEnable
+	d.register.CFR3[4] = d.divider() << 1
+
+	d.register.CFR2[2] |= ad99xx.FlagDRampEnable
+	if c.NoDwell[0] {
+		d.register.CFR2[2] |= ad99xx.FlagDRampNoDwellLow
+	}
+	if c.NoDwell[1] {
+		d.register.CFR2[2] |= ad99xx.FlagDRampNoDwellHigh
+	}
+	d.register.CFR2[2] |= byte(dds.Frequency) << 4
+
+	asf := ad99xx.AmplitudeToASF(c.Amplitude)
+	pow := ad99xx.PhaseToPOW(c.PhaseOffset)
+
+	u := ad99xx.FrequencyToFTW(d.sysClock, c.Limits[1])
+	l := ad99xx.FrequencyToFTW(d.sysClock, c.Limits[0])
+	s := uint16(math.Round(c.Duration.Seconds() * d.sysClock / (4 * float64(u-l))))
+
+	binary.BigEndian.PutUint32(d.register.DRampLimit[1:5], u)
+	binary.BigEndian.PutUint32(d.register.DRampLimit[5:], l)
+	binary.BigEndian.PutUint16(d.register.DRampRate[1:3], s)
+	binary.BigEndian.PutUint16(d.register.DRampRate[3:], s)
+
+	// the smallest possible step size gives us the highest resolution
+	binary.BigEndian.PutUint32(d.register.DRampStepSize[1:5], uint32(1))
+	binary.BigEndian.PutUint32(d.register.DRampStepSize[5:], uint32(1))
+
+	binary.BigEndian.PutUint16(d.register.STProfile0[3:5], pow)
+	binary.BigEndian.PutUint16(d.register.STProfile0[1:3], asf)
+
+	w := bytes.Join([][]byte{
+		d.register.CFR1[:],
+		d.register.CFR2[:],
+		d.register.CFR3[:],
+		d.register.AuxDAC[:],
+		d.register.IOUpdateRate[:],
+		d.register.DRampLimit[:],
+		d.register.DRampStepSize[:],
+		d.register.DRampRate[:],
+		d.register.STProfile0[:],
+	}, []byte{})
+	r := make([]byte, len(w))
+
+	err := d.spiConn.Tx(w, r)
+	if err != nil {
+		return err
+	}
+
+	return d.IOUpdate()
 }
 
 // Playback implements DDS interace.

@@ -136,12 +136,12 @@ type AD9910 struct {
 	AuxDAC        [5]byte
 	IOUpdateRate  [5]byte
 	FTW           [5]byte
-	POW           [5]byte
+	POW           [3]byte
 	ASF           [5]byte
 	MultiChip     [5]byte
 	DRampLimit    [9]byte
 	DRampStepSize [9]byte
-	DRampRate     [9]byte
+	DRampRate     [5]byte
 	STProfile0    [9]byte
 	STProfile1    [9]byte
 	STProfile2    [9]byte
@@ -185,12 +185,12 @@ func NewAD9910() *AD9910 {
 			0xff, 0xff, 0xff, 0xff,
 		},
 		FTW:           [5]byte{AddrFTW},
-		POW:           [5]byte{AddrPOW},
+		POW:           [3]byte{AddrPOW},
 		ASF:           [5]byte{AddrASF},
 		MultiChip:     [5]byte{AddrMultiChip},
 		DRampLimit:    [9]byte{AddrDRampLimit},
 		DRampStepSize: [9]byte{AddrDRampStepSize},
-		DRampRate:     [9]byte{AddrDRampRate},
+		DRampRate:     [5]byte{AddrDRampRate},
 		STProfile0: [9]byte{AddrProfile0,
 			0x08, 0xb5,
 		},

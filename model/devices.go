@@ -15,7 +15,7 @@ type DDSDevices []DDSDevice
 
 // FindByID returns the first index of the DDSDevice with the given id
 // or -1 if not match was found.
-func (s *DDSDevices) FindByID(id uint8) int {
+func (s *DDSDevices) FindByID(id uint) int {
 	for i, d := range *s {
 		if d.ID == id {
 			return i
@@ -64,7 +64,7 @@ func (s *DDSDevices) Set(v string) error {
 		}
 
 		*s = append(*s, DDSDevice{
-			ID:   uint8(id),
+			ID:   uint(id),
 			Name: fmt.Sprintf("DDS%d", id),
 		})
 	}

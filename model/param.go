@@ -3,6 +3,7 @@ package model
 import (
 	"encoding/json"
 	"errors"
+	"time"
 )
 
 // DDSParam is the DDS mode in which a DDS controllable parameter runs.
@@ -22,10 +23,9 @@ type DDSConst struct {
 
 // DDSSweep is the DDS mode where a DDS controllable parameter is swept.
 type DDSSweep struct {
-	Limits    [2]float64 `validation:"len=2,range,dive,gt=0" json:"limits"`
-	StepSize  [2]float64 `validation:"len=2,dive,gt=0"       json:"steps"`
-	SlopeRate [2]float64 `validation:"len=2"                 json:"rate"`
-	NoDwell   [2]bool    `validation:"len=2"                 json:"nodwell"`
+	Limits   [2]float64    `validation:"len=2,range,dive,gt=0" json:"limits"`
+	NoDwell  [2]bool       `validation:"len=2"                 json:"nodwell"`
+	Duration time.Duration `validation:"required,gt=0"         json:"duration"`
 }
 
 // DDSPlayback is the DDS mode where a DDS controllable parameter is playbed

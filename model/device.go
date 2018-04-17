@@ -8,7 +8,7 @@ package model
 // property wherein in sweep mode we expect to have a frequency range defined
 // over a single frequency.
 type DDSDevice struct {
-	ID          uint8    `json:"id"`
+	ID          uint     `json:"id"`
 	Name        string   `json:"name"`
 	Amplitude   DDSParam `json:"amplitude"`
 	Frequency   DDSParam `json:"frequency"`
