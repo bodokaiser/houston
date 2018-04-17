@@ -77,13 +77,13 @@ func (d *AD9910) IOUpdate() error {
 // SingleTone implements DDS interface for AD9910.
 func (d *AD9910) SingleTone(c dds.SingleToneConfig) error {
 	if c.Amplitude < 0 || c.Amplitude > 1 {
-		return dds.ErrInvalidAmplitude
+		return errors.New("amplitude not between 0.0 and 1.0")
 	}
 	if c.Frequency < 1 || c.Frequency > 500e6 {
-		return dds.ErrInvalidFrequency
+		return errors.New("frequency not between 1 Hz and 500 MHz")
 	}
 	if c.PhaseOffset < 0 || c.PhaseOffset > 2*math.Pi {
-		return dds.ErrInvalidPhase
+		return errors.New("phase offset not between 0 and 2π")
 	}
 
 	d.register.CFR1[2] = ad99xx.FlagManualOSK
@@ -133,7 +133,76 @@ func (d *AD9910) SingleTone(c dds.SingleToneConfig) error {
 
 // DigitalRamp implements DDS interface.
 func (d *AD9910) DigitalRamp(c dds.DigitalRampConfig) error {
-	return nil
+	d.register.CFR1[2] = ad99xx.FlagManualOSK
+	d.register.CFR1[3] = ad99xx.FlagOSKEnable
+	d.register.CFR1[4] = ad99xx.FlagSDIOInput
+
+	d.register.CFR2[2] = ad99xx.FlagSYNCCLKEnable
+	d.register.CFR2[3] = ad99xx.FlagPDCLKEnable
+	d.register.CFR2[4] = ad99xx.FlagSyncValidDisable
+
+	// TODO: ModeVCORangeX should be inferred from SysClock.
+	d.register.CFR3[1] = ad99xx.ModeDRV0OutputCurrentLow | ad99xx.ModeVCORange5
+	d.register.CFR3[2] = ad99xx.ModeChargePumpCurrent387
+	d.register.CFR3[3] = ad99xx.FlagREFCLKDivReset | ad99xx.FlagPLLEnable
+	d.register.CFR3[4] = d.divider() << 1
+
+	d.register.CFR2[1] = ad99xx.FlagDRampEnable
+	if c.NoDwell[0] {
+		d.register.CFR2[1] |= ad99xx.FlagDRampNoDwellLow
+	}
+	if c.NoDwell[1] {
+		d.register.CFR2[1] |= ad99xx.FlagDRampNoDwellHigh
+	}
+	d.register.CFR2[1] |= byte(c.Destination << 4)
+
+	pow := ad99xx.PhaseToPOW(c.PhaseOffset)
+	asf := ad99xx.AmplitudeToASF(c.Amplitude)
+	ftw := ad99xx.FrequencyToFTW(d.sysClock, c.Frequency)
+
+	binary.BigEndian.PutUint16(d.register.ASF[3:], asf<<2)
+	binary.BigEndian.PutUint32(d.register.FTW[:], ftw)
+	binary.BigEndian.PutUint16(d.register.POW[:], pow)
+
+	switch c.Destination {
+	case dds.Amplitude:
+		binary.BigEndian.PutUint16(d.register.DRampLimit[1:3],
+			uint16(c.Limits[0]*(1<<14))<<2)
+		binary.BigEndian.PutUint16(d.register.DRampLimit[5:7],
+			uint16(c.Limits[1]*(1<<14))<<2)
+	case dds.Frequency:
+		panic("no support for frequency sweep")
+	case dds.PhaseOffset:
+		panic("no support for phase offset sweep")
+	}
+
+	binary.BigEndian.PutUint32(d.register.DRampStepSize[1:5], uint32(1<<16))
+	binary.BigEndian.PutUint32(d.register.DRampStepSize[5:], uint32(1<<16))
+
+	binary.BigEndian.PutUint16(d.register.DRampRate[1:5], uint16(1<<16-1))
+	binary.BigEndian.PutUint16(d.register.DRampRate[5:], uint16(1<<16-1))
+
+	w := bytes.Join([][]byte{
+		d.register.CFR1[:],
+		d.register.CFR2[:],
+		d.register.CFR3[:],
+		d.register.AuxDAC[:],
+		d.register.IOUpdateRate[:],
+		d.register.FTW[:],
+		d.register.POW[:],
+		d.register.ASF[:],
+		d.register.DRampLimit[:],
+		d.register.DRampStepSize[:],
+		d.register.DRampRate[:],
+	}, []byte{})
+	r := make([]byte, len(w))
+
+	err := d.spiConn.Tx(w, r)
+	if err != nil {
+		return err
+	}
+
+	return d.IOUpdate()
 }
 
 // Playback implements DDS interace.
