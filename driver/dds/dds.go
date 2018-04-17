@@ -1,6 +1,8 @@
 // Package dds provides device drivers for direct digital synthesizer.
 package dds
 
+import "time"
+
 // DDS is an implementation of a direct digital synthesizer device.
 type DDS interface {
 	// SingleTone configures the DDS to run in single tone mode.
@@ -18,9 +20,9 @@ type ControlParam uint
 
 // Supported controllable output parameters.
 const (
-	Amplitude ControlParam = iota
-	Frequency
+	Frequency ControlParam = iota
 	PhaseOffset
+	Amplitude
 )
 
 // SingleToneConfig holds the configuration for single tone mode.
@@ -34,9 +36,8 @@ type SingleToneConfig struct {
 type DigitalRampConfig struct {
 	SingleToneConfig
 	Limits      [2]float64
-	StepSize    [2]float64
-	SlopeRate   [2]float64
 	NoDwell     [2]bool
+	Duration    time.Duration
 	Destination ControlParam
 }
 

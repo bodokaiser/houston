@@ -147,14 +147,15 @@ func (d *AD9910) DigitalRamp(c dds.DigitalRampConfig) error {
 	d.register.CFR3[3] = ad99xx.FlagREFCLKDivReset | ad99xx.FlagPLLEnable
 	d.register.CFR3[4] = d.divider() << 1
 
-	d.register.CFR2[1] = ad99xx.FlagDRampEnable
+	d.register.CFR2[1] = ad99xx.FlagAmplScaleEnable
+	d.register.CFR2[2] = ad99xx.FlagDRampEnable | ad99xx.FlagSYNCCLKEnable
 	if c.NoDwell[0] {
-		d.register.CFR2[1] |= ad99xx.FlagDRampNoDwellLow
+		d.register.CFR2[2] |= ad99xx.FlagDRampNoDwellLow
 	}
 	if c.NoDwell[1] {
-		d.register.CFR2[1] |= ad99xx.FlagDRampNoDwellHigh
+		d.register.CFR2[2] |= ad99xx.FlagDRampNoDwellHigh
 	}
-	d.register.CFR2[1] |= byte(c.Destination << 4)
+	d.register.CFR2[2] |= byte(c.Destination << 4)
 
 	pow := ad99xx.PhaseToPOW(c.PhaseOffset)
 	asf := ad99xx.AmplitudeToASF(c.Amplitude)
@@ -166,21 +167,36 @@ func (d *AD9910) DigitalRamp(c dds.DigitalRampConfig) error {
 
 	switch c.Destination {
 	case dds.Amplitude:
-		binary.BigEndian.PutUint16(d.register.DRampLimit[1:3],
-			uint16(c.Limits[0]*(1<<14))<<2)
-		binary.BigEndian.PutUint16(d.register.DRampLimit[5:7],
-			uint16(c.Limits[1]*(1<<14))<<2)
+		u := ad99xx.AmplitudeToASF(c.Limits[1])
+		l := ad99xx.AmplitudeToASF(c.Limits[0])
+		s := math.Round(c.Duration.Seconds() * d.sysClock / (4 * float64(u-l)))
+
+		binary.BigEndian.PutUint16(d.register.DRampLimit[1:3], u<<2)
+		binary.BigEndian.PutUint16(d.register.DRampLimit[5:7], l<<2)
+		binary.BigEndian.PutUint16(d.register.DRampRate[1:3], uint16(s))
+		binary.BigEndian.PutUint16(d.register.DRampRate[3:], uint16(s))
 	case dds.Frequency:
-		panic("no support for frequency sweep")
+		u := ad99xx.FrequencyToFTW(d.sysClock, c.Limits[1])
+		l := ad99xx.FrequencyToFTW(d.sysClock, c.Limits[0])
+		s := math.Round(c.Duration.Seconds() * d.sysClock / (4 * float64(u-l)))
+
+		binary.BigEndian.PutUint32(d.register.DRampLimit[1:5], u)
+		binary.BigEndian.PutUint32(d.register.DRampLimit[5:], l)
+		binary.BigEndian.PutUint16(d.register.DRampRate[1:3], uint16(s))
+		binary.BigEndian.PutUint16(d.register.DRampRate[3:], uint16(s))
 	case dds.PhaseOffset:
-		panic("no support for phase offset sweep")
+		u := ad99xx.PhaseToPOW(c.Limits[1])
+		l := ad99xx.PhaseToPOW(c.Limits[0])
+		s := math.Round(c.Duration.Seconds() * d.sysClock / (4 * float64(u-l)))
+
+		binary.BigEndian.PutUint16(d.register.DRampLimit[1:3], u)
+		binary.BigEndian.PutUint16(d.register.DRampLimit[5:7], l)
+		binary.BigEndian.PutUint16(d.register.DRampRate[1:3], uint16(s))
+		binary.BigEndian.PutUint16(d.register.DRampRate[3:], uint16(s))
 	}
-
-	binary.BigEndian.PutUint32(d.register.DRampStepSize[1:5], uint32(1<<16))
-	binary.BigEndian.PutUint32(d.register.DRampStepSize[5:], uint32(1<<16))
-
-	binary.BigEndian.PutUint16(d.register.DRampRate[1:5], uint16(1<<16-1))
-	binary.BigEndian.PutUint16(d.register.DRampRate[5:], uint16(1<<16-1))
+	// the smallest possible step size gives us the highest resolution
+	binary.BigEndian.PutUint32(d.register.DRampStepSize[1:5], uint32(1))
+	binary.BigEndian.PutUint32(d.register.DRampStepSize[5:], uint32(1))
 
 	w := bytes.Join([][]byte{
 		d.register.CFR1[:],

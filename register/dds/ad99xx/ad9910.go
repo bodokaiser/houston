@@ -141,7 +141,7 @@ type AD9910 struct {
 	MultiChip     [5]byte
 	DRampLimit    [9]byte
 	DRampStepSize [9]byte
-	DRampRate     [9]byte
+	DRampRate     [5]byte
 	STProfile0    [9]byte
 	STProfile1    [9]byte
 	STProfile2    [9]byte
@@ -190,7 +190,7 @@ func NewAD9910() *AD9910 {
 		MultiChip:     [5]byte{AddrMultiChip},
 		DRampLimit:    [9]byte{AddrDRampLimit},
 		DRampStepSize: [9]byte{AddrDRampStepSize},
-		DRampRate:     [9]byte{AddrDRampRate},
+		DRampRate:     [5]byte{AddrDRampRate},
 		STProfile0: [9]byte{AddrProfile0,
 			0x08, 0xb5,
 		},
