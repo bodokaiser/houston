@@ -17,24 +17,24 @@ type DDSParam struct {
 
 // DDSConst is the DDS mode where a DDS controllable parameter is constant.
 type DDSConst struct {
-	Value float64 `json:"value"`
+	Value float64 `validation:"required" json:"value"`
 }
 
 // DDSSweep is the DDS mode where a DDS controllable parameter is swept.
 type DDSSweep struct {
-	Limits    []float64  `json:"limits"`
-	StepSize  [2]float64 `json:"steps"`
-	SlopeRate [2]float64 `json:"rate"`
-	NoDwell   [2]bool    `json:"nodwell"`
+	Limits    [2]float64 `validation:"len=2,range,dive,gt=0" json:"limits"`
+	StepSize  [2]float64 `validation:"len=2,dive,gt=0"       json:"steps"`
+	SlopeRate [2]float64 `validation:"len=2"                 json:"rate"`
+	NoDwell   [2]bool    `validation:"len=2"                 json:"nodwell"`
 }
 
 // DDSPlayback is the DDS mode where a DDS controllable parameter is playbed
 // back from memory.
 type DDSPlayback struct {
-	WithTrigger bool    `json:"trigger"`
-	WithDuplex  bool    `json:"duplex"`
-	Rate        float64 `json:"rate"`
-	Data        []byte  `json:"data"`
+	WithTrigger bool    `                  json:"trigger"`
+	WithDuplex  bool    `                  json:"duplex"`
+	Rate        float64 `validation:"gt=0" json:"rate"`
+	Data        []byte  `                  json:"data"`
 }
 
 // DDSParamJSON is a helper to decode json into the corresponding DDS mode.
