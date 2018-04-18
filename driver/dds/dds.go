@@ -8,8 +8,9 @@ type DDS interface {
 	// SingleTone configures the DDS to run in single tone mode.
 	SingleTone(c SingleToneConfig) error
 
-	// DigitalRamp configures the DDS to run in digital ramp mode.
-	DigitalRamp(c DigitalRampConfig) error
+	SweepAmplitude(c DigitalRampConfig) error
+	SweepFrequency(c DigitalRampConfig) error
+	SweepPhase(c DigitalRampConfig) error
 
 	// Playback configures the DDS to run in playback (RAM) mode.
 	Playback(c PlaybackConfig) error

@@ -90,15 +90,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = dev.DigitalRamp(dds.DigitalRampConfig{
+	err = dev.SweepAmplitude(dds.DigitalRampConfig{
 		SingleToneConfig: dds.SingleToneConfig{
 			Frequency:   d.Frequency.Value,
 			PhaseOffset: d.PhaseOffset.Value,
 		},
-		Limits:      d.Amplitude.Limits,
-		NoDwell:     d.Amplitude.NoDwell,
-		Duration:    d.Amplitude.Duration,
-		Destination: dds.Amplitude,
+		Limits:   d.Amplitude.Limits,
+		NoDwell:  d.Amplitude.NoDwell,
+		Duration: d.Amplitude.Duration,
 	})
 	if err != nil {
 		log.Fatal(err)

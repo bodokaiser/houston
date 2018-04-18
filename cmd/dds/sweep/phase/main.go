@@ -91,7 +91,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = dev.DigitalRamp(dds.DigitalRampConfig{
+	err = dev.SweepPhase(dds.DigitalRampConfig{
 		SingleToneConfig: dds.SingleToneConfig{
 			Amplitude: d.Amplitude.Value,
 			Frequency: d.Frequency.Value,
