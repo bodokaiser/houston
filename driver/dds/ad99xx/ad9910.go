@@ -339,7 +339,72 @@ func (d *AD9910) SweepFrequency(c dds.DigitalRampConfig) error {
 
 // Playback implements DDS interace.
 func (d *AD9910) Playback(c dds.PlaybackConfig) error {
-	return nil
+	d.register.CFR1[4] = ad99xx.FlagSDIOInput
+	d.register.CFR1[1] |= ad99xx.FlagRAMEnable | (byte(dds.Amplitude) << 5)
+
+	d.register.CFR2[2] = ad99xx.FlagSYNCCLKEnable
+	d.register.CFR2[3] = ad99xx.FlagPDCLKEnable
+	d.register.CFR2[4] = ad99xx.FlagSyncValidDisable
+
+	// TODO: ModeVCORangeX should be inferred from SysClock.
+	d.register.CFR3[1] = ad99xx.ModeDRV0OutputCurrentLow | ad99xx.ModeVCORange5
+	d.register.CFR3[2] = ad99xx.ModeChargePumpCurrent387
+	d.register.CFR3[3] = ad99xx.FlagREFCLKDivReset | ad99xx.FlagPLLEnable
+	d.register.CFR3[4] = d.divider() << 1
+
+	ftw := ad99xx.FrequencyToFTW(d.sysClock, c.Frequency)
+	pow := ad99xx.PhaseToPOW(c.PhaseOffset)
+
+	binary.BigEndian.PutUint32(d.register.FTW[1:], ftw)
+	binary.BigEndian.PutUint16(d.register.POW[1:], pow)
+
+	s := uint16(math.Round(c.Duration.Seconds() * d.sysClock / 4))
+
+	binary.BigEndian.PutUint16(d.register.RAMProfile0[2:4], s)
+	binary.BigEndian.PutUint16(d.register.RAMProfile0[4:6], uint16(len(c.Data)-1)<<6)
+	binary.BigEndian.PutUint16(d.register.RAMProfile0[6:8], 0)
+	d.register.RAMProfile0[8] = 3
+
+	w := bytes.Join([][]byte{
+		d.register.CFR1[:],
+		d.register.CFR2[:],
+		d.register.CFR3[:],
+		d.register.AuxDAC[:],
+		d.register.IOUpdateRate[:],
+		d.register.FTW[:],
+		d.register.POW[:],
+		d.register.RAMProfile0[:],
+	}, []byte{})
+	r := make([]byte, len(w))
+
+	err := d.spiConn.Tx(w, r)
+	if err != nil {
+		return err
+	}
+
+	err = d.IOUpdate()
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("wrote %+v\n", w)
+
+	w = []byte{ad99xx.AddrRAM}
+	for _, v := range c.Data {
+		b := make([]byte, 4)
+		binary.BigEndian.PutUint16(b[:2], ad99xx.AmplitudeToASF(v)<<2)
+
+		w = append(w, b...)
+	}
+	r = make([]byte, len(w))
+
+	err = d.spiConn.Tx(w, r)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("wrote %+v\n", w)
+
+	return d.IOUpdate()
 }
 
 func (d *AD9910) divider() uint8 {

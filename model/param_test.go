@@ -47,7 +47,7 @@ func (s *DDSParamTestSuite) TestUnmarshalJSON() {
 		DDSSweep: &DDSSweep{Limits: [2]float64{1, 10}},
 	}, p2)
 	assert.Equal(s.T(), &DDSParam{
-		DDSPlayback: &DDSPlayback{Data: []byte{0, 1, 2, 3}},
+		DDSPlayback: &DDSPlayback{Data: []float64{0, 1, 2, 3}},
 	}, p3)
 }
 
