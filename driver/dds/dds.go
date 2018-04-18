@@ -47,7 +47,7 @@ type PlaybackConfig struct {
 	SingleToneConfig
 	Trigger     bool
 	Duplex      bool
-	Rate        float64
-	Data        []byte
+	Duration    time.Duration
+	Data        []float64
 	Destination ControlParam
 }
