@@ -39,7 +39,7 @@ func main() {
 				WithTrigger: false,
 				WithDuplex:  false,
 				Interval:    time.Second,
-				Data:        []float64{0, .75, .25, 1.0},
+				Data:        []float64{0.5, 0, 1},
 			},
 		},
 		Frequency: model.DDSParam{

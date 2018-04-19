@@ -340,6 +340,7 @@ func (d *AD9910) SweepFrequency(c dds.DigitalRampConfig) error {
 // Playback implements DDS interace.
 func (d *AD9910) Playback(c dds.PlaybackConfig) error {
 	d.register.CFR1[4] = ad99xx.FlagSDIOInput
+	d.register.CFR1[1] |= ad99xx.FlagRAMEnable | (byte(dds.Amplitude) << 5)
 
 	d.register.CFR2[2] = ad99xx.FlagSYNCCLKEnable
 	d.register.CFR2[3] = ad99xx.FlagPDCLKEnable
@@ -359,10 +360,10 @@ func (d *AD9910) Playback(c dds.PlaybackConfig) error {
 
 	s := uint16(math.Round(c.Duration.Seconds() * d.sysClock / 4))
 
-	binary.BigEndian.PutUint16(d.register.RAMProfile0[1:3], s)
-	binary.BigEndian.PutUint16(d.register.RAMProfile0[3:5], uint16(len(c.Data)-1))
-	binary.BigEndian.PutUint16(d.register.RAMProfile0[5:7], 0)
-	d.register.RAMProfile0[8] = 1 << 3
+	binary.BigEndian.PutUint16(d.register.RAMProfile0[2:4], s)
+	binary.BigEndian.PutUint16(d.register.RAMProfile0[4:6], uint16(len(c.Data)-1)<<6)
+	binary.BigEndian.PutUint16(d.register.RAMProfile0[6:8], 0)
+	d.register.RAMProfile0[8] = 3
 
 	w := bytes.Join([][]byte{
 		d.register.CFR1[:],
@@ -377,6 +378,11 @@ func (d *AD9910) Playback(c dds.PlaybackConfig) error {
 	r := make([]byte, len(w))
 
 	err := d.spiConn.Tx(w, r)
+	if err != nil {
+		return err
+	}
+
+	err = d.IOUpdate()
 	if err != nil {
 		return err
 	}
@@ -397,14 +403,6 @@ func (d *AD9910) Playback(c dds.PlaybackConfig) error {
 		return err
 	}
 	fmt.Printf("wrote %+v\n", w)
-
-	d.register.CFR1[1] |= ad99xx.FlagRAMEnable | (byte(dds.Amplitude) << 5)
-
-	err = d.spiConn.Tx(d.register.CFR1[:], make([]byte, len(d.register.CFR1)))
-	if err != nil {
-		return err
-	}
-	fmt.Printf("wrote %+v\n", d.register.CFR1[:])
 
 	return d.IOUpdate()
 }
