@@ -7,8 +7,10 @@ import (
 
 	"periph.io/x/periph/host"
 
+	"github.com/bodokaiser/houston/driver/dds"
 	"github.com/bodokaiser/houston/driver/dds/ad99xx"
 	"github.com/bodokaiser/houston/driver/mux"
+	"github.com/bodokaiser/houston/model"
 )
 
 const (
@@ -29,20 +31,23 @@ const (
 
 var defaultMuxPins = []string{"48", "30", "60", "31", "50"}
 
-type config struct {
-	cselect   uint
-	frequency float64
-	amplitude float64
-	phaseOff  float64
-}
-
 func main() {
-	c := config{}
+	d := &model.DDSDevice{
+		Amplitude: model.DDSParam{
+			DDSConst: &model.DDSConst{},
+		},
+		Frequency: model.DDSParam{
+			DDSConst: &model.DDSConst{},
+		},
+		PhaseOffset: model.DDSParam{
+			DDSConst: &model.DDSConst{},
+		},
+	}
 
-	flag.UintVar(&c.cselect, "select", 0, "address to select")
-	flag.Float64Var(&c.frequency, "frequency", 200e6, "frequency in Hz")
-	flag.Float64Var(&c.amplitude, "amplitude", 1.0, "amplitude from 0.0 to 1.0")
-	flag.Float64Var(&c.phaseOff, "phase", 0.0, "phase offset from 0 to 2π")
+	flag.UintVar(&d.ID, "select", 0, "address to select")
+	flag.Float64Var(&d.Frequency.Value, "frequency", 10e6, "Frequency [0, 400e6]")
+	flag.Float64Var(&d.Amplitude.Value, "amplitude", 1.0, "Amplitude [0, 1]")
+	flag.Float64Var(&d.PhaseOffset.Value, "phase-offset", 0.0, "Phase [0, 2π]")
 	flag.Parse()
 
 	_, err := host.Init()
@@ -50,12 +55,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	csel, err := mux.NewDigital(defaultMuxPins)
+	sel, err := mux.NewDigital(defaultMuxPins)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	dds, err := ad99xx.NewAD9910(ad99xx.Config{
+	dev, err := ad99xx.NewAD9910(ad99xx.Config{
 		SysClock:    defaultSysClock,
 		RefClock:    defaultRefClock,
 		ResetPin:    defaultResetPin,
@@ -68,12 +73,16 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = csel.Select(uint8(c.cselect))
+	err = sel.Select(uint8(d.ID))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = dds.SingleTone(c.amplitude, c.frequency, c.phaseOff)
+	err = dev.SingleTone(dds.SingleToneConfig{
+		Amplitude:   d.Amplitude.Value,
+		Frequency:   d.Frequency.Value,
+		PhaseOffset: d.PhaseOffset.Value,
+	})
 	if err != nil {
 		log.Fatal(err)
 	}
