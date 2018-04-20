@@ -1,6 +1,7 @@
 package ad99xx
 
 import (
+	"bytes"
 	"errors"
 	"math"
 	"time"
@@ -14,11 +15,10 @@ import (
 
 // AD9910 implements DDS interface for the AD9910.
 type AD9910 struct {
+	config      Config
 	spiConn     spi.Conn
 	resetPin    gpio.PinIO
 	ioUpdatePin gpio.PinIO
-	refClock    float64
-	sysClock    float64
 	cfr1        ad9910.CFR1
 	cfr2        ad9910.CFR2
 	cfr3        ad9910.CFR3
@@ -33,12 +33,11 @@ type AD9910 struct {
 }
 
 // NewAD9910 returns an initialized AD9910 driver.
-func NewAD9910(c Config) (*AD9910, error) {
+func NewAD9910(c Config) *AD9910 {
 	d := &AD9910{
+		config:      c,
 		resetPin:    gpioreg.ByName(c.ResetPin),
 		ioUpdatePin: gpioreg.ByName(c.IOUpdatePin),
-		refClock:    c.RefClock,
-		sysClock:    c.SysClock,
 		cfr1:        ad9910.NewCFR1(),
 		cfr2:        ad9910.NewCFR2(),
 		cfr3:        ad9910.NewCFR3(),
@@ -52,30 +51,52 @@ func NewAD9910(c Config) (*AD9910, error) {
 		ramProfile0: ad9910.NewRAMProfile(),
 	}
 
+	d.cfr1.SetSDIOInputOnly(true)
+	d.cfr2.SetSTAmplScaleEnabled(true)
+	d.cfr2.SetSyncClockEnabled(true)
+	d.cfr2.SetSyncTimingValidationDisabled(true)
+	d.cfr3.SetVCORange(ad9910.VCORange5)
+	d.cfr3.SetPLLEnabled(true)
+	d.cfr3.SetDivider(uint(math.Round(c.SysClock / c.RefClock)))
+
+	return d
+}
+
+func (d *AD9910) Init() (err error) {
 	if d.resetPin == nil {
-		return nil, errors.New("failed to find reset GPIO pin")
+		return errors.New("failed to find reset GPIO pin")
 	}
 	if d.ioUpdatePin == nil {
-		return nil, errors.New("failed to find I/O update GPIO pin")
+		return errors.New("failed to find I/O update GPIO pin")
 	}
 
-	spi, err := spireg.Open(c.SPIDevice)
+	spi, err := spireg.Open(d.config.SPIDevice)
 	if err != nil {
-		return nil, err
+		return
 	}
 
 	err = d.resetPin.Out(gpio.Low)
 	if err != nil {
-		return nil, err
+		return
 	}
 	err = d.ioUpdatePin.Out(gpio.Low)
 	if err != nil {
-		return nil, err
+		return
 	}
 
-	d.spiConn, err = spi.Connect(c.SPIMaxFreq, c.SPIMode, 8)
+	d.spiConn, err = spi.Connect(d.config.SPIMaxFreq, d.config.SPIMode, 8)
 
-	return d, err
+	return
+}
+
+func strobe(p gpio.PinIO) error {
+	err := p.Out(gpio.High)
+	if err != nil {
+		return err
+	}
+	time.Sleep(time.Millisecond)
+
+	return p.Out(gpio.Low)
 }
 
 // Reset triggers a reset which commands the connected DDS devices to clear
@@ -134,9 +155,9 @@ func (d *AD9910) Frequency() float64 {
 	// parallal data port controls frequency
 
 	if d.cfr1.RAMEnabled() {
-		return ftwToFreq(d.ftw.FreqTuningWord(), d.sysClock)
+		return ftwToFreq(d.ftw.FreqTuningWord(), d.config.SysClock)
 	}
-	return ftwToFreq(d.stProfile0.FreqTuningWord(), d.sysClock)
+	return ftwToFreq(d.stProfile0.FreqTuningWord(), d.config.SysClock)
 }
 
 func freqToFTW(x float64, y float64) uint32 {
@@ -147,7 +168,7 @@ func (d *AD9910) SetFrequency(f float64) {
 	if f < 0 || f > 420e6 {
 		panic("frequency is not in range between 0 and 420 MHz")
 	}
-	ftw := freqToFTW(f, d.sysClock)
+	ftw := freqToFTW(f, d.config.SysClock)
 
 	if !d.cfr1.RAMEnabled() {
 		d.stProfile0.SetFreqTuningWord(ftw)
@@ -189,12 +210,48 @@ func (d *AD9910) SetPhaseOffset(p float64) {
 	d.pow.SetPhaseOffsetWord(pow)
 }
 
-func strobe(p gpio.PinIO) error {
-	err := p.Out(gpio.High)
+func writeInstr(x byte, y []byte) []byte {
+	return append([]byte{x}, y...)
+}
+
+func (d *AD9910) toBytes() []byte {
+	b := [][]byte{
+		writeInstr(ad9910.AddrCFR1, []byte(d.cfr1)),
+		writeInstr(ad9910.AddrCFR2, []byte(d.cfr2)),
+		writeInstr(ad9910.AddrCFR3, []byte(d.cfr3)),
+		writeInstr(ad9910.AddrFTW, []byte(d.ftw)),
+		writeInstr(ad9910.AddrPOW, []byte(d.pow)),
+		writeInstr(ad9910.AddrASF, []byte(d.asf)),
+	}
+
+	if d.cfr2.RampEnabled() {
+		b = append(b, [][]byte{
+			writeInstr(ad9910.AddrRampLimit, []byte(d.rampLimit)),
+			writeInstr(ad9910.AddrRampStep, []byte(d.rampStep)),
+			writeInstr(ad9910.AddrRampRate, []byte(d.rampRate)),
+		}...)
+	}
+
+	if d.cfr1.RAMEnabled() {
+		b = append(b, [][]byte{
+			writeInstr(ad9910.AddrProfile0, []byte(d.ramProfile0)),
+		}...)
+	}
+	b = append(b, [][]byte{
+		writeInstr(ad9910.AddrProfile0, []byte(d.stProfile0)),
+	}...)
+
+	return bytes.Join(b, []byte{})
+}
+
+func (d *AD9910) Exec() error {
+	w := d.toBytes()
+	r := make([]byte, len(w))
+
+	err := d.spiConn.Tx(w, r)
 	if err != nil {
 		return err
 	}
-	time.Sleep(time.Millisecond)
 
-	return p.Out(gpio.Low)
+	return d.IOUpdate()
 }

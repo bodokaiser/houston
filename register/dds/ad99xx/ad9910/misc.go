@@ -2,6 +2,30 @@ package ad9910
 
 import "encoding/binary"
 
+const (
+	AddrCFR1         = 0x00
+	AddrCFR2         = 0x01
+	AddrCFR3         = 0x02
+	AddrAuxDAC       = 0x03
+	AddrIOUpdateRate = 0x04
+	AddrFTW          = 0x07
+	AddrPOW          = 0x08
+	AddrASF          = 0x09
+	AddrMultiChip    = 0x0a
+	AddrRampLimit    = 0x0b
+	AddrRampStep     = 0x0c
+	AddrRampRate     = 0x0d
+	AddrProfile0     = 0x0e
+	AddrProfile1     = 0x0f
+	AddrProfile2     = 0x10
+	AddrProfile3     = 0x11
+	AddrProfile4     = 0x12
+	AddrProfile5     = 0x13
+	AddrProfile6     = 0x14
+	AddrProfile7     = 0x15
+	AddrRAM          = 0x16
+)
+
 type AuxDAC []byte
 
 func NewAuxDAC() AuxDAC {
