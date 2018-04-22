@@ -3,6 +3,7 @@ package ad9910
 import (
 	"bytes"
 	"math"
+	"time"
 
 	"github.com/bodokaiser/houston/register/dds/ad99xx/ad9910"
 )
@@ -127,10 +128,14 @@ func amplToASF(x float64) uint16 {
 	return uint16(math.Round(x * (1<<14 - 1)))
 }
 
-func (d *AD9910) SetAmplitude(x float64) {
+func assertAmpl(x float64) {
 	if x < 0 || x > 1 {
 		panic("amplitude is not in range between 0 and 1")
 	}
+}
+
+func (d *AD9910) SetAmplitude(x float64) {
+	assertAmpl(x)
 	asf := amplToASF(x)
 
 	if !d.cfr1.RAMEnabled() {
@@ -158,14 +163,18 @@ func (d *AD9910) Frequency() float64 {
 	return ftwToFreq(d.stProfile0.FreqTuningWord(), d.SysClock)
 }
 
+func assertFreq(x float64) {
+	if x < 0 || x > 420e6 {
+		panic("frequency is not in range between 0 and 420 MHz")
+	}
+}
+
 func freqToFTW(x float64, y float64) uint32 {
 	return uint32(math.Round(x / y * (1<<32 - 1)))
 }
 
 func (d *AD9910) SetFrequency(f float64) {
-	if f < 0 || f > 420e6 {
-		panic("frequency is not in range between 0 and 420 MHz")
-	}
+	assertFreq(f)
 	ftw := freqToFTW(f, d.SysClock)
 
 	if !d.cfr1.RAMEnabled() {
@@ -195,17 +204,105 @@ func (d *AD9910) PhaseOffset() float64 {
 	return powToPhase(d.stProfile0.PhaseOffsetWord())
 }
 
+func assertPhase(x float64) {
+	if x < 0 || x > 2*math.Pi {
+		panic("phase not in range between 0 and 2 pi")
+	}
+}
+
 func phaseToPOW(x float64) uint16 {
 	return uint16(math.Round(x / (2 * math.Pi) * (1<<16 - 1)))
 }
 
 func (d *AD9910) SetPhaseOffset(p float64) {
-	pow := phaseToPOW(math.Mod(p, 2*math.Pi))
+	assertPhase(p)
+	pow := phaseToPOW(p)
 
 	if !d.cfr1.RAMEnabled() {
 		d.stProfile0.SetPhaseOffsetWord(pow)
 	}
 	d.pow.SetPhaseOffsetWord(pow)
+}
+
+type Param int
+
+const (
+	ParamAmplitude Param = iota
+	ParamFrequency
+	ParamPhase
+)
+
+type SweepConfig struct {
+	Limits   [2]float64
+	NoDwells [2]bool
+	Duration time.Duration
+	Param    Param
+}
+
+func assertRange(a, b float64) {
+	if a >= b {
+		panic("lower limit not greater than upper limit")
+	}
+}
+
+func sweepRate(d time.Duration, sysClock, step float64) uint16 {
+	return uint16(math.Round(d.Seconds() * sysClock / (4 * step)))
+}
+
+func (d *AD9910) Sweep(c SweepConfig) {
+	a, b := c.Limits[0], c.Limits[1]
+	assertRange(a, b)
+
+	var l, u uint32
+
+	switch c.Param {
+	case ParamAmplitude:
+		d.cfr2.SetRampDest(ad9910.RampDestAmplitude)
+
+		assertAmpl(a)
+		assertAmpl(b)
+
+		//l = amplToASF(a)
+		//u = amplToASF(b)
+	case ParamFrequency:
+		d.cfr2.SetRampDest(ad9910.RampDestFrequency)
+
+		assertFreq(a)
+		assertFreq(b)
+
+		l = freqToFTW(a, d.SysClock)
+		u = freqToFTW(b, d.SysClock)
+
+		d.rampLimit.SetLowerLimit(l)
+		d.rampLimit.SetUpperLimit(u)
+	case ParamPhase:
+		d.cfr2.SetRampDest(ad9910.RampDestPhase)
+	default:
+		panic("invalid parameter")
+	}
+
+	r := sweepRate(c.Duration, d.SysClock, float64(u-l))
+
+	d.cfr2.SetRampEnabled(true)
+	d.cfr2.SetRampNoDwellLow(c.NoDwells[0])
+	d.cfr2.SetRampNoDwellHigh(c.NoDwells[1])
+
+	d.rampStep.SetDecrStepSize(1)
+	d.rampStep.SetIncrStepSize(1)
+	d.rampRate.SetNegSlopeRate(r)
+	d.rampRate.SetPosSlopeRate(r)
+}
+
+type PlaybackConfig struct {
+	Data     []float64
+	Trigger  bool
+	Duplex   bool
+	Duration time.Duration
+	Param    Param
+}
+
+func (d *AD9910) Playback(c PlaybackConfig) {
+
 }
 
 func (d *AD9910) Encode() ([]byte, error) {
