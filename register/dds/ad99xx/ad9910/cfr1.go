@@ -26,17 +26,17 @@ const (
 	powerDownCoreFlag     = 1 << 6
 )
 
-type CFR1 []byte
+type CFR1 [4]byte
 
 func NewCFR1() CFR1 {
-	return make([]byte, 4)
+	return [4]byte{}
 }
 
-func (r CFR1) RAMEnabled() bool {
+func (r *CFR1) RAMEnabled() bool {
 	return r[0]&ramEnableFlag > 0
 }
 
-func (r CFR1) SetRAMEnabled(x bool) {
+func (r *CFR1) SetRAMEnabled(x bool) {
 	r[0] &= ^byte(ramEnableFlag)
 
 	if x {
@@ -53,19 +53,19 @@ const (
 	RAMDestPolar
 )
 
-func (r CFR1) RAMDest() RAMDest {
+func (r *CFR1) RAMDest() RAMDest {
 	return RAMDest((r[0] << 1) >> 6)
 }
 
-func (r CFR1) SetRAMDest(x RAMDest) {
+func (r *CFR1) SetRAMDest(x RAMDest) {
 	r[0] = byte(x) << 5
 }
 
-func (r CFR1) OSKEnabled() bool {
+func (r *CFR1) OSKEnabled() bool {
 	return r[2]&oskEnableFlag > 0
 }
 
-func (r CFR1) SetOSKEnabled(x bool) {
+func (r *CFR1) SetOSKEnabled(x bool) {
 	r[2] &= ^byte(oskEnableFlag)
 
 	if x {
@@ -73,11 +73,11 @@ func (r CFR1) SetOSKEnabled(x bool) {
 	}
 }
 
-func (r CFR1) OSKManual() bool {
+func (r *CFR1) OSKManual() bool {
 	return r[1]&oskManualFlag > 0
 }
 
-func (r CFR1) SetOSKManual(x bool) {
+func (r *CFR1) SetOSKManual(x bool) {
 	r[1] &= ^byte(oskManualFlag)
 
 	if x {
@@ -85,11 +85,11 @@ func (r CFR1) SetOSKManual(x bool) {
 	}
 }
 
-func (r CFR1) OSKAuto() bool {
+func (r *CFR1) OSKAuto() bool {
 	return r[2]&oskAutoFlag > 0
 }
 
-func (r CFR1) SetOSKAuto(x bool) {
+func (r *CFR1) SetOSKAuto(x bool) {
 	r[2] &= ^byte(oskAutoFlag)
 
 	if x {
@@ -97,11 +97,11 @@ func (r CFR1) SetOSKAuto(x bool) {
 	}
 }
 
-func (r CFR1) SDIOInputOnly() bool {
+func (r *CFR1) SDIOInputOnly() bool {
 	return r[3]&sdioInputFlag > 0
 }
 
-func (r CFR1) SetSDIOInputOnly(x bool) {
+func (r *CFR1) SetSDIOInputOnly(x bool) {
 	r[3] &= ^byte(sdioInputFlag)
 
 	if x {

@@ -20,17 +20,17 @@ const (
 	matchedLatencyEnableFlag   = 1 << 7
 )
 
-type CFR2 []byte
+type CFR2 [4]byte
 
 func NewCFR2() CFR2 {
-	return []byte{0x00, 0x40, 0x08, 0x20}
+	return [4]byte{0x00, 0x40, 0x08, 0x20}
 }
 
-func (r CFR2) STAmplScaleEnabled() bool {
+func (r *CFR2) STAmplScaleEnabled() bool {
 	return r[0]&stAmplScaleEnableFlag > 0
 }
 
-func (r CFR2) SetSTAmplScaleEnabled(x bool) {
+func (r *CFR2) SetSTAmplScaleEnabled(x bool) {
 	r[0] &= ^byte(stAmplScaleEnableFlag)
 
 	if x {
@@ -38,11 +38,11 @@ func (r CFR2) SetSTAmplScaleEnabled(x bool) {
 	}
 }
 
-func (r CFR2) SyncClockEnabled() bool {
+func (r *CFR2) SyncClockEnabled() bool {
 	return r[1]&syncClockEnableFlag > 0
 }
 
-func (r CFR2) SetSyncClockEnabled(x bool) {
+func (r *CFR2) SetSyncClockEnabled(x bool) {
 	r[1] &= ^byte(syncClockEnableFlag)
 
 	if x {
@@ -58,19 +58,19 @@ const (
 	RampDestAmplitude
 )
 
-func (r CFR2) RampDest() RampDest {
+func (r *CFR2) RampDest() RampDest {
 	return RampDest((r[1] << 2) >> 6)
 }
 
-func (r CFR2) SetRampDest(x RampDest) {
+func (r *CFR2) SetRampDest(x RampDest) {
 	r[1] = byte(x) << 4
 }
 
-func (r CFR2) RampEnabled() bool {
+func (r *CFR2) RampEnabled() bool {
 	return r[1]&rampEnableFlag > 0
 }
 
-func (r CFR2) SetRampEnabled(x bool) {
+func (r *CFR2) SetRampEnabled(x bool) {
 	r[1] &= ^byte(rampEnableFlag)
 
 	if x {
@@ -78,11 +78,11 @@ func (r CFR2) SetRampEnabled(x bool) {
 	}
 }
 
-func (r CFR2) RampNoDwellLow() bool {
+func (r *CFR2) RampNoDwellLow() bool {
 	return r[1]&rampNoDwellLowFlag > 0
 }
 
-func (r CFR2) SetRampNoDwellLow(x bool) {
+func (r *CFR2) SetRampNoDwellLow(x bool) {
 	r[1] &= ^byte(rampNoDwellLowFlag)
 
 	if x {
@@ -90,11 +90,11 @@ func (r CFR2) SetRampNoDwellLow(x bool) {
 	}
 }
 
-func (r CFR2) RampNoDwellHigh() bool {
+func (r *CFR2) RampNoDwellHigh() bool {
 	return r[1]&rampNoDwellHighFlag > 0
 }
 
-func (r CFR2) SetRampNoDwellHigh(x bool) {
+func (r *CFR2) SetRampNoDwellHigh(x bool) {
 	r[1] &= ^byte(rampNoDwellHighFlag)
 
 	if x {
@@ -102,11 +102,11 @@ func (r CFR2) SetRampNoDwellHigh(x bool) {
 	}
 }
 
-func (r CFR2) SyncTimingValidationDisabled() bool {
+func (r *CFR2) SyncTimingValidationDisabled() bool {
 	return r[3]&syncTimingValidationDisableFlag > 0
 }
 
-func (r CFR2) SetSyncTimingValidationDisabled(x bool) {
+func (r *CFR2) SetSyncTimingValidationDisabled(x bool) {
 	r[3] &= ^byte(syncTimingValidationDisableFlag)
 
 	if x {

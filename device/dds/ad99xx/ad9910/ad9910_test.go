@@ -1,4 +1,4 @@
-package ad99xx
+package ad9910
 
 import (
 	"testing"
@@ -9,14 +9,11 @@ import (
 type AD9910TestSuite struct {
 	suite.Suite
 
-	d *AD9910
+	d AD9910
 }
 
 func (s *AD9910TestSuite) SetupTest() {
-	s.d = NewAD9910(Config{
-		SysClock: 1e9,
-		RefClock: 1e7,
-	})
+	s.d = NewAD9910(1e9, 1e7)
 }
 
 func (s *AD9910TestSuite) TestSingleTone() {

@@ -1,23 +1,27 @@
 package ad9910
 
-import "encoding/binary"
+import (
+	"encoding/binary"
+)
 
 const (
 	noDwellHighFlag  = 1 << 5
 	zeroCrossingFlag = 1 << 3
+
+	profileAddrOffset = 0x0e
 )
 
-type STProfile []byte
+type STProfile [8]byte
 
 func NewSTProfile() STProfile {
-	return []byte{0x08, 0xb5, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
+	return [8]byte{0x08, 0xb5}
 }
 
-func (r STProfile) AmplScaleFactor() uint16 {
+func (r *STProfile) AmplScaleFactor() uint16 {
 	return (binary.BigEndian.Uint16(r[:2]) << 2) >> 2
 }
 
-func (r STProfile) SetAmplScaleFactor(x uint16) {
+func (r *STProfile) SetAmplScaleFactor(x uint16) {
 	if x > 1<<14 {
 		panic("amplitude scale factor not 14 bit")
 	}
@@ -25,49 +29,49 @@ func (r STProfile) SetAmplScaleFactor(x uint16) {
 	binary.BigEndian.PutUint16(r[:2], x)
 }
 
-func (r STProfile) PhaseOffsetWord() uint16 {
+func (r *STProfile) PhaseOffsetWord() uint16 {
 	return binary.BigEndian.Uint16(r[2:4])
 }
 
-func (r STProfile) SetPhaseOffsetWord(x uint16) {
+func (r *STProfile) SetPhaseOffsetWord(x uint16) {
 	binary.BigEndian.PutUint16(r[2:4], x)
 }
 
-func (r STProfile) FreqTuningWord() uint32 {
+func (r *STProfile) FreqTuningWord() uint32 {
 	return binary.BigEndian.Uint32(r[4:])
 }
 
-func (r STProfile) SetFreqTuningWord(x uint32) {
+func (r *STProfile) SetFreqTuningWord(x uint32) {
 	binary.BigEndian.PutUint32(r[4:], x)
 }
 
-type RAMProfile []byte
+type RAMProfile [8]byte
 
 func NewRAMProfile() RAMProfile {
-	return make([]byte, 8)
+	return [8]byte{}
 }
 
-func (r RAMProfile) AddrStepRate() uint16 {
+func (r *RAMProfile) AddrStepRate() uint16 {
 	return binary.BigEndian.Uint16(r[1:3])
 }
 
-func (r RAMProfile) SetAddrStepRate(x uint16) {
+func (r *RAMProfile) SetAddrStepRate(x uint16) {
 	binary.BigEndian.Uint16(r[1:3])
 }
 
-func (r RAMProfile) WaveformStartAddr() uint16 {
+func (r *RAMProfile) WaveformStartAddr() uint16 {
 	return binary.BigEndian.Uint16(r[5:7]) >> 5
 }
 
-func (r RAMProfile) SetWaveformStartAddr(x uint16) {
+func (r *RAMProfile) SetWaveformStartAddr(x uint16) {
 	binary.BigEndian.PutUint16(r[5:7], x<<5)
 }
 
-func (r RAMProfile) WaveformEndAddr() uint16 {
+func (r *RAMProfile) WaveformEndAddr() uint16 {
 	return binary.BigEndian.Uint16(r[3:5]) >> 5
 }
 
-func (r RAMProfile) SetWaveformEndAddr(x uint16) {
+func (r *RAMProfile) SetWaveformEndAddr(x uint16) {
 	binary.BigEndian.PutUint16(r[3:5], x<<5)
 }
 
@@ -81,7 +85,7 @@ const (
 	RAMControlModeContRecirculate                = 0x04
 )
 
-func (r RAMProfile) RAMControlMode() RAMControlMode {
+func (r *RAMProfile) RAMControlMode() RAMControlMode {
 	switch (r[5] << 5) >> 5 {
 	case 0x00:
 		fallthrough
@@ -104,7 +108,7 @@ func (r RAMProfile) RAMControlMode() RAMControlMode {
 	panic("invalid RAM control mode")
 }
 
-func (r RAMProfile) SetRAMControlMode(x RAMControlMode) {
+func (r *RAMProfile) SetRAMControlMode(x RAMControlMode) {
 	a := r.NoDwellHigh()
 	b := r.ZeroCrossing()
 
@@ -113,11 +117,11 @@ func (r RAMProfile) SetRAMControlMode(x RAMControlMode) {
 	r.SetZeroCrossing(b)
 }
 
-func (r RAMProfile) NoDwellHigh() bool {
+func (r *RAMProfile) NoDwellHigh() bool {
 	return r[7]&noDwellHighFlag > 0
 }
 
-func (r RAMProfile) SetNoDwellHigh(x bool) {
+func (r *RAMProfile) SetNoDwellHigh(x bool) {
 	r[7] &= ^byte(noDwellHighFlag)
 
 	if x {
@@ -125,11 +129,11 @@ func (r RAMProfile) SetNoDwellHigh(x bool) {
 	}
 }
 
-func (r RAMProfile) ZeroCrossing() bool {
+func (r *RAMProfile) ZeroCrossing() bool {
 	return r[7]&zeroCrossingFlag > 0
 }
 
-func (r RAMProfile) SetZeroCrossing(x bool) {
+func (r *RAMProfile) SetZeroCrossing(x bool) {
 	r[7] &= ^byte(zeroCrossingFlag)
 
 	if x {

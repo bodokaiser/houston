@@ -8,17 +8,17 @@ const (
 	refClockDivBypassFlag = 1 << 7
 )
 
-type CFR3 []byte
+type CFR3 [4]byte
 
 func NewCFR3() CFR3 {
-	return []byte{0x1f, 0x3f, 0x40, 0x00}
+	return [4]byte{0x1f, 0x3f, 0x40, 0x00}
 }
 
-func (r CFR3) PLLEnabled() bool {
+func (r *CFR3) PLLEnabled() bool {
 	return r[2]&pllEnableFlag > 0
 }
 
-func (r CFR3) SetPLLEnabled(x bool) {
+func (r *CFR3) SetPLLEnabled(x bool) {
 	r[2] &= ^byte(pllEnableFlag)
 
 	if x {
@@ -38,18 +38,18 @@ const (
 	VCORangeByPassed
 )
 
-func (r CFR3) VCORange() VCORange {
+func (r *CFR3) VCORange() VCORange {
 	return VCORange((r[0] << 5) >> 5)
 }
 
-func (r CFR3) SetVCORange(x VCORange) {
+func (r *CFR3) SetVCORange(x VCORange) {
 	r[0] = byte(x)
 }
 
-func (r CFR3) Divider() uint8 {
+func (r *CFR3) Divider() uint8 {
 	return uint8(r[3] >> 1)
 }
 
-func (r CFR3) SetDivider(x uint) {
+func (r *CFR3) SetDivider(x uint) {
 	r[3] = byte(x << 1)
 }
