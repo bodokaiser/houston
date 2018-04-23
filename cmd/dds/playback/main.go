@@ -14,24 +14,6 @@ import (
 	"github.com/bodokaiser/houston/model"
 )
 
-const (
-	defaultSysClock = 1e9
-	defaultRefClock = 1e7
-)
-
-const (
-	defaultSPIDevice  = "SPI1.0"
-	defaultSPIMaxFreq = 5e6
-	defaultSPIMode    = 0
-)
-
-const (
-	defaultResetPin    = "65"
-	defaultIOUpdatePin = "27"
-)
-
-var defaultMuxPins = []string{"48", "30", "60", "31", "50"}
-
 func main() {
 	d := &model.DDSDevice{
 		Amplitude: model.DDSParam{

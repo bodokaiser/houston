@@ -8,32 +8,16 @@ import (
 
 	"periph.io/x/periph/host"
 
+	"github.com/bodokaiser/houston/config"
 	"github.com/bodokaiser/houston/driver/dds"
 	"github.com/bodokaiser/houston/driver/dds/ad99xx"
 	"github.com/bodokaiser/houston/driver/mux"
 	"github.com/bodokaiser/houston/model"
 )
 
-const (
-	defaultSysClock = 1e9
-	defaultRefClock = 1e7
-)
-
-const (
-	defaultSPIDevice  = "SPI1.0"
-	defaultSPIMaxFreq = 5e6
-	defaultSPIMode    = 0
-)
-
-const (
-	defaultResetPin    = "65"
-	defaultIOUpdatePin = "27"
-)
-
-var defaultMuxPins = []string{"48", "30", "60", "31", "50"}
-
 func main() {
-	d := &model.DDSDevice{
+	c := config.Config{}
+	d := model.DDSDevice{
 		Amplitude: model.DDSParam{
 			DDSSweep: &model.DDSSweep{
 				Limits:  [2]float64{},
@@ -48,6 +32,7 @@ func main() {
 		},
 	}
 
+	flag.Var(&c, "config", "path to config file")
 	flag.UintVar(&d.ID, "select", 0,
 		"Address of DDS chip")
 	flag.Float64Var(&d.Frequency.Value, "frequency", 10e6,
@@ -67,20 +52,20 @@ func main() {
 		log.Fatal(err)
 	}
 
-	sel, err := mux.NewDigital(defaultMuxPins)
+	sel := mux.NewDigital(c.GPIO.Mux)
+	err = sel.Init()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	dev, err := ad99xx.NewAD9910(ad99xx.Config{
-		SysClock:    defaultSysClock,
-		RefClock:    defaultRefClock,
-		ResetPin:    defaultResetPin,
-		IOUpdatePin: defaultIOUpdatePin,
-		SPIDevice:   defaultSPIDevice,
-		SPIMaxFreq:  defaultSPIMaxFreq,
-		SPIMode:     defaultSPIMode,
+	dev := ad99xx.NewAD9910(ad99xx.Config{
+		SysClock:  c.SysClock,
+		RefClock:  c.RefClock,
+		ResetPin:  c.GPIO.Reset,
+		UpdatePin: c.GPIO.Update,
+		SPI:       c.SPI,
 	})
+	err = dev.Init()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -90,6 +75,8 @@ func main() {
 		log.Fatal(err)
 	}
 
+	dev.SetFrequency(d.Frequency.Value)
+	dev.SetPhaseOffset(d.PhaseOffset.Value)
 	err = dev.SweepAmplitude(dds.DigitalRampConfig{
 		SingleToneConfig: dds.SingleToneConfig{
 			Frequency:   d.Frequency.Value,

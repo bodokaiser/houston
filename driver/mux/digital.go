@@ -9,24 +9,30 @@ import (
 
 // Digital implements Mux for a digital multiplexer.
 type Digital struct {
-	pins []gpio.PinIO
+	config Config
+	pins   []gpio.PinIO
 }
 
 // NewDigital creates a new Digital multiplexer using the given pins in the
 // given order for selection.
-func NewDigital(pins []string) (*Digital, error) {
-	d := &Digital{}
-	d.pins = make([]gpio.PinIO, len(pins))
+func NewDigital(c Config) *Digital {
+	return &Digital{
+		config: c,
+	}
+}
 
-	for i, n := range pins {
+func (d *Digital) Init() error {
+	d.pins = make([]gpio.PinIO, len(d.config.GPIO.CS))
+
+	for i, n := range d.config.GPIO.CS {
 		d.pins[i] = gpioreg.ByName(n)
 
 		if d.pins[i] == nil {
-			return nil, errors.New("invalid pin name")
+			return errors.New("invalid pin name")
 		}
 	}
 
-	return d, nil
+	return nil
 }
 
 // Select selects the given address.

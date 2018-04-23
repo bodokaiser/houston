@@ -2,3 +2,7 @@
 //
 // The subpackages are structured by device function and device family.
 package driver
+
+type Driver interface {
+	Init() error
+}

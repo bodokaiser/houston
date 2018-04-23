@@ -110,6 +110,12 @@
   version = "v9.15.0"
 
 [[projects]]
+  name = "gopkg.in/yaml.v2"
+  packages = ["."]
+  revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
+  version = "v2.2.1"
+
+[[projects]]
   name = "periph.io/x/periph"
   packages = [
     ".",
@@ -143,6 +149,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "2a1c3cde1b4ab132f910a5198c6180da60cf6824be08f37c6ca09ccc20d7ddd6"
+  inputs-digest = "c93d60900426d1ca38dfd7e9c66db4a26aca67256ac9cd6f0b35c94cf88f2d83"
   solver-name = "gps-cdcl"
   solver-version = 1

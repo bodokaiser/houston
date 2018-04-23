@@ -5,6 +5,7 @@ import (
 	"math"
 	"time"
 
+	"github.com/bodokaiser/houston/device/dds"
 	"github.com/bodokaiser/houston/register/dds/ad99xx/ad9910"
 )
 
@@ -68,10 +69,10 @@ type AD9910 struct {
 	ramProfile7  ad9910.RAMProfile
 }
 
-func NewAD9910(sysClock, refClock uint32) AD9910 {
+func NewAD9910(c dds.Config) AD9910 {
 	d := AD9910{
-		SysClock:    float64(sysClock),
-		RefClock:    float64(refClock),
+		SysClock:    float64(c.SysClock),
+		RefClock:    float64(c.RefClock),
 		cfr1:        ad9910.NewCFR1(),
 		cfr2:        ad9910.NewCFR2(),
 		cfr3:        ad9910.NewCFR3(),
@@ -224,21 +225,6 @@ func (d *AD9910) SetPhaseOffset(p float64) {
 	d.pow.SetPhaseOffsetWord(pow)
 }
 
-type Param int
-
-const (
-	ParamAmplitude Param = iota
-	ParamFrequency
-	ParamPhase
-)
-
-type SweepConfig struct {
-	Limits   [2]float64
-	NoDwells [2]bool
-	Duration time.Duration
-	Param    Param
-}
-
 func assertRange(a, b float64) {
 	if a >= b {
 		panic("lower limit not greater than upper limit")
@@ -249,14 +235,14 @@ func sweepRate(d time.Duration, sysClock, step float64) uint16 {
 	return uint16(math.Round(d.Seconds() * sysClock / (4 * step)))
 }
 
-func (d *AD9910) Sweep(c SweepConfig) {
+func (d *AD9910) Sweep(c dds.SweepConfig) {
 	a, b := c.Limits[0], c.Limits[1]
 	assertRange(a, b)
 
 	var l, u uint32
 
 	switch c.Param {
-	case ParamAmplitude:
+	case dds.ParamAmplitude:
 		d.cfr2.SetRampDest(ad9910.RampDestAmplitude)
 
 		assertAmpl(a)
@@ -264,7 +250,7 @@ func (d *AD9910) Sweep(c SweepConfig) {
 
 		//l = amplToASF(a)
 		//u = amplToASF(b)
-	case ParamFrequency:
+	case dds.ParamFrequency:
 		d.cfr2.SetRampDest(ad9910.RampDestFrequency)
 
 		assertFreq(a)
@@ -275,7 +261,7 @@ func (d *AD9910) Sweep(c SweepConfig) {
 
 		d.rampLimit.SetLowerLimit(l)
 		d.rampLimit.SetUpperLimit(u)
-	case ParamPhase:
+	case dds.ParamPhase:
 		d.cfr2.SetRampDest(ad9910.RampDestPhase)
 	default:
 		panic("invalid parameter")
@@ -293,15 +279,7 @@ func (d *AD9910) Sweep(c SweepConfig) {
 	d.rampRate.SetPosSlopeRate(r)
 }
 
-type PlaybackConfig struct {
-	Data     []float64
-	Trigger  bool
-	Duplex   bool
-	Duration time.Duration
-	Param    Param
-}
-
-func (d *AD9910) Playback(c PlaybackConfig) {
+func (d *AD9910) Playback(c dds.PlaybackConfig) {
 
 }
 

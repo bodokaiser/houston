@@ -1,22 +1,32 @@
 // Package dds provides device drivers for direct digital synthesizer.
 package dds
 
-type Synthesizer interface {
+import (
+	"github.com/bodokaiser/houston/device/dds"
+	"github.com/bodokaiser/houston/driver"
+	"github.com/bodokaiser/houston/driver/spi"
+)
+
+type Config struct {
+	dds.Config `yaml:",inline"`
+	SPI        spi.Config `yaml:"spi"`
+	GPIO       GPIOConfig `yaml:"gpio"`
+}
+
+type GPIOConfig struct {
+	Reset  string `yaml:"reset"`
+	Update string `yaml:"update"`
+}
+
+type DDS interface {
+	driver.Driver
+
 	Amplitude() float64
-	Frequency() float64
-	PhaseOffset() float64
-
 	SetAmplitude(float64)
+
+	Frequency() float64
 	SetFrequency(float64)
+
+	PhaseOffset() float64
 	SetPhaseOffset(float64)
-
-	Sync() error
-}
-
-type SweepSynthesizer interface {
-	Synthesizer
-}
-
-type ArbitrarySynthesizer interface {
-	Synthesizer
 }

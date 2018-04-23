@@ -1,0 +1,20 @@
+dds:
+  sysclock: 1000000000
+  refclock: 10000000
+
+  spi:
+    device: 'SPI1.0'
+    frequency: 5e6
+
+  gpio:
+    reset: '65'
+    update: '27'
+
+mux:
+  gpio:
+    cs:
+      - '48'
+      - '30'
+      - '60'
+      - '31'
+      - '50'

@@ -10,38 +10,40 @@ import (
 	"periph.io/x/periph/conn/spi/spireg"
 
 	"github.com/bodokaiser/houston/device/dds/ad99xx/ad9910"
+	"github.com/bodokaiser/houston/driver/dds"
 )
 
 // AD9910 implements DDS interface for the AD9910.
 type AD9910 struct {
-	config      Config
-	spiConn     spi.Conn
-	resetPin    gpio.PinIO
-	ioUpdatePin gpio.PinIO
-	device      ad9910.AD9910
+	ad9910.AD9910
+	config    dds.Config
+	spiConn   spi.Conn
+	resetPin  gpio.PinIO
+	updatePin gpio.PinIO
 }
 
 // NewAD9910 returns an initialized AD9910 driver.
-func NewAD9910(c Config) *AD9910 {
+func NewAD9910(c dds.Config) *AD9910 {
 	d := &AD9910{
-		config:      c,
-		resetPin:    gpioreg.ByName(c.ResetPin),
-		ioUpdatePin: gpioreg.ByName(c.IOUpdatePin),
-		device:      ad9910.NewAD9910(c.SysClock, c.RefClock),
+		config: c,
+		AD9910: ad9910.NewAD9910(c.Config),
 	}
 
 	return d
 }
 
 func (d *AD9910) Init() (err error) {
+	d.resetPin = gpioreg.ByName(d.config.GPIO.Reset)
+	d.updatePin = gpioreg.ByName(d.config.GPIO.Update)
+
 	if d.resetPin == nil {
 		return errors.New("failed to find reset GPIO pin")
 	}
-	if d.ioUpdatePin == nil {
+	if d.updatePin == nil {
 		return errors.New("failed to find I/O update GPIO pin")
 	}
 
-	spi, err := spireg.Open(d.config.SPIDevice)
+	spi, err := spireg.Open(d.config.SPI.Device)
 	if err != nil {
 		return
 	}
@@ -50,12 +52,12 @@ func (d *AD9910) Init() (err error) {
 	if err != nil {
 		return
 	}
-	err = d.ioUpdatePin.Out(gpio.Low)
+	err = d.updatePin.Out(gpio.Low)
 	if err != nil {
 		return
 	}
 
-	d.spiConn, err = spi.Connect(d.config.SPIMaxFreq, d.config.SPIMode, 8)
+	d.spiConn, err = spi.Connect(d.config.SPI.MaxFreq, d.config.SPI.Mode, 8)
 
 	return
 }
@@ -70,14 +72,24 @@ func strobe(p gpio.PinIO) error {
 	return p.Out(gpio.Low)
 }
 
-// Reset triggers a reset which commands the connected DDS devices to clear
-// the memory and reset the registers to the default values.
 func (d *AD9910) Reset() error {
 	return strobe(d.resetPin)
 }
 
-// IOUpdate triggers an I/O update which commands the connected DDS devices
-// to read the updated configuration.
-func (d *AD9910) IOUpdate() error {
-	return strobe(d.ioUpdatePin)
+func (d *AD9910) Update() error {
+	return strobe(d.updatePin)
+}
+
+func (d *AD9910) WriteToDev() error {
+	w, err := d.Encode()
+	if err != nil {
+		return err
+	}
+	r := make([]byte, len(w))
+
+	return d.spiConn.Tx(w, r)
+}
+
+func (d *AD9910) ReadFromDev() error {
+	return nil
 }

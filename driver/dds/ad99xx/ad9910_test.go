@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/suite"
+
+	"github.com/bodokaiser/houston/driver/dds"
 )
 
 type AD9910TestSuite struct {
@@ -13,10 +15,11 @@ type AD9910TestSuite struct {
 }
 
 func (s *AD9910TestSuite) SetupTest() {
-	s.d = NewAD9910(Config{
-		SysClock: 1e9,
-		RefClock: 1e7,
-	})
+	c := dds.Config{}
+	c.SysClock = 1e9
+	c.RefClock = 1e7
+
+	s.d = NewAD9910(c)
 }
 
 func (s *AD9910TestSuite) TestSingleTone() {
