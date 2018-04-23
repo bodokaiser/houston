@@ -3,8 +3,8 @@ package dds
 import "time"
 
 type Config struct {
-	RefClock uint32 `yaml:"refclock"`
-	SysClock uint32 `yaml:"sysclock"`
+	RefClock float64 `yaml:"refclock"`
+	SysClock float64 `yaml:"sysclock"`
 }
 
 type Param int

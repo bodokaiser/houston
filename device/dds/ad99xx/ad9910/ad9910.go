@@ -2,6 +2,7 @@ package ad9910
 
 import (
 	"bytes"
+	"log"
 	"math"
 	"time"
 
@@ -38,13 +39,12 @@ const (
 )
 
 type AD9910 struct {
-	SysClock     float64
-	RefClock     float64
+	config       dds.Config
 	cfr1         ad9910.CFR1
 	cfr2         ad9910.CFR2
 	cfr3         ad9910.CFR3
 	auxDAC       ad9910.AuxDAC
-	ioUpdataRate ad9910.IOUpdateRate
+	ioUpdateRate ad9910.IOUpdateRate
 	ftw          ad9910.FTW
 	pow          ad9910.POW
 	asf          ad9910.ASF
@@ -71,33 +71,34 @@ type AD9910 struct {
 
 func NewAD9910(c dds.Config) AD9910 {
 	d := AD9910{
-		SysClock:    float64(c.SysClock),
-		RefClock:    float64(c.RefClock),
-		cfr1:        ad9910.NewCFR1(),
-		cfr2:        ad9910.NewCFR2(),
-		cfr3:        ad9910.NewCFR3(),
-		ftw:         ad9910.NewFTW(),
-		pow:         ad9910.NewPOW(),
-		asf:         ad9910.NewASF(),
-		rampLimit:   ad9910.NewRampLimit(),
-		rampStep:    ad9910.NewRampStep(),
-		rampRate:    ad9910.NewRampRate(),
-		stProfile0:  ad9910.NewSTProfile(),
-		stProfile1:  ad9910.NewSTProfile(),
-		stProfile2:  ad9910.NewSTProfile(),
-		stProfile3:  ad9910.NewSTProfile(),
-		stProfile4:  ad9910.NewSTProfile(),
-		stProfile5:  ad9910.NewSTProfile(),
-		stProfile6:  ad9910.NewSTProfile(),
-		stProfile7:  ad9910.NewSTProfile(),
-		ramProfile0: ad9910.NewRAMProfile(),
-		ramProfile1: ad9910.NewRAMProfile(),
-		ramProfile2: ad9910.NewRAMProfile(),
-		ramProfile3: ad9910.NewRAMProfile(),
-		ramProfile4: ad9910.NewRAMProfile(),
-		ramProfile5: ad9910.NewRAMProfile(),
-		ramProfile6: ad9910.NewRAMProfile(),
-		ramProfile7: ad9910.NewRAMProfile(),
+		config:       c,
+		cfr1:         ad9910.NewCFR1(),
+		cfr2:         ad9910.NewCFR2(),
+		cfr3:         ad9910.NewCFR3(),
+		auxDAC:       ad9910.NewAuxDAC(),
+		ioUpdateRate: ad9910.NewIOUpdateRate(),
+		ftw:          ad9910.NewFTW(),
+		pow:          ad9910.NewPOW(),
+		asf:          ad9910.NewASF(),
+		rampLimit:    ad9910.NewRampLimit(),
+		rampStep:     ad9910.NewRampStep(),
+		rampRate:     ad9910.NewRampRate(),
+		stProfile0:   ad9910.NewSTProfile(),
+		stProfile1:   ad9910.NewSTProfile(),
+		stProfile2:   ad9910.NewSTProfile(),
+		stProfile3:   ad9910.NewSTProfile(),
+		stProfile4:   ad9910.NewSTProfile(),
+		stProfile5:   ad9910.NewSTProfile(),
+		stProfile6:   ad9910.NewSTProfile(),
+		stProfile7:   ad9910.NewSTProfile(),
+		ramProfile0:  ad9910.NewRAMProfile(),
+		ramProfile1:  ad9910.NewRAMProfile(),
+		ramProfile2:  ad9910.NewRAMProfile(),
+		ramProfile3:  ad9910.NewRAMProfile(),
+		ramProfile4:  ad9910.NewRAMProfile(),
+		ramProfile5:  ad9910.NewRAMProfile(),
+		ramProfile6:  ad9910.NewRAMProfile(),
+		ramProfile7:  ad9910.NewRAMProfile(),
 	}
 
 	d.cfr1.SetSDIOInputOnly(true)
@@ -106,9 +107,13 @@ func NewAD9910(c dds.Config) AD9910 {
 	d.cfr2.SetSyncTimingValidationDisabled(true)
 	d.cfr3.SetVCORange(ad9910.VCORange5)
 	d.cfr3.SetPLLEnabled(true)
-	d.cfr3.SetDivider(uint(math.Round(d.SysClock / d.RefClock)))
+	d.cfr3.SetDivider(divider(d.config.SysClock, d.config.RefClock))
 
 	return d
+}
+
+func divider(x, y float64) uint8 {
+	return uint8(math.Round(x / y))
 }
 
 func asfToAmpl(x uint16) float64 {
@@ -146,7 +151,11 @@ func (d *AD9910) SetAmplitude(x float64) {
 }
 
 func ftwToFreq(x uint32, y float64) float64 {
-	return float64(x) * y / (1<<32 - 1)
+	return float64(x) * y / (1 << 32)
+}
+
+func (d *AD9910) ftwToFreq(x uint32) float64 {
+	return ftwToFreq(x, float64(d.config.SysClock))
 }
 
 func (d *AD9910) Frequency() float64 {
@@ -159,9 +168,9 @@ func (d *AD9910) Frequency() float64 {
 	// parallal data port controls frequency
 
 	if d.cfr1.RAMEnabled() {
-		return ftwToFreq(d.ftw.FreqTuningWord(), d.SysClock)
+		return d.ftwToFreq(d.ftw.FreqTuningWord())
 	}
-	return ftwToFreq(d.stProfile0.FreqTuningWord(), d.SysClock)
+	return d.ftwToFreq(d.stProfile0.FreqTuningWord())
 }
 
 func assertFreq(x float64) {
@@ -170,13 +179,19 @@ func assertFreq(x float64) {
 	}
 }
 
-func freqToFTW(x float64, y float64) uint32 {
-	return uint32(math.Round(x / y * (1<<32 - 1)))
+func freqToFTW(out float64, sys float64) uint32 {
+	return uint32(math.Round((1 << 32) * (out / sys)))
+}
+
+func (d *AD9910) freqToFTW(f float64) uint32 {
+	return freqToFTW(f, float64(d.config.SysClock))
 }
 
 func (d *AD9910) SetFrequency(f float64) {
+	log.Printf("set frequency: %v\n", f)
 	assertFreq(f)
-	ftw := freqToFTW(f, d.SysClock)
+	ftw := d.freqToFTW(f)
+	log.Printf("set ftw: %v\n", ftw)
 
 	if !d.cfr1.RAMEnabled() {
 		d.stProfile0.SetFreqTuningWord(ftw)
@@ -256,8 +271,8 @@ func (d *AD9910) Sweep(c dds.SweepConfig) {
 		assertFreq(a)
 		assertFreq(b)
 
-		l = freqToFTW(a, d.SysClock)
-		u = freqToFTW(b, d.SysClock)
+		l = d.freqToFTW(a)
+		u = d.freqToFTW(b)
 
 		d.rampLimit.SetLowerLimit(l)
 		d.rampLimit.SetUpperLimit(u)
@@ -267,7 +282,7 @@ func (d *AD9910) Sweep(c dds.SweepConfig) {
 		panic("invalid parameter")
 	}
 
-	r := sweepRate(c.Duration, d.SysClock, float64(u-l))
+	r := sweepRate(c.Duration, float64(d.config.SysClock), float64(u-l))
 
 	d.cfr2.SetRampEnabled(true)
 	d.cfr2.SetRampNoDwellLow(c.NoDwells[0])
@@ -283,21 +298,46 @@ func (d *AD9910) Playback(c dds.PlaybackConfig) {
 
 }
 
+func prefix(prefix byte, b []byte) []byte {
+	return append([]byte{prefix}, b[:]...)
+}
+
 func (d *AD9910) Encode() ([]byte, error) {
+	log.Printf("encode:\n%+v\n", d)
+
 	// TODO: only send necessary registers
-	b := bytes.Join([][]byte{
-		append([]byte{addrCFR1}, d.cfr1[:]...),
-		append([]byte{addrCFR2}, d.cfr2[:]...),
-		append([]byte{addrCFR3}, d.cfr3[:]...),
-		append([]byte{addrAuxDAC}, d.auxDAC[:]...),
-		append([]byte{addrIOUpdate}, d.ioUpdataRate[:]...),
-		append([]byte{addrFTW}, d.ftw[:]...),
-		append([]byte{addrASF}, d.asf[:]...),
-		append([]byte{addrPOW}, d.pow[:]...),
-		append([]byte{addrRampLimit}, d.rampLimit[:]...),
-		append([]byte{addrRampStep}, d.rampStep[:]...),
-		append([]byte{addrRampRate}, d.rampRate[:]...),
-	}, nil)
+	p := [][]byte{
+		prefix(addrCFR1, d.cfr1[:]),
+		prefix(addrCFR2, d.cfr2[:]),
+		prefix(addrCFR3, d.cfr3[:]),
+		prefix(addrAuxDAC, d.auxDAC[:]),
+		prefix(addrIOUpdate, d.ioUpdateRate[:]),
+	}
+
+	if d.ftw.FreqTuningWord() > 0 {
+		p = append(p, prefix(addrFTW, d.ftw[:]))
+	}
+	if d.pow.PhaseOffsetWord() > 0 {
+		p = append(p, prefix(addrPOW, d.pow[:]))
+	}
+	if d.asf.AmplScaleFactor() > 0 {
+		p = append(p, prefix(addrASF, d.asf[:]))
+	}
+
+	if d.cfr1.RAMEnabled() {
+		p = append(p, prefix(addrProfile0, d.ramProfile0[:]))
+	} else {
+		p = append(p, prefix(addrProfile0, d.stProfile0[:]))
+	}
+	if d.cfr2.RampEnabled() {
+		p = append(p, prefix(addrRampLimit, d.rampLimit[:]))
+		p = append(p, prefix(addrRampStep, d.rampStep[:]))
+		p = append(p, prefix(addrRampRate, d.rampRate[:]))
+	}
+
+	b := bytes.Join(p, []byte{})
+
+	log.Printf("encode:\n%+v\n", b)
 
 	return b, nil
 }

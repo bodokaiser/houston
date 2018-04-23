@@ -50,6 +50,6 @@ func (r *CFR3) Divider() uint8 {
 	return uint8(r[3] >> 1)
 }
 
-func (r *CFR3) SetDivider(x uint) {
+func (r *CFR3) SetDivider(x uint8) {
 	r[3] = byte(x << 1)
 }

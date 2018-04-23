@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 
 	"periph.io/x/periph/host"
@@ -34,7 +33,7 @@ func main() {
 	flag.Var(&c, "config", "path to config file")
 	flag.Parse()
 
-	fmt.Println(c.Render())
+	log.Printf("config:\n%s\n", c.Render())
 
 	_, err := host.Init()
 	if err != nil {
