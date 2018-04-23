@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"log"
 	"math"
-	"time"
 
+	"github.com/bodokaiser/approx"
 	"github.com/bodokaiser/houston/device/dds"
 	"github.com/bodokaiser/houston/register/dds/ad99xx/ad9910"
 )
@@ -116,6 +116,14 @@ func divider(x, y float64) uint8 {
 	return uint8(math.Round(x / y))
 }
 
+func (d *AD9910) SysClock() float64 {
+	return d.config.SysClock
+}
+
+func (d *AD9910) RefClock() float64 {
+	return d.config.SysClock
+}
+
 func asfToAmpl(x uint16) float64 {
 	return float64(x) / (1<<14 - 1)
 }
@@ -155,7 +163,7 @@ func ftwToFreq(x uint32, y float64) float64 {
 }
 
 func (d *AD9910) ftwToFreq(x uint32) float64 {
-	return ftwToFreq(x, float64(d.config.SysClock))
+	return ftwToFreq(x, float64(d.SysClock()))
 }
 
 func (d *AD9910) Frequency() float64 {
@@ -184,14 +192,12 @@ func freqToFTW(out float64, sys float64) uint32 {
 }
 
 func (d *AD9910) freqToFTW(f float64) uint32 {
-	return freqToFTW(f, float64(d.config.SysClock))
+	return freqToFTW(f, float64(d.SysClock()))
 }
 
 func (d *AD9910) SetFrequency(f float64) {
-	log.Printf("set frequency: %v\n", f)
 	assertFreq(f)
 	ftw := d.freqToFTW(f)
-	log.Printf("set ftw: %v\n", ftw)
 
 	if !d.cfr1.RAMEnabled() {
 		d.stProfile0.SetFreqTuningWord(ftw)
@@ -246,50 +252,61 @@ func assertRange(a, b float64) {
 	}
 }
 
-func sweepRate(d time.Duration, sysClock, step float64) uint16 {
-	return uint16(math.Round(d.Seconds() * sysClock / (4 * step)))
+const maxRate = (1 << 16) - 1
+
+func (d *AD9910) rampClock() float64 {
+	return d.config.SysClock / 4
+}
+
+func (d *AD9910) rampParams(T, dx float64) (uint32, uint16) {
+	m := T * d.rampClock() / (math.MaxUint32 * dx)
+	r, s := approx.RatioConstr2(m, math.MaxUint32, math.MaxUint16)
+
+	return uint32(s), uint16(r)
 }
 
 func (d *AD9910) Sweep(c dds.SweepConfig) {
 	a, b := c.Limits[0], c.Limits[1]
 	assertRange(a, b)
 
-	var l, u uint32
+	scale := 1.0
 
 	switch c.Param {
 	case dds.ParamAmplitude:
-		d.cfr2.SetRampDest(ad9910.RampDestAmplitude)
-
 		assertAmpl(a)
 		assertAmpl(b)
 
-		//l = amplToASF(a)
-		//u = amplToASF(b)
+		d.cfr2.SetRampDest(ad9910.RampDestAmplitude)
+		d.rampLimit.SetLowerASF(amplToASF(a))
+		d.rampLimit.SetUpperASF(amplToASF(b))
 	case dds.ParamFrequency:
-		d.cfr2.SetRampDest(ad9910.RampDestFrequency)
-
 		assertFreq(a)
 		assertFreq(b)
+		scale = d.SysClock()
 
-		l = d.freqToFTW(a)
-		u = d.freqToFTW(b)
-
-		d.rampLimit.SetLowerLimit(l)
-		d.rampLimit.SetUpperLimit(u)
+		d.cfr2.SetRampDest(ad9910.RampDestFrequency)
+		d.rampLimit.SetLowerFTW(d.freqToFTW(a))
+		d.rampLimit.SetUpperFTW(d.freqToFTW(b))
 	case dds.ParamPhase:
+		assertPhase(a)
+		assertPhase(b)
+		scale = 2 * math.Pi
+
 		d.cfr2.SetRampDest(ad9910.RampDestPhase)
+		d.rampLimit.SetLowerASF(phaseToPOW(a))
+		d.rampLimit.SetUpperASF(phaseToPOW(b))
 	default:
 		panic("invalid parameter")
 	}
-
-	r := sweepRate(c.Duration, float64(d.config.SysClock), float64(u-l))
+	s, r := d.rampParams(c.Duration.Seconds(),
+		float64(b-a)/scale)
 
 	d.cfr2.SetRampEnabled(true)
 	d.cfr2.SetRampNoDwellLow(c.NoDwells[0])
 	d.cfr2.SetRampNoDwellHigh(c.NoDwells[1])
 
-	d.rampStep.SetDecrStepSize(1)
-	d.rampStep.SetIncrStepSize(1)
+	d.rampStep.SetDecrStepSize(s)
+	d.rampStep.SetIncrStepSize(s)
 	d.rampRate.SetNegSlopeRate(r)
 	d.rampRate.SetPosSlopeRate(r)
 }

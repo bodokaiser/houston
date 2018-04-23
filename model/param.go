@@ -24,7 +24,7 @@ type DDSConst struct {
 // DDSSweep is the DDS mode where a DDS controllable parameter is swept.
 type DDSSweep struct {
 	Limits   [2]float64    `validation:"len=2,range,dive,gt=0" json:"limits"`
-	NoDwell  [2]bool       `validation:"len=2"                 json:"nodwell"`
+	NoDwells [2]bool       `validation:"len=2"                 json:"nodwell"`
 	Duration time.Duration `validation:"required,gt=0"         json:"duration"`
 }
 

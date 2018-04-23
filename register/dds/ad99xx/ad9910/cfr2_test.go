@@ -89,6 +89,38 @@ func (s *CFR2TestSuite) TestSetRampEnabled() {
 	assert.EqualValues(s.T(), 0, s.r[1])
 }
 
+func (s *CFR2TestSuite) TestRampDest() {
+	s.r[1] = 0
+	assert.Equal(s.T(), RampDestFrequency, s.r.RampDest())
+
+	s.r[1] = 1 << 4
+	assert.Equal(s.T(), RampDestPhase, s.r.RampDest())
+
+	s.r[1] = 1 << 5
+	assert.Equal(s.T(), RampDestAmplitude, s.r.RampDest())
+
+	s.r[1] = (1 << 5) + (1 << 4)
+	assert.Equal(s.T(), RampDestAmplitude, s.r.RampDest())
+}
+
+func (s *CFR2TestSuite) TestSetRampDest() {
+	s.r[1] = 0
+	s.r.SetRampDest(RampDestFrequency)
+	assert.Equal(s.T(), uint8(0), s.r[1])
+
+	s.r[1] = 0
+	s.r.SetRampDest(RampDestPhase)
+	assert.Equal(s.T(), uint8(1<<4), s.r[1])
+
+	s.r[1] = 0
+	s.r.SetRampDest(RampDestAmplitude)
+	assert.Equal(s.T(), uint8(1<<5), s.r[1])
+
+	s.r[1] = 0x80
+	s.r.SetRampDest(RampDestAmplitude)
+	assert.Equal(s.T(), uint8(0xa0), s.r[1])
+}
+
 func (s *CFR2TestSuite) TestRampNoDwellLow() {
 	s.r[1] = 0
 	assert.False(s.T(), s.r.RampNoDwellLow())

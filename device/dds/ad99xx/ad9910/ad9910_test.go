@@ -29,6 +29,17 @@ func (s *AD9910TestSuite) TestFreqToFTW() {
 	assert.Equal(s.T(), uint32(0x556AAAAB), freqToFTW(fout, fsys))
 }
 
+func (s *AD9910TestSuite) TestRampClock() {
+	assert.Equal(s.T(), 2.5e8, s.d.SysClock()/4)
+}
+
+func (s *AD9910TestSuite) TestRampParams() {
+	step, rate := s.d.rampParams(1, 1.0)
+
+	assert.Equal(s.T(), uint32(1021704), step)
+	assert.Equal(s.T(), uint16(59471), rate)
+}
+
 func TestAD9910Suite(t *testing.T) {
 	suite.Run(t, new(AD9910TestSuite))
 }

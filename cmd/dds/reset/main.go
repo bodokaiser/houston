@@ -7,14 +7,14 @@ import (
 
 	"periph.io/x/periph/host"
 
-	"github.com/bodokaiser/houston/config"
+	"github.com/bodokaiser/houston/cmd"
 	"github.com/bodokaiser/houston/driver/dds/ad99xx"
 	"github.com/bodokaiser/houston/driver/mux"
 	"github.com/bodokaiser/houston/model"
 )
 
 func main() {
-	c := config.Config{}
+	c := cmd.Config{}
 	d := model.DDSDevice{}
 
 	flag.Var(&c, "config", "path to config file")
@@ -26,20 +26,13 @@ func main() {
 		log.Fatal(err)
 	}
 
-	sel := mux.NewDigital(c.GPIO.Mux)
+	sel := mux.NewDigital(c.Mux)
 	err = sel.Init()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	dev := ad99xx.NewAD9910(ad99xx.Config{
-		SysClock:  c.SysClock,
-		RefClock:  c.RefClock,
-		ResetPin:  c.GPIO.Reset,
-		UpdatePin: c.GPIO.Update,
-		SPI:       c.SPI,
-	})
-
+	dev := ad99xx.NewAD9910(c.DDS)
 	err = dev.Init()
 	if err != nil {
 		log.Fatal(err)

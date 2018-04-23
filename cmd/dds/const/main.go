@@ -29,7 +29,7 @@ func main() {
 	flag.UintVar(&d.ID, "select", 0, "address to select")
 	flag.Float64Var(&d.Frequency.Value, "frequency", 10e6, "Frequency [0, 400e6]")
 	flag.Float64Var(&d.Amplitude.Value, "amplitude", 1.0, "Amplitude [0, 1]")
-	flag.Float64Var(&d.PhaseOffset.Value, "phase-offset", 0.0, "Phase [0, 2π]")
+	flag.Float64Var(&d.PhaseOffset.Value, "phase", 0.0, "Phase [0, 2π]")
 	flag.Var(&c, "config", "path to config file")
 	flag.Parse()
 

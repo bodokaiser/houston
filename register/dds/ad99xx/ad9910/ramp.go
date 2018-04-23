@@ -10,20 +10,52 @@ func NewRampLimit() RampLimit {
 	return [8]byte{}
 }
 
-func (r *RampLimit) UpperLimit() uint32 {
-	return binary.BigEndian.Uint32(r[:4])
+func (r *RampLimit) UpperFTW() uint32 {
+	return binary.BigEndian.Uint32(r[0:4])
 }
 
-func (r *RampLimit) SetUpperLimit(x uint32) {
-	binary.BigEndian.PutUint32(r[:4], x)
+func (r *RampLimit) SetUpperFTW(x uint32) {
+	binary.BigEndian.PutUint32(r[0:4], x)
 }
 
-func (r *RampLimit) LowerLimit() uint32 {
-	return binary.BigEndian.Uint32(r[4:])
+func (r *RampLimit) UpperPOW() uint16 {
+	return binary.BigEndian.Uint16(r[0:2])
 }
 
-func (r *RampLimit) SetLowerLimit(x uint32) {
-	binary.BigEndian.PutUint32(r[4:], x)
+func (r *RampLimit) SetUpperPOW(x uint16) {
+	binary.BigEndian.PutUint32(r[0:4], uint32(x)<<16)
+}
+
+func (r *RampLimit) UpperASF() uint16 {
+	return binary.BigEndian.Uint16(r[0:2]) >> 2
+}
+
+func (r *RampLimit) SetUpperASF(x uint16) {
+	binary.BigEndian.PutUint32(r[0:4], uint32(x)<<18)
+}
+
+func (r *RampLimit) LowerFTW() uint32 {
+	return binary.BigEndian.Uint32(r[4:8])
+}
+
+func (r *RampLimit) SetLowerFTW(x uint32) {
+	binary.BigEndian.PutUint32(r[4:8], x)
+}
+
+func (r *RampLimit) LowerPOW() uint16 {
+	return binary.BigEndian.Uint16(r[4:6])
+}
+
+func (r *RampLimit) SetLowerPOW(x uint16) {
+	binary.BigEndian.PutUint32(r[4:8], uint32(x)<<16)
+}
+
+func (r *RampLimit) LowerASF() uint16 {
+	return binary.BigEndian.Uint16(r[4:6]) >> 2
+}
+
+func (r *RampLimit) SetLowerASF(x uint16) {
+	binary.BigEndian.PutUint32(r[4:8], uint32(x)<<18)
 }
 
 type RampStep [8]byte

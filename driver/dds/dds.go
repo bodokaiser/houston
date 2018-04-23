@@ -30,3 +30,15 @@ type DDS interface {
 	PhaseOffset() float64
 	SetPhaseOffset(float64)
 }
+
+type Param = dds.Param
+
+var (
+	ParamAmplitude = dds.ParamAmplitude
+	ParamFrequency = dds.ParamFrequency
+	ParamPhase     = dds.ParamPhase
+)
+
+type SweepConfig = dds.SweepConfig
+
+type PlaybackConfig = dds.PlaybackConfig

@@ -59,11 +59,27 @@ const (
 )
 
 func (r *CFR2) RampDest() RampDest {
-	return RampDest((r[1] << 2) >> 6)
+	switch (r[1] << 2) >> 6 {
+	case 0x00:
+		return RampDestFrequency
+	case 0x01:
+		return RampDestPhase
+	}
+
+	return RampDestAmplitude
 }
 
 func (r *CFR2) SetRampDest(x RampDest) {
-	r[1] = byte(x) << 4
+	r[1] &= ^byte(0x30)
+
+	v := byte(x)
+
+	if v&1 > 0 {
+		r[1] |= 1 << 4
+	}
+	if v&(1<<1) > 0 {
+		r[1] |= 1 << 5
+	}
 }
 
 func (r *CFR2) RampEnabled() bool {

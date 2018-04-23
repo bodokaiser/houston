@@ -8,7 +8,7 @@ import (
 
 	"periph.io/x/periph/host"
 
-	"github.com/bodokaiser/houston/config"
+	"github.com/bodokaiser/houston/cmd"
 	"github.com/bodokaiser/houston/driver/dds"
 	"github.com/bodokaiser/houston/driver/dds/ad99xx"
 	"github.com/bodokaiser/houston/driver/mux"
@@ -16,12 +16,12 @@ import (
 )
 
 func main() {
-	c := config.Config{}
+	c := cmd.Config{}
 	d := model.DDSDevice{
 		Amplitude: model.DDSParam{
 			DDSSweep: &model.DDSSweep{
-				Limits:  [2]float64{},
-				NoDwell: [2]bool{true, true},
+				Limits:   [2]float64{},
+				NoDwells: [2]bool{},
 			},
 		},
 		Frequency: model.DDSParam{
@@ -32,7 +32,6 @@ func main() {
 		},
 	}
 
-	flag.Var(&c, "config", "path to config file")
 	flag.UintVar(&d.ID, "select", 0,
 		"Address of DDS chip")
 	flag.Float64Var(&d.Frequency.Value, "frequency", 10e6,
@@ -41,10 +40,15 @@ func main() {
 		"Start value for amplitude in relative units")
 	flag.Float64Var(&d.Amplitude.Limits[1], "stop", 1.0,
 		"Stop value for amplitude in relative units")
+	flag.BoolVar(&d.Amplitude.NoDwells[0], "no-dwell-low", true,
+		"ramp does not remain at lower end")
+	flag.BoolVar(&d.Amplitude.NoDwells[1], "no-dwell-high", true,
+		"ramp does not remain at upper end")
 	flag.DurationVar(&d.Amplitude.Duration, "duration", time.Second,
 		"Ramp Duration in Seconds")
 	flag.Float64Var(&d.PhaseOffset.Value, "phase", 0.0,
 		"Phase offset in Radiants")
+	flag.Var(&c, "config", "path to config file")
 	flag.Parse()
 
 	_, err := host.Init()
@@ -52,19 +56,13 @@ func main() {
 		log.Fatal(err)
 	}
 
-	sel := mux.NewDigital(c.GPIO.Mux)
+	sel := mux.NewDigital(c.Mux)
 	err = sel.Init()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	dev := ad99xx.NewAD9910(ad99xx.Config{
-		SysClock:  c.SysClock,
-		RefClock:  c.RefClock,
-		ResetPin:  c.GPIO.Reset,
-		UpdatePin: c.GPIO.Update,
-		SPI:       c.SPI,
-	})
+	dev := ad99xx.NewAD9910(c.DDS)
 	err = dev.Init()
 	if err != nil {
 		log.Fatal(err)
@@ -77,15 +75,18 @@ func main() {
 
 	dev.SetFrequency(d.Frequency.Value)
 	dev.SetPhaseOffset(d.PhaseOffset.Value)
-	err = dev.SweepAmplitude(dds.DigitalRampConfig{
-		SingleToneConfig: dds.SingleToneConfig{
-			Frequency:   d.Frequency.Value,
-			PhaseOffset: d.PhaseOffset.Value,
-		},
+	dev.Sweep(dds.SweepConfig{
 		Limits:   d.Amplitude.Limits,
-		NoDwell:  d.Amplitude.NoDwell,
+		NoDwells: d.Amplitude.NoDwells,
 		Duration: d.Amplitude.Duration,
+		Param:    dds.ParamAmplitude,
 	})
+
+	err = dev.WriteToDev()
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = dev.Update()
 	if err != nil {
 		log.Fatal(err)
 	}
