@@ -79,11 +79,7 @@ func main() {
 	dev.SetFrequency(m.Frequency.Value)
 	dev.SetPhaseOffset(m.PhaseOffset.Value)
 
-	err = dev.WriteToDev()
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = dev.Update()
+	err = dev.Exec()
 	if err != nil {
 		log.Fatal(err)
 	}

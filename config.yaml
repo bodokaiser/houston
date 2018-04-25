@@ -1,6 +1,7 @@
 dds:
   sysclock: 1000000000
   refclock: 10000000
+  pll: true
 
   spi:
     device: 'SPI1.0'

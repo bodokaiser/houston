@@ -5,6 +5,7 @@ import "time"
 type Config struct {
 	RefClock float64 `yaml:"refclock"`
 	SysClock float64 `yaml:"sysclock"`
+	PLL      bool
 }
 
 type Param int

@@ -73,20 +73,16 @@ func main() {
 		log.Fatal(err)
 	}
 
-	dev.SetAmplitude(d.Amplitude.Value)
-	dev.SetPhaseOffset(d.PhaseOffset.Value)
 	dev.Sweep(dds.SweepConfig{
 		Limits:   d.Frequency.Limits,
 		NoDwells: d.Frequency.NoDwells,
 		Duration: d.Frequency.DDSSweep.Duration,
 		Param:    dds.ParamFrequency,
 	})
+	dev.SetAmplitude(d.Amplitude.Value)
+	dev.SetPhaseOffset(d.PhaseOffset.Value)
 
-	err = dev.WriteToDev()
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = dev.Update()
+	err = dev.Exec()
 	if err != nil {
 		log.Fatal(err)
 	}

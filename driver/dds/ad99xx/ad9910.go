@@ -1,8 +1,9 @@
 package ad99xx
 
 import (
+	"bytes"
 	"errors"
-	"fmt"
+	"log"
 	"time"
 
 	"periph.io/x/periph/conn/gpio"
@@ -12,6 +13,34 @@ import (
 
 	"github.com/bodokaiser/houston/device/dds/ad99xx/ad9910"
 	"github.com/bodokaiser/houston/driver/dds"
+)
+
+const (
+	flagRead  = 0x80
+	flagWrite = 0x00
+)
+
+const (
+	addrCFR1      = 0x00
+	addrCFR2      = 0x01
+	addrCFR3      = 0x02
+	addrAuxDAC    = 0x03
+	addrIOUpdate  = 0x04
+	addrFTW       = 0x07
+	addrPOW       = 0x08
+	addrASF       = 0x09
+	addrRampLimit = 0x0b
+	addrRampStep  = 0x0c
+	addrRampRate  = 0x0d
+	addrProfile0  = 0x0e
+	addrProfile1  = 0x0f
+	addrProfile2  = 0x10
+	addrProfile3  = 0x11
+	addrProfile4  = 0x12
+	addrProfile5  = 0x13
+	addrProfile6  = 0x14
+	addrProfile7  = 0x15
+	addrRAM       = 0x16
 )
 
 // AD9910 implements DDS interface for the AD9910.
@@ -58,14 +87,7 @@ func (d *AD9910) Init() (err error) {
 		return
 	}
 
-	var mode spi.Mode
-	// this will fail because half duplex mode is not supported!
-	if !d.config.SPI.Duplex {
-		mode = spi.Mode3 | spi.HalfDuplex
-	}
-	mode = spi.Mode0
-
-	d.spiConn, err = spiDev.Connect(d.config.SPI.MaxFreq, mode, 8)
+	d.spiConn, err = spiDev.Connect(d.config.SPI.MaxFreq, spi.Mode0, 8)
 
 	return
 }
@@ -88,29 +110,48 @@ func (d *AD9910) Update() error {
 	return strobe(d.updatePin)
 }
 
-func (d *AD9910) WriteToDev() error {
-	w, err := d.Encode()
-	if err != nil {
-		return err
-	}
-	r := make([]byte, len(w))
-
-	return d.spiConn.Tx(w, r)
+func prefix(prefix byte, b []byte) []byte {
+	return append([]byte{prefix}, b[:]...)
 }
 
-func (d *AD9910) ReadFromDev() error {
-	w := []byte{129, 0, 0, 0, 0}
-	r := make([]byte, len(w))
+func (d *AD9910) Exec() error {
+	log.Printf("exec:\n%+v\n", d)
 
-	fmt.Printf("w: %v\n", w)
-	fmt.Printf("r: %v\n", r)
+	p := [][]byte{
+		prefix(addrCFR1, d.CFR1[:]),
+		prefix(addrCFR2, d.CFR2[:]),
+		prefix(addrCFR3, d.CFR3[:]),
+		prefix(addrAuxDAC, d.AuxDAC[:]),
+		prefix(addrIOUpdate, d.IOUpdateRate[:]),
+	}
+
+	if d.FTW.FreqTuningWord() > 0 {
+		p = append(p, prefix(addrFTW, d.FTW[:]))
+	}
+	if d.POW.PhaseOffsetWord() > 0 {
+		p = append(p, prefix(addrPOW, d.POW[:]))
+	}
+	if d.ASF.AmplScaleFactor() > 0 {
+		p = append(p, prefix(addrASF, d.ASF[:]))
+	}
+
+	if d.CFR1.RAMEnabled() {
+		p = append(p, prefix(addrProfile0, d.RAMProfile0[:]))
+	} else {
+		p = append(p, prefix(addrProfile0, d.STProfile0[:]))
+	}
+	if d.CFR2.RampEnabled() {
+		p = append(p, prefix(addrRampLimit, d.RampLimit[:]))
+		p = append(p, prefix(addrRampStep, d.RampStep[:]))
+		p = append(p, prefix(addrRampRate, d.RampRate[:]))
+	}
+
+	w := bytes.Join(p, []byte{})
+	r := make([]byte, len(w))
 
 	err := d.spiConn.Tx(w, r)
 	if err != nil {
 		return err
 	}
-
-	fmt.Printf("%v\n", r)
-
-	return nil
+	return d.Update()
 }
