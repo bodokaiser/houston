@@ -17,11 +17,16 @@ func main() {
 	c := cmd.Config{}
 	d := model.DDSDevice{}
 
-	flag.Var(&c, "config", "path to config file")
+	flag.StringVar(&c.Filename, "config", "config.yaml", "path to config file")
 	flag.UintVar(&d.ID, "select", 0, "address to select")
 	flag.Parse()
 
-	_, err := host.Init()
+	err := c.ReadFromFile()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = host.Init()
 	if err != nil {
 		log.Fatal(err)
 	}

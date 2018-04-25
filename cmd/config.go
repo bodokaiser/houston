@@ -12,8 +12,9 @@ import (
 )
 
 type Config struct {
-	DDS dds.Config `yaml:"dds"`
-	Mux mux.Config `yaml:"mux"`
+	Filename string
+	DDS      dds.Config `yaml:"dds"`
+	Mux      mux.Config `yaml:"mux"`
 }
 
 func (c *Config) ReadFrom(r io.Reader) (n int64, err error) {
@@ -28,8 +29,8 @@ func (c *Config) ReadFrom(r io.Reader) (n int64, err error) {
 	return
 }
 
-func (c *Config) ReadFromFile(p string) error {
-	f, err := os.Open(p)
+func (c *Config) ReadFromFile() error {
+	f, err := os.Open(c.Filename)
 	if err != nil {
 		return err
 	}
@@ -38,19 +39,6 @@ func (c *Config) ReadFromFile(p string) error {
 	_, err = c.ReadFrom(f)
 
 	return err
-}
-
-func (c *Config) Set(s string) error {
-	_, err := os.Stat(s)
-	if err != nil {
-		return err
-	}
-
-	return c.ReadFromFile(s)
-}
-
-func (c *Config) String() string {
-	return "config.yaml"
 }
 
 func (c *Config) Render() string {

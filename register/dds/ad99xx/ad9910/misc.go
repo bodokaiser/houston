@@ -86,3 +86,33 @@ func (r *ASF) AmplStepSize() AmplStepSize {
 func (r *ASF) SetAmplStepSize(x AmplStepSize) {
 	r[3] |= byte(x)
 }
+
+type RAM [4]byte
+
+func NewRAM() RAM {
+	return RAM{}
+}
+
+func (r *RAM) AmplScaleFactor() uint16 {
+	return binary.BigEndian.Uint16(r[0:2]) >> 2
+}
+
+func (r *RAM) SetAmplScaleFactor(x uint16) {
+	binary.BigEndian.PutUint16(r[0:2], x<<2)
+}
+
+func (r *RAM) PhaseOffsetWord() uint16 {
+	return binary.BigEndian.Uint16(r[0:2])
+}
+
+func (r *RAM) SetPhaseOffsetWord(x uint16) {
+	binary.BigEndian.PutUint16(r[0:2], x)
+}
+
+func (r *RAM) FreqTuningWord() uint32 {
+	return binary.BigEndian.Uint32(r[0:4])
+}
+
+func (r *RAM) SetFreqTuningWord(x uint32) {
+	binary.BigEndian.PutUint32(r[0:4], x)
+}

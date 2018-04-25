@@ -115,7 +115,12 @@ func prefix(prefix byte, b []byte) []byte {
 }
 
 func (d *AD9910) Exec() error {
+	log.Printf("ram enabled: %v\n", d.CFR1.RAMEnabled())
 	log.Printf("exec:\n%+v\n", d)
+
+	// we cannot write to RAM if RAM is enabled
+	re := d.CFR1.RAMEnabled()
+	d.CFR1.SetOSKEnabled(false)
 
 	p := [][]byte{
 		prefix(addrCFR1, d.CFR1[:]),
@@ -135,7 +140,7 @@ func (d *AD9910) Exec() error {
 		p = append(p, prefix(addrASF, d.ASF[:]))
 	}
 
-	if d.CFR1.RAMEnabled() {
+	if re && len(d.RAM) > 0 {
 		p = append(p, prefix(addrProfile0, d.RAMProfile0[:]))
 	} else {
 		p = append(p, prefix(addrProfile0, d.STProfile0[:]))
@@ -149,9 +154,36 @@ func (d *AD9910) Exec() error {
 	w := bytes.Join(p, []byte{})
 	r := make([]byte, len(w))
 
-	err := d.spiConn.Tx(w, r)
-	if err != nil {
+	log.Printf("spi write:\n%+v\n", w)
+
+	if err := d.spiConn.Tx(w, r); err != nil {
 		return err
 	}
+	if err := d.Update(); err != nil {
+		return err
+	}
+
+	if re && len(d.RAM) > 0 {
+		w = []byte{addrRAM}
+		for _, ram := range d.RAM {
+			w = append(w, ram[:]...)
+		}
+		r = make([]byte, len(w))
+
+		log.Printf("spi write:\n%+v\n", w)
+
+		if err := d.spiConn.Tx(w, r); err != nil {
+			return err
+		}
+
+		d.CFR1.SetRAMEnabled(true)
+		w = prefix(addrCFR1, d.CFR1[:])
+		r = make([]byte, len(w))
+		if err := d.spiConn.Tx(w, r); err != nil {
+			return err
+		}
+		log.Printf("spi write:\n%+v\n", w)
+	}
+
 	return d.Update()
 }

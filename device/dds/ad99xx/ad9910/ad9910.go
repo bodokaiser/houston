@@ -1,6 +1,8 @@
 package ad9910
 
 import (
+	"fmt"
+	"log"
 	"math"
 
 	"github.com/bodokaiser/approx"
@@ -37,6 +39,7 @@ type AD9910 struct {
 	RAMProfile5  ad9910.RAMProfile
 	RAMProfile6  ad9910.RAMProfile
 	RAMProfile7  ad9910.RAMProfile
+	RAM          []ad9910.RAM
 }
 
 func NewAD9910(c dds.Config) AD9910 {
@@ -311,29 +314,60 @@ func (d *AD9910) playbackParams(T float64) uint16 {
 }
 
 func (d *AD9910) Playback(c dds.PlaybackConfig) {
+	t := c.Duration.Seconds()
+	tmin := 1 / d.playbackClock()
+	tmax := tmin * math.MaxUint16
+
+	if t < tmin || t > tmax {
+		panic(fmt.Sprintf("interval %v out of range (%v, %v)", t, tmin, tmax))
+	}
+	l := uint16(len(c.Data)) - 1
+	r := d.playbackParams(t)
+
+	d.RAM = []ad9910.RAM{}
+	log.Printf("Playback() CFR1 (pre RAM enabled) %v\n", d.CFR1)
+	d.CFR1.SetRAMEnabled(true)
+	log.Printf("Playback() CFR1 (post RAM enabled) %v\n", d.CFR1)
+	d.RAMProfile0.SetNoDwellHigh(true)
+	d.RAMProfile0.SetAddrStepRate(r)
+	d.RAMProfile0.SetWaveformStartAddr(0)
+	d.RAMProfile0.SetWaveformEndAddr(l)
+
 	switch c.Param {
 	case dds.ParamAmplitude:
 		d.CFR1.SetRAMDest(ad9910.RAMDestAmplitude)
 
-		panic("not implemented")
+		for _, v := range c.Data {
+			assertAmpl(v)
+
+			r := ad9910.NewRAM()
+			r.SetAmplScaleFactor(amplToASF(v))
+
+			d.RAM = append(d.RAM, r)
+		}
 	case dds.ParamFrequency:
 		d.CFR1.SetRAMDest(ad9910.RAMDestFrequency)
 
-		panic("not implemented")
+		for _, v := range c.Data {
+			assertFreq(v)
+
+			r := ad9910.NewRAM()
+			r.SetFreqTuningWord(d.freqToFTW(v))
+
+			d.RAM = append(d.RAM, r)
+		}
 	case dds.ParamPhase:
 		d.CFR1.SetRAMDest(ad9910.RAMDestPhase)
 
-		panic("not implemented")
+		for _, v := range c.Data {
+			assertPhase(v)
+
+			r := ad9910.NewRAM()
+			r.SetPhaseOffsetWord(phaseToPOW(v))
+
+			d.RAM = append(d.RAM, r)
+		}
 	}
-
-	d.CFR1.SetRAMEnabled(true)
-
-	l := uint16(len(c.Data)) - 1
-	r := d.playbackParams(c.Duration.Seconds())
-	d.RAMProfile0.SetNoDwellHigh(true)
-	d.RAMProfile0.SetAddrStepRate(r)
-	d.RAMProfile0.SetWaveformStartAddr(0)
-	d.RAMProfile0.SetWaveformStartAddr(l)
 
 	if c.Trigger && !c.Duplex {
 		d.RAMProfile0.SetRAMControlMode(ad9910.RAMControlModeRampUp)
@@ -347,4 +381,6 @@ func (d *AD9910) Playback(c dds.PlaybackConfig) {
 	if !c.Trigger && !c.Duplex {
 		d.RAMProfile0.SetRAMControlMode(ad9910.RAMControlModeContRecirculate)
 	}
+
+	log.Printf("device: %+v\n", d)
 }

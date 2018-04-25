@@ -21,7 +21,7 @@ func (s *CFR1TestSuite) TestRAMEnabled() {
 	s.r[0] = 0
 	assert.False(s.T(), s.r.RAMEnabled())
 
-	s.r[0] = 1 << 7
+	s.r[0] = 0x80
 	assert.True(s.T(), s.r.RAMEnabled())
 }
 
@@ -53,6 +53,10 @@ func (s *CFR1TestSuite) TestSetRAMDest() {
 	s.r[0] = 0x00
 	s.r.SetRAMDest(RAMDestFrequency)
 	assert.EqualValues(s.T(), 0x00, s.r[0])
+
+	s.r[0] = 0x80
+	s.r.SetRAMDest(RAMDestFrequency)
+	assert.EqualValues(s.T(), 0x80, s.r[0])
 }
 
 func (s *CFR1TestSuite) TestOSKEnabled() {

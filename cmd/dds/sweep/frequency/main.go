@@ -48,10 +48,15 @@ func main() {
 		"ramp does not remain at lower end")
 	flag.BoolVar(&d.Frequency.NoDwells[1], "no-dwell-high", true,
 		"ramp does not remain at upper end")
-	flag.Var(&c, "config", "path to config file")
+	flag.StringVar(&c.Filename, "config", "config.yaml", "path to config file")
 	flag.Parse()
 
-	_, err := host.Init()
+	err := c.ReadFromFile()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = host.Init()
 	if err != nil {
 		log.Fatal(err)
 	}

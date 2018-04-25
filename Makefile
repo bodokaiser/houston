@@ -25,3 +25,7 @@ build-sweep-frequency:
 build-sweep-phase:
 	GOARM=${GOARM} GOARCH=${GOARCH} GOOS=${GOOS} \
 		go build -o bin/dds/sweep/phase ./cmd/dds/sweep/phase
+
+build-playback:
+	GOARM=${GOARM} GOARCH=${GOARCH} GOOS=${GOOS} \
+		go build -o bin/dds/playback ./cmd/dds/playback

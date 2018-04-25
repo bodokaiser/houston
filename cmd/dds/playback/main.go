@@ -2,6 +2,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -31,6 +32,8 @@ func main() {
 	}
 
 	a := kingpin.New("playback", "playback of arbitrary waveforms")
+	a.Flag("config", "chip select").
+		Default("config.yaml").ExistingFileVar(&c.Filename)
 	a.Flag("select", "chip select").
 		Required().UintVar(&m.ID)
 	a.Flag("frequency", "frequency in Hz").
@@ -46,6 +49,11 @@ func main() {
 	a.Flag("data", "playback data").
 		Required().Float64ListVar(&m.Amplitude.Data)
 	kingpin.MustParse(a.Parse(os.Args[1:]))
+
+	a.FatalIfError(c.ReadFromFile(), "cannot read config yaml %s", c.Filename)
+
+	fmt.Printf("%+v\n", m)
+	fmt.Printf("%+v\n", m.Amplitude.DDSPlayback)
 
 	_, err := host.Init()
 	if err != nil {

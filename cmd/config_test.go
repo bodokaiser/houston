@@ -14,15 +14,17 @@ type ConfigTestSuite struct {
 }
 
 func (s *ConfigTestSuite) SetupTest() {
-	s.c = Config{}
+	s.c = Config{
+		Filename: "../config.yaml",
+	}
 }
 
 func (s *ConfigTestSuite) TestReadFromFile() {
-	err := s.c.ReadFromFile("../config.yaml")
+	err := s.c.ReadFromFile()
 	assert.NoError(s.T(), err)
 
-	assert.Equal(s.T(), uint32(1e9), s.c.DDS.SysClock)
-	assert.Equal(s.T(), uint32(1e7), s.c.DDS.RefClock)
+	assert.Equal(s.T(), float64(1e9), s.c.DDS.SysClock)
+	assert.Equal(s.T(), float64(1e7), s.c.DDS.RefClock)
 	assert.Equal(s.T(), "SPI1.0", s.c.DDS.SPI.Device)
 	assert.Equal(s.T(), "65", s.c.DDS.GPIO.Reset)
 }

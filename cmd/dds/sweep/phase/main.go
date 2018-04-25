@@ -49,10 +49,15 @@ func main() {
 		"ramp does not remain at upper end")
 	flag.DurationVar(&d.PhaseOffset.DDSSweep.Duration, "duration", time.Second,
 		"Ramp Duration in Seconds")
-	flag.Var(&c, "config", "path to config file")
+	flag.StringVar(&c.Filename, "config", "config.yaml", "path to config file")
 	flag.Parse()
 
-	_, err := host.Init()
+	err := c.ReadFromFile()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = host.Init()
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -56,37 +56,37 @@ func (r *RAMProfile) AddrStepRate() uint16 {
 }
 
 func (r *RAMProfile) SetAddrStepRate(x uint16) {
-	binary.BigEndian.Uint16(r[1:3])
+	binary.BigEndian.PutUint16(r[1:3], x)
 }
 
 func (r *RAMProfile) WaveformStartAddr() uint16 {
-	return binary.BigEndian.Uint16(r[5:7]) >> 5
+	return binary.BigEndian.Uint16(r[5:7]) >> 6
 }
 
 func (r *RAMProfile) SetWaveformStartAddr(x uint16) {
-	binary.BigEndian.PutUint16(r[5:7], x<<5)
+	binary.BigEndian.PutUint16(r[5:7], x<<6)
 }
 
 func (r *RAMProfile) WaveformEndAddr() uint16 {
-	return binary.BigEndian.Uint16(r[3:5]) >> 5
+	return binary.BigEndian.Uint16(r[3:5]) >> 6
 }
 
 func (r *RAMProfile) SetWaveformEndAddr(x uint16) {
-	binary.BigEndian.PutUint16(r[3:5], x<<5)
+	binary.BigEndian.PutUint16(r[3:5], x<<6)
 }
 
 type RAMControlMode uint8
 
 const (
-	RAMControlModeDirectSwitch    RAMControlMode = 0x00
-	RAMControlModeRampUp                         = 0x01
-	RAMControlModeBiRampUp                       = 0x02
-	RAMControlModeContBiRampUp                   = 0x03
-	RAMControlModeContRecirculate                = 0x04
+	RAMControlModeDirectSwitch RAMControlMode = iota
+	RAMControlModeRampUp
+	RAMControlModeBiRampUp
+	RAMControlModeContBiRampUp
+	RAMControlModeContRecirculate
 )
 
 func (r *RAMProfile) RAMControlMode() RAMControlMode {
-	switch (r[5] << 5) >> 5 {
+	switch (r[7] << 5) >> 5 {
 	case 0x00:
 		fallthrough
 	case 0x05:
@@ -109,12 +109,19 @@ func (r *RAMProfile) RAMControlMode() RAMControlMode {
 }
 
 func (r *RAMProfile) SetRAMControlMode(x RAMControlMode) {
-	a := r.NoDwellHigh()
-	b := r.ZeroCrossing()
+	r[7] &= ^byte(0x7)
 
-	r[5] = byte(x)
-	r.SetNoDwellHigh(a)
-	r.SetZeroCrossing(b)
+	v := byte(x)
+
+	if v&1 > 0 {
+		r[7] |= 1
+	}
+	if v&(1<<1) > 0 {
+		r[7] |= 1 << 1
+	}
+	if v&(1<<2) > 0 {
+		r[7] |= 1 << 2
+	}
 }
 
 func (r *RAMProfile) NoDwellHigh() bool {

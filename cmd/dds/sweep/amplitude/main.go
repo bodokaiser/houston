@@ -48,10 +48,15 @@ func main() {
 		"Ramp Duration in Seconds")
 	flag.Float64Var(&d.PhaseOffset.Value, "phase", 0.0,
 		"Phase offset in Radiants")
-	flag.Var(&c, "config", "path to config file")
+	flag.StringVar(&c.Filename, "config", "config.yaml", "path to config file")
 	flag.Parse()
 
-	_, err := host.Init()
+	err := c.ReadFromFile()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = host.Init()
 	if err != nil {
 		log.Fatal(err)
 	}

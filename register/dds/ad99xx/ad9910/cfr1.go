@@ -58,7 +58,16 @@ func (r *CFR1) RAMDest() RAMDest {
 }
 
 func (r *CFR1) SetRAMDest(x RAMDest) {
-	r[0] = byte(x) << 5
+	r[0] &= ^byte(0x30)
+
+	v := byte(x)
+
+	if v&1 > 0 {
+		r[0] |= 1 << 5
+	}
+	if v&(1<<1) > 0 {
+		r[0] |= 1 << 6
+	}
 }
 
 func (r *CFR1) OSKEnabled() bool {
