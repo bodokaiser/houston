@@ -2,7 +2,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -51,9 +50,6 @@ func main() {
 	kingpin.MustParse(a.Parse(os.Args[1:]))
 
 	a.FatalIfError(c.ReadFromFile(), "cannot read config yaml %s", c.Filename)
-
-	fmt.Printf("%+v\n", m)
-	fmt.Printf("%+v\n", m.Amplitude.DDSPlayback)
 
 	_, err := host.Init()
 	if err != nil {

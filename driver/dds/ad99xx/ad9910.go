@@ -3,7 +3,6 @@ package ad99xx
 import (
 	"bytes"
 	"errors"
-	"log"
 	"time"
 
 	"periph.io/x/periph/conn/gpio"
@@ -115,9 +114,6 @@ func prefix(prefix byte, b []byte) []byte {
 }
 
 func (d *AD9910) Exec() error {
-	log.Printf("ram enabled: %v\n", d.CFR1.RAMEnabled())
-	log.Printf("exec:\n%+v\n", d)
-
 	// we cannot write to RAM if RAM is enabled
 	re := d.CFR1.RAMEnabled()
 	d.CFR1.SetOSKEnabled(false)
@@ -154,8 +150,6 @@ func (d *AD9910) Exec() error {
 	w := bytes.Join(p, []byte{})
 	r := make([]byte, len(w))
 
-	log.Printf("spi write:\n%+v\n", w)
-
 	if err := d.spiConn.Tx(w, r); err != nil {
 		return err
 	}
@@ -170,8 +164,6 @@ func (d *AD9910) Exec() error {
 		}
 		r = make([]byte, len(w))
 
-		log.Printf("spi write:\n%+v\n", w)
-
 		if err := d.spiConn.Tx(w, r); err != nil {
 			return err
 		}
@@ -182,7 +174,6 @@ func (d *AD9910) Exec() error {
 		if err := d.spiConn.Tx(w, r); err != nil {
 			return err
 		}
-		log.Printf("spi write:\n%+v\n", w)
 	}
 
 	return d.Update()

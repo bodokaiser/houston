@@ -2,7 +2,6 @@ package ad9910
 
 import (
 	"fmt"
-	"log"
 	"math"
 
 	"github.com/bodokaiser/approx"
@@ -325,9 +324,7 @@ func (d *AD9910) Playback(c dds.PlaybackConfig) {
 	r := d.playbackParams(t)
 
 	d.RAM = []ad9910.RAM{}
-	log.Printf("Playback() CFR1 (pre RAM enabled) %v\n", d.CFR1)
 	d.CFR1.SetRAMEnabled(true)
-	log.Printf("Playback() CFR1 (post RAM enabled) %v\n", d.CFR1)
 	d.RAMProfile0.SetNoDwellHigh(true)
 	d.RAMProfile0.SetAddrStepRate(r)
 	d.RAMProfile0.SetWaveformStartAddr(0)
@@ -381,6 +378,4 @@ func (d *AD9910) Playback(c dds.PlaybackConfig) {
 	if !c.Trigger && !c.Duplex {
 		d.RAMProfile0.SetRAMControlMode(ad9910.RAMControlModeContRecirculate)
 	}
-
-	log.Printf("device: %+v\n", d)
 }
