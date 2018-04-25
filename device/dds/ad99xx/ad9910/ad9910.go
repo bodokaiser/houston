@@ -101,7 +101,7 @@ func NewAD9910(c dds.Config) AD9910 {
 		ramProfile7:  ad9910.NewRAMProfile(),
 	}
 
-	d.cfr1.SetSDIOInputOnly(true)
+	//d.cfr1.SetSDIOInputOnly(true)
 	d.cfr2.SetSTAmplScaleEnabled(true)
 	d.cfr2.SetSyncClockEnabled(true)
 	d.cfr2.SetSyncTimingValidationDisabled(true)
@@ -311,8 +311,51 @@ func (d *AD9910) Sweep(c dds.SweepConfig) {
 	d.rampRate.SetPosSlopeRate(r)
 }
 
-func (d *AD9910) Playback(c dds.PlaybackConfig) {
+func (d *AD9910) playbackClock() float64 {
+	return d.SysClock() / 4
+}
 
+func (d *AD9910) playbackParams(T float64) uint16 {
+	return uint16(math.Round(T * d.playbackClock()))
+}
+
+func (d *AD9910) Playback(c dds.PlaybackConfig) {
+	switch c.Param {
+	case dds.ParamAmplitude:
+		d.cfr1.SetRAMDest(ad9910.RAMDestAmplitude)
+
+		panic("not implemented")
+	case dds.ParamFrequency:
+		d.cfr1.SetRAMDest(ad9910.RAMDestFrequency)
+
+		panic("not implemented")
+	case dds.ParamPhase:
+		d.cfr1.SetRAMDest(ad9910.RAMDestPhase)
+
+		panic("not implemented")
+	}
+
+	d.cfr1.SetRAMEnabled(true)
+
+	l := uint16(len(c.Data)) - 1
+	r := d.playbackParams(c.Duration.Seconds())
+	d.ramProfile0.SetNoDwellHigh(true)
+	d.ramProfile0.SetAddrStepRate(r)
+	d.ramProfile0.SetWaveformStartAddr(0)
+	d.ramProfile0.SetWaveformStartAddr(l)
+
+	if c.Trigger && !c.Duplex {
+		d.ramProfile0.SetRAMControlMode(ad9910.RAMControlModeRampUp)
+	}
+	if c.Trigger && c.Duplex {
+		d.ramProfile0.SetRAMControlMode(ad9910.RAMControlModeBiRampUp)
+	}
+	if !c.Trigger && c.Duplex {
+		d.ramProfile0.SetRAMControlMode(ad9910.RAMControlModeContBiRampUp)
+	}
+	if !c.Trigger && !c.Duplex {
+		d.ramProfile0.SetRAMControlMode(ad9910.RAMControlModeContRecirculate)
+	}
 }
 
 func prefix(prefix byte, b []byte) []byte {
@@ -378,4 +421,21 @@ func (d *AD9910) Decode(b []byte) error {
 	}
 
 	return d.Decode(b[1+l:])
+}
+
+func (d *AD9910) ReadInstr() []byte {
+	return bytes.Join([][]byte{
+		prefix(addrCFR1|flagRead, d.cfr1[:]),
+		prefix(addrCFR2|flagRead, d.cfr2[:]),
+		prefix(addrCFR3|flagRead, d.cfr3[:]),
+		prefix(addrAuxDAC|flagRead, d.auxDAC[:]),
+		prefix(addrIOUpdate|flagRead, d.ioUpdateRate[:]),
+		prefix(addrFTW|flagRead, d.ftw[:]),
+		prefix(addrPOW|flagRead, d.pow[:]),
+		prefix(addrASF|flagRead, d.asf[:]),
+		prefix(addrRampLimit|flagRead, d.rampLimit[:]),
+		prefix(addrRampStep|flagRead, d.rampStep[:]),
+		prefix(addrRampRate|flagRead, d.rampRate[:]),
+		prefix(addrProfile0|flagRead, d.stProfile0[:]),
+	}, []byte{})
 }

@@ -2,6 +2,7 @@ package ad99xx
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"periph.io/x/periph/conn/gpio"
@@ -43,7 +44,7 @@ func (d *AD9910) Init() (err error) {
 		return errors.New("failed to find I/O update GPIO pin")
 	}
 
-	spi, err := spireg.Open(d.config.SPI.Device)
+	spiDev, err := spireg.Open(d.config.SPI.Device)
 	if err != nil {
 		return
 	}
@@ -57,7 +58,14 @@ func (d *AD9910) Init() (err error) {
 		return
 	}
 
-	d.spiConn, err = spi.Connect(d.config.SPI.MaxFreq, d.config.SPI.Mode, 8)
+	var mode spi.Mode
+	// this will fail because half duplex mode is not supported!
+	if !d.config.SPI.Duplex {
+		mode = spi.Mode3 | spi.HalfDuplex
+	}
+	mode = spi.Mode0
+
+	d.spiConn, err = spiDev.Connect(d.config.SPI.MaxFreq, mode, 8)
 
 	return
 }
@@ -91,5 +99,18 @@ func (d *AD9910) WriteToDev() error {
 }
 
 func (d *AD9910) ReadFromDev() error {
+	w := []byte{129, 0, 0, 0, 0}
+	r := make([]byte, len(w))
+
+	fmt.Printf("w: %v\n", w)
+	fmt.Printf("r: %v\n", r)
+
+	err := d.spiConn.Tx(w, r)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%v\n", r)
+
 	return nil
 }

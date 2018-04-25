@@ -2,12 +2,14 @@
 package main
 
 import (
-	"flag"
 	"log"
-	"time"
+	"os"
 
 	"periph.io/x/periph/host"
 
+	"gopkg.in/alecthomas/kingpin.v2"
+
+	"github.com/bodokaiser/houston/cmd"
 	"github.com/bodokaiser/houston/driver/dds"
 	"github.com/bodokaiser/houston/driver/dds/ad99xx"
 	"github.com/bodokaiser/houston/driver/mux"
@@ -15,14 +17,10 @@ import (
 )
 
 func main() {
-	d := &model.DDSDevice{
+	c := cmd.Config{}
+	m := model.DDSDevice{
 		Amplitude: model.DDSParam{
-			DDSPlayback: &model.DDSPlayback{
-				WithTrigger: false,
-				WithDuplex:  false,
-				Interval:    time.Second,
-				Data:        []float64{0.5, 0, 1},
-			},
+			DDSPlayback: &model.DDSPlayback{},
 		},
 		Frequency: model.DDSParam{
 			DDSConst: &model.DDSConst{},
@@ -32,53 +30,60 @@ func main() {
 		},
 	}
 
-	flag.UintVar(&d.ID, "select", 0,
-		"Address of DDS chip")
-	flag.Float64Var(&d.Frequency.Value, "frequency", 10e6,
-		"Constant frequency in Hertz")
-	flag.Float64Var(&d.PhaseOffset.Value, "phase", 0.0,
-		"Phase offset in Radiants")
-	flag.DurationVar(&d.Amplitude.Interval, "duration", time.Second,
-		"Sample Interval of playback")
-	flag.Parse()
+	a := kingpin.New("playback", "playback of arbitrary waveforms")
+	a.Flag("select", "chip select").
+		Required().UintVar(&m.ID)
+	a.Flag("frequency", "frequency in Hz").
+		Required().Float64Var(&m.Frequency.Value)
+	a.Flag("phase", "phase offset in rad").
+		Default("0").Float64Var(&m.PhaseOffset.Value)
+	a.Flag("duration", "playback duration").
+		Required().DurationVar(&m.Amplitude.DDSPlayback.Duration)
+	a.Flag("trigger", "playback on trigger").
+		Default("0").BoolVar(&m.Amplitude.Trigger)
+	a.Flag("duplex", "playback bidirectional").
+		Default("0").BoolVar(&m.Amplitude.Duplex)
+	a.Flag("data", "playback data").
+		Required().Float64ListVar(&m.Amplitude.Data)
+	kingpin.MustParse(a.Parse(os.Args[1:]))
 
 	_, err := host.Init()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	sel, err := mux.NewDigital(defaultMuxPins)
+	sel := mux.NewDigital(c.Mux)
+	err = sel.Init()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	dev, err := ad99xx.NewAD9910(ad99xx.Config{
-		SysClock:    defaultSysClock,
-		RefClock:    defaultRefClock,
-		ResetPin:    defaultResetPin,
-		IOUpdatePin: defaultIOUpdatePin,
-		SPIDevice:   defaultSPIDevice,
-		SPIMaxFreq:  defaultSPIMaxFreq,
-		SPIMode:     defaultSPIMode,
+	dev := ad99xx.NewAD9910(c.DDS)
+	err = dev.Init()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = sel.Select(uint8(m.ID))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	dev.Playback(dds.PlaybackConfig{
+		Trigger:  m.Amplitude.Trigger,
+		Duplex:   m.Amplitude.Duplex,
+		Duration: m.Amplitude.DDSPlayback.Duration,
+		Data:     m.Amplitude.Data,
+		Param:    dds.ParamAmplitude,
 	})
+	dev.SetFrequency(m.Frequency.Value)
+	dev.SetPhaseOffset(m.PhaseOffset.Value)
+
+	err = dev.WriteToDev()
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	err = sel.Select(uint8(d.ID))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = dev.Playback(dds.PlaybackConfig{
-		SingleToneConfig: dds.SingleToneConfig{
-			Frequency:   d.Frequency.Value,
-			PhaseOffset: d.PhaseOffset.Value,
-		},
-		Duration:    d.Amplitude.Interval,
-		Data:        d.Amplitude.Data,
-		Destination: dds.Amplitude,
-	})
+	err = dev.Update()
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -31,10 +31,10 @@ type DDSSweep struct {
 // DDSPlayback is the DDS mode where a DDS controllable parameter is playbed
 // back from memory.
 type DDSPlayback struct {
-	WithTrigger bool          `                  json:"trigger"`
-	WithDuplex  bool          `                  json:"duplex"`
-	Interval    time.Duration `validation:"gt=0" json:"rate"`
-	Data        []float64     `                  json:"data"`
+	Trigger  bool          `                  json:"trigger"`
+	Duplex   bool          `                  json:"duplex"`
+	Duration time.Duration `validation:"gt=0" json:"rate"`
+	Data     []float64     `                  json:"data"`
 }
 
 // DDSParamJSON is a helper to decode json into the corresponding DDS mode.

@@ -5,6 +5,7 @@ dds:
   spi:
     device: 'SPI1.0'
     maxfreq: 5000000
+    duplex: false
 
   gpio:
     reset: '65'
