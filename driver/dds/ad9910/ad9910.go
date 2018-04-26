@@ -77,12 +77,10 @@ func (d *AD9910) Init() (err error) {
 		return
 	}
 
-	err = d.resetPin.Out(gpio.Low)
-	if err != nil {
+	if err = d.resetPin.Out(gpio.Low); err != nil {
 		return
 	}
-	err = d.updatePin.Out(gpio.Low)
-	if err != nil {
+	if err = d.updatePin.Out(gpio.Low); err != nil {
 		return
 	}
 
@@ -92,8 +90,7 @@ func (d *AD9910) Init() (err error) {
 }
 
 func strobe(p gpio.PinIO) error {
-	err := p.Out(gpio.High)
-	if err != nil {
+	if err := p.Out(gpio.High); err != nil {
 		return err
 	}
 	time.Sleep(time.Millisecond)

@@ -50,8 +50,7 @@ func (d *Digital) Select(address uint8) (err error) {
 			l = gpio.Low
 		}
 
-		err = p.Out(l)
-		if err != nil {
+		if err = p.Out(l); err != nil {
 			return
 		}
 	}
