@@ -59,16 +59,59 @@ class App extends Component {
         </header>
         <div className="container mt-5">
           <Route exact path="/" render={() => (
-            <h1>Hello World</h1>
+            <section>
+              <div className="page-header">
+                <h1 className="page-title">Dashboard</h1>
+              </div>
+              <div className="row row-cards">
+                <div className="col-6 col-sm-4 col-lg-2">
+                  <div className="card">
+                    <div className="card-body p-3 text-center">
+                      <div className="h1 mt-6">50%</div>
+                      <div className="text-muted mb-4">CPU Load</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="col-6 col-sm-4 col-lg-2">
+                  <div className="card">
+                    <div className="card-body p-3 text-center">
+                      <div className="h1 mt-6">430 MB</div>
+                      <div className="text-muted mb-4">Memory</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="col-6 col-sm-4 col-lg-2">
+                  <div className="card">
+                    <div className="card-body p-3 text-center">
+                      <div className="h1 mt-6">2 GB</div>
+                      <div className="text-muted mb-4">Disk Space</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="col-6 col-sm-4 col-lg-2">
+                  <div className="card">
+                    <div className="card-body p-3 text-center">
+                      <div className="h1 mt-6">230h</div>
+                      <div className="text-muted mb-4">Uptime</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
           )} />
           <Route path="/devices" render={() => (
-            <div className="row">
-            {devices.map((device, index) => (
-              <div className="col-6 col-sm-6 col-md-4 col-lg-3" key={index}>
-                <Device key={index} device={device} />
+            <section>
+              <div className="page-header">
+                <h1 className="page-title">Devices</h1>
               </div>
-            ))}
-            </div>
+              <div className="row">
+              {devices.map((device, index) => (
+                <div className="col-6 col-sm-6 col-md-4 col-lg-3" key={index}>
+                  <Device key={index} device={device} />
+                </div>
+              ))}
+              </div>
+            </section>
           )} />
         </div>
       </Fragment>
