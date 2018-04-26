@@ -42,8 +42,8 @@ func (s *DDSDevicesTestSuite) TestSet() {
 	assert.NoError(s.T(), d.Set("1,2"))
 	assert.Equal(s.T(), "DDS1", d[0].Name)
 	assert.Equal(s.T(), "DDS2", d[1].Name)
-	assert.Equal(s.T(), uint(1), d[0].ID)
-	assert.Equal(s.T(), uint(2), d[1].ID)
+	assert.Equal(s.T(), uint8(1), d[0].ID)
+	assert.Equal(s.T(), uint8(2), d[1].ID)
 
 	assert.Error(s.T(), d.Set(""))
 	assert.Error(s.T(), d.Set("x,y"))

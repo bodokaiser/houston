@@ -33,7 +33,7 @@ var device = model.DDSDevice{
 }
 
 func main() {
-	kingpin.Flag("select", "chip select").Required().UintVar(&device.ID)
+	kingpin.Flag("select", "chip select").Required().Uint8Var(&device.ID)
 	kingpin.Flag("config", "device config").Default("config.yaml").ExistingFileVar(&config.Filename)
 	kingpin.Command("reset", "resets a dds")
 
@@ -103,7 +103,7 @@ func main() {
 
 	m := mux.NewDigital(config.Mux)
 	kingpin.FatalIfError(m.Init(), "mux initialization")
-	kingpin.FatalIfError(m.Select(uint8(device.ID)), "mux chip select")
+	kingpin.FatalIfError(m.Select(device.ID), "mux chip select")
 
 	d := ad9910.NewAD9910(config.DDS)
 	kingpin.FatalIfError(d.Init(), "dds initialization")
