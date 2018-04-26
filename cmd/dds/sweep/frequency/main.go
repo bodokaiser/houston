@@ -42,7 +42,7 @@ func main() {
 		"Start value for frequency in Hertz")
 	flag.Float64Var(&d.Frequency.Limits[1], "stop", 16e5,
 		"Stop value for frequency in Hertz")
-	flag.DurationVar(&d.Frequency.DDSSweep.Duration, "duration", time.Second,
+	flag.DurationVar(&d.Frequency.Duration, "duration", time.Second,
 		"Ramp Duration in Seconds")
 	flag.BoolVar(&d.Frequency.NoDwells[0], "no-dwell-low", true,
 		"ramp does not remain at lower end")
@@ -81,7 +81,7 @@ func main() {
 	dev.Sweep(dds.SweepConfig{
 		Limits:   d.Frequency.Limits,
 		NoDwells: d.Frequency.NoDwells,
-		Duration: d.Frequency.DDSSweep.Duration,
+		Duration: d.Frequency.Duration,
 		Param:    dds.ParamFrequency,
 	})
 	dev.SetAmplitude(d.Amplitude.Value)

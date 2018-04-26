@@ -33,7 +33,7 @@ type DDSSweep struct {
 type DDSPlayback struct {
 	Trigger  bool          `                  json:"trigger"`
 	Duplex   bool          `                  json:"duplex"`
-	Duration time.Duration `validation:"gt=0" json:"rate"`
+	Interval time.Duration `validation:"gt=0" json:"interval"`
 	Data     []float64     `                  json:"data"`
 }
 

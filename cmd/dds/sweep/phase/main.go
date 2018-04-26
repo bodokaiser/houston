@@ -47,7 +47,7 @@ func main() {
 		"ramp does not remain at lower end")
 	flag.BoolVar(&d.PhaseOffset.NoDwells[1], "no-dwell-high", true,
 		"ramp does not remain at upper end")
-	flag.DurationVar(&d.PhaseOffset.DDSSweep.Duration, "duration", time.Second,
+	flag.DurationVar(&d.PhaseOffset.Duration, "duration", time.Second,
 		"Ramp Duration in Seconds")
 	flag.StringVar(&c.Filename, "config", "config.yaml", "path to config file")
 	flag.Parse()
@@ -82,7 +82,7 @@ func main() {
 	dev.Sweep(dds.SweepConfig{
 		Limits:   d.PhaseOffset.Limits,
 		NoDwells: d.PhaseOffset.NoDwells,
-		Duration: d.PhaseOffset.DDSSweep.Duration,
+		Duration: d.PhaseOffset.Duration,
 		Param:    dds.ParamPhase,
 	})
 	dev.SetAmplitude(d.Amplitude.Value)

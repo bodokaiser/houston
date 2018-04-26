@@ -39,8 +39,8 @@ func main() {
 		Required().Float64Var(&m.Frequency.Value)
 	a.Flag("phase", "phase offset in rad").
 		Default("0").Float64Var(&m.PhaseOffset.Value)
-	a.Flag("duration", "playback duration").
-		Required().DurationVar(&m.Amplitude.DDSPlayback.Duration)
+	a.Flag("interval", "playback sample interval").
+		Required().DurationVar(&m.Amplitude.Interval)
 	a.Flag("trigger", "playback on trigger").
 		Default("0").BoolVar(&m.Amplitude.Trigger)
 	a.Flag("duplex", "playback bidirectional").
@@ -76,7 +76,7 @@ func main() {
 	dev.Playback(dds.PlaybackConfig{
 		Trigger:  m.Amplitude.Trigger,
 		Duplex:   m.Amplitude.Duplex,
-		Duration: m.Amplitude.DDSPlayback.Duration,
+		Duration: m.Amplitude.Interval,
 		Data:     m.Amplitude.Data,
 		Param:    dds.ParamAmplitude,
 	})
