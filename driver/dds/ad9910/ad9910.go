@@ -1,4 +1,4 @@
-package ad99xx
+package ad9910
 
 import (
 	"bytes"
@@ -10,7 +10,7 @@ import (
 	"periph.io/x/periph/conn/spi"
 	"periph.io/x/periph/conn/spi/spireg"
 
-	"github.com/bodokaiser/houston/device/dds/ad99xx/ad9910"
+	"github.com/bodokaiser/houston/device/dds/ad9910"
 	"github.com/bodokaiser/houston/driver/dds"
 )
 

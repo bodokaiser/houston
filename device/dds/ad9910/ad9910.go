@@ -6,7 +6,7 @@ import (
 
 	"github.com/bodokaiser/approx"
 	"github.com/bodokaiser/houston/device/dds"
-	"github.com/bodokaiser/houston/register/dds/ad99xx/ad9910"
+	"github.com/bodokaiser/houston/register/dds/ad9910"
 )
 
 type AD9910 struct {

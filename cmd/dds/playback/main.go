@@ -11,7 +11,7 @@ import (
 
 	"github.com/bodokaiser/houston/cmd"
 	"github.com/bodokaiser/houston/driver/dds"
-	"github.com/bodokaiser/houston/driver/dds/ad99xx"
+	"github.com/bodokaiser/houston/driver/dds/ad9910"
 	"github.com/bodokaiser/houston/driver/mux"
 	"github.com/bodokaiser/houston/model"
 )
@@ -62,7 +62,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	dev := ad99xx.NewAD9910(c.DDS)
+	dev := ad9910.NewAD9910(c.DDS)
 	err = dev.Init()
 	if err != nil {
 		log.Fatal(err)

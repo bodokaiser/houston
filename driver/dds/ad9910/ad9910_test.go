@@ -1,4 +1,4 @@
-package ad99xx
+package ad9910
 
 import (
 	"testing"
