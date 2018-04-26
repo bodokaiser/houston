@@ -117,7 +117,7 @@ func main() {
 		d.SetFrequency(device.Frequency.Value)
 		d.SetPhaseOffset(device.PhaseOffset.Value)
 	case "asweep":
-		d.Sweep(dds.SweepConfig{
+		d.SetSweep(dds.SweepConfig{
 			Limits:   device.Amplitude.Limits,
 			NoDwells: device.Amplitude.NoDwells,
 			Duration: device.Amplitude.Duration,
@@ -126,7 +126,7 @@ func main() {
 		d.SetFrequency(device.Frequency.Value)
 		d.SetPhaseOffset(device.PhaseOffset.Value)
 	case "fsweep":
-		d.Sweep(dds.SweepConfig{
+		d.SetSweep(dds.SweepConfig{
 			Limits:   device.Frequency.Limits,
 			NoDwells: device.Frequency.NoDwells,
 			Duration: device.Frequency.Duration,
@@ -135,7 +135,7 @@ func main() {
 		d.SetAmplitude(device.Amplitude.Value)
 		d.SetPhaseOffset(device.PhaseOffset.Value)
 	case "psweep":
-		d.Sweep(dds.SweepConfig{
+		d.SetSweep(dds.SweepConfig{
 			Limits:   device.PhaseOffset.Limits,
 			NoDwells: device.PhaseOffset.NoDwells,
 			Duration: device.PhaseOffset.Duration,
@@ -144,7 +144,7 @@ func main() {
 		d.SetAmplitude(device.Amplitude.Value)
 		d.SetFrequency(device.Frequency.Value)
 	case "aplayback":
-		d.Playback(dds.PlaybackConfig{
+		d.SetPlayback(dds.PlaybackConfig{
 			Trigger:  device.Amplitude.Trigger,
 			Duplex:   device.Amplitude.Duplex,
 			Duration: device.Amplitude.Interval,
@@ -154,7 +154,7 @@ func main() {
 		d.SetFrequency(device.Frequency.Value)
 		d.SetPhaseOffset(device.PhaseOffset.Value)
 	case "fplayback":
-		d.Playback(dds.PlaybackConfig{
+		d.SetPlayback(dds.PlaybackConfig{
 			Trigger:  device.Frequency.Trigger,
 			Duplex:   device.Frequency.Duplex,
 			Duration: device.Frequency.Interval,
@@ -164,7 +164,7 @@ func main() {
 		d.SetAmplitude(device.Amplitude.Value)
 		d.SetPhaseOffset(device.PhaseOffset.Value)
 	case "pplayback":
-		d.Playback(dds.PlaybackConfig{
+		d.SetPlayback(dds.PlaybackConfig{
 			Trigger:  device.PhaseOffset.Trigger,
 			Duplex:   device.PhaseOffset.Duplex,
 			Duration: device.PhaseOffset.Interval,

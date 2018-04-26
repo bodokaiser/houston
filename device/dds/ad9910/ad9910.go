@@ -263,7 +263,11 @@ func (d *AD9910) rampParams(T, dx float64) (uint32, uint16) {
 	return uint32(s), uint16(r)
 }
 
-func (d *AD9910) Sweep(c dds.SweepConfig) {
+func (d *AD9910) Sweep() dds.SweepConfig {
+	panic("not implemented")
+}
+
+func (d *AD9910) SetSweep(c dds.SweepConfig) {
 	a, b := c.Limits[0], c.Limits[1]
 	assertRange(a, b)
 
@@ -317,7 +321,11 @@ func (d *AD9910) playbackParams(T float64) uint16 {
 	return uint16(math.Round(T * d.playbackClock()))
 }
 
-func (d *AD9910) Playback(c dds.PlaybackConfig) {
+func (d *AD9910) Playback() dds.PlaybackConfig {
+	panic("not implemented")
+}
+
+func (d *AD9910) SetPlayback(c dds.PlaybackConfig) {
 	t := c.Duration.Seconds()
 	tmin := 1 / d.playbackClock()
 	tmax := tmin * math.MaxUint16
