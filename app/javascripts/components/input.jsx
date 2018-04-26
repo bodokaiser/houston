@@ -4,9 +4,14 @@ export const InputGroup = ({ name, type, value, label, append, prepend,
   min, max, step, validation, placeholder }) => (
   <Fragment>
     { label &&
-    <label htmlFor={name}>
+    <label className="form-label" htmlFor={name}>
       { label }
     </label> }
+    <div className="btn-group">
+      <button type="button" className="btn btn-secondary">Const</button>
+      <button type="button" className="btn btn-secondary">Sweep</button>
+      <button type="button" className="btn btn-secondary">Playback</button>
+    </div>
     <div className="input-group">
       { prepend &&
       <div className="input-group-prepend">
