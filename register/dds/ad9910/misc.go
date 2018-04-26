@@ -2,6 +2,7 @@ package ad9910
 
 import (
 	"encoding/binary"
+	"math"
 )
 
 type AuxDAC [4]byte
@@ -63,7 +64,7 @@ func (r *ASF) AmplScaleFactor() uint16 {
 }
 
 func (r *ASF) SetAmplScaleFactor(x uint16) {
-	if x > 1<<14 {
+	if x > math.MaxUint16>>2 {
 		panic("amplitude scale factor not 14 bit")
 	}
 

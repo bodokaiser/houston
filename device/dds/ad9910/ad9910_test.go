@@ -26,7 +26,7 @@ func (s *AD9910TestSuite) TestFreqToFTW() {
 	fout := 41e6     // 41 MHz
 	fsys := 122880e3 // 122.88 MHz
 
-	assert.Equal(s.T(), uint32(0x556AAAAB), freqToFTW(fout, fsys))
+	assert.Equal(s.T(), uint32(0x556aaaab), freqToFTW(fout, fsys))
 }
 
 func (s *AD9910TestSuite) TestRampClock() {

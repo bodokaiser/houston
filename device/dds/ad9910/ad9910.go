@@ -118,7 +118,7 @@ func (d *AD9910) RefClock() float64 {
 }
 
 func asfToAmpl(x uint16) float64 {
-	return float64(x) / (1<<14 - 1)
+	return float64(x) / (math.MaxUint16 >> 2)
 }
 
 func (d *AD9910) Amplitude() float64 {
@@ -132,7 +132,7 @@ func (d *AD9910) Amplitude() float64 {
 }
 
 func amplToASF(x float64) uint16 {
-	return uint16(math.Round(x * (1<<14 - 1)))
+	return uint16(math.Round(x * (math.MaxInt16 >> 2)))
 }
 
 func assertAmpl(x float64) {
@@ -152,7 +152,7 @@ func (d *AD9910) SetAmplitude(x float64) {
 }
 
 func ftwToFreq(x uint32, y float64) float64 {
-	return float64(x) * y / (1 << 32)
+	return float64(x) * y / math.MaxUint32
 }
 
 func (d *AD9910) ftwToFreq(x uint32) float64 {
@@ -181,7 +181,7 @@ func assertFreq(x float64) {
 }
 
 func freqToFTW(out float64, sys float64) uint32 {
-	return uint32(math.Round((1 << 32) * (out / sys)))
+	return uint32(math.Round(math.MaxUint32*(out/sys))) + 1
 }
 
 func (d *AD9910) freqToFTW(f float64) uint32 {
@@ -199,7 +199,7 @@ func (d *AD9910) SetFrequency(f float64) {
 }
 
 func powToPhase(x uint16) float64 {
-	return float64(x) * (2 * math.Pi) / (1<<16 - 1)
+	return float64(x) * (2 * math.Pi) / math.MaxUint16
 }
 
 func (d *AD9910) PhaseOffset() float64 {
@@ -226,7 +226,7 @@ func assertPhase(x float64) {
 }
 
 func phaseToPOW(x float64) uint16 {
-	return uint16(math.Round(x / (2 * math.Pi) * (1<<16 - 1)))
+	return uint16(math.Round(x / (2 * math.Pi) * math.MaxUint16))
 }
 
 func (d *AD9910) SetPhaseOffset(p float64) {
@@ -244,8 +244,6 @@ func assertRange(a, b float64) {
 		panic("lower limit not greater than upper limit")
 	}
 }
-
-const maxRate = (1 << 16) - 1
 
 func (d *AD9910) rampClock() float64 {
 	return d.config.SysClock / 4
