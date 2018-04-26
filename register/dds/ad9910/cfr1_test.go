@@ -29,7 +29,7 @@ func (s *CFR1TestSuite) TestSetRamEnabled() {
 	s.r[0] = 0
 
 	s.r.SetRAMEnabled(true)
-	assert.EqualValues(s.T(), 0x80, s.r[0])
+	assert.Equal(s.T(), []byte{0x80}, s.r[0:1])
 
 	s.r.SetRAMEnabled(false)
 	assert.False(s.T(), s.r[0]&1<<7 > 0)
@@ -52,11 +52,11 @@ func (s *CFR1TestSuite) TestRAMDest() {
 func (s *CFR1TestSuite) TestSetRAMDest() {
 	s.r[0] = 0x00
 	s.r.SetRAMDest(RAMDestFrequency)
-	assert.EqualValues(s.T(), 0x00, s.r[0])
+	assert.Equal(s.T(), []byte{0x00}, s.r[0:1])
 
 	s.r[0] = 0x80
 	s.r.SetRAMDest(RAMDestFrequency)
-	assert.EqualValues(s.T(), 0x80, s.r[0])
+	assert.Equal(s.T(), []byte{0x80}, s.r[0:1])
 }
 
 func (s *CFR1TestSuite) TestOSKEnabled() {
@@ -68,13 +68,11 @@ func (s *CFR1TestSuite) TestOSKEnabled() {
 }
 
 func (s *CFR1TestSuite) TestSetOSKEnabled() {
-	s.r[2] = 0
-
 	s.r.SetOSKEnabled(true)
-	assert.EqualValues(s.T(), 0x2, s.r[2])
+	assert.Equal(s.T(), []byte{0x02}, s.r[2:3])
 
 	s.r.SetOSKEnabled(false)
-	assert.EqualValues(s.T(), 0x00, s.r[2])
+	assert.Equal(s.T(), []byte{0x00}, s.r[2:3])
 }
 
 func (s *CFR1TestSuite) TestOSKManual() {
@@ -89,10 +87,10 @@ func (s *CFR1TestSuite) TestSetOSKManual() {
 	s.r[1] = 0
 
 	s.r.SetOSKManual(true)
-	assert.EqualValues(s.T(), 0x80, s.r[1])
+	assert.Equal(s.T(), []byte{0x80}, s.r[1:2])
 
 	s.r.SetOSKManual(false)
-	assert.EqualValues(s.T(), 0x00, s.r[1])
+	assert.Equal(s.T(), []byte{0x00}, s.r[1:2])
 }
 
 func (s *CFR1TestSuite) TestOSKAuto() {
@@ -104,31 +102,27 @@ func (s *CFR1TestSuite) TestOSKAuto() {
 }
 
 func (s *CFR1TestSuite) TestSetOSKAuto() {
-	s.r[2] = 0
-
 	s.r.SetOSKAuto(true)
-	assert.EqualValues(s.T(), 1, s.r[2])
+	assert.Equal(s.T(), []byte{0x01}, s.r[2:3])
 
 	s.r.SetOSKAuto(false)
-	assert.EqualValues(s.T(), 0, s.r[2])
+	assert.Equal(s.T(), []byte{0x00}, s.r[2:3])
 }
 
 func (s *CFR1TestSuite) TestSDIOInputOnly() {
-	s.r[3] = 0
+	s.r[3] = 0x00
 	assert.False(s.T(), s.r.SDIOInputOnly())
 
-	s.r[3] = 1 << 1
+	s.r[3] = 0x02
 	assert.True(s.T(), s.r.SDIOInputOnly())
 }
 
 func (s *CFR1TestSuite) TestSetSDIOInputOnly() {
-	s.r[3] = 0
-
 	s.r.SetSDIOInputOnly(true)
-	assert.EqualValues(s.T(), 1<<1, s.r[3])
+	assert.Equal(s.T(), []byte{0x02}, s.r[3:4])
 
 	s.r.SetSDIOInputOnly(false)
-	assert.EqualValues(s.T(), 0, s.r[3])
+	assert.Equal(s.T(), []byte{0x00}, s.r[3:4])
 }
 
 func TestCFR1Suite(t *testing.T) {
