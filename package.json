@@ -1,15 +1,15 @@
 {
+  "repository": "github:bodokaiser/houston",
   "dependencies": {
     "axios": "^0.18.0",
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-3": "^6.24.1",
-    "history": "^4.7.2",
-    "parcel-bundler": "^1.7.0",
-    "react": "^16.3.1",
-    "react-dom": "^16.3.1",
+    "parcel-bundler": "^1.7.1n",
+    "react": "^16.3.2",
+    "react-dom": "^16.3.2",
     "react-redux": "^5.0.7",
-    "redux": "^3.7.2",
-    "redux-create-reducer": "^1.1.1",
+    "redux": "^4.0.0",
+    "redux-create-reducer": "^1.1.2",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.2.0"
   },
@@ -22,5 +22,6 @@
       "react",
       "stage-3"
     ]
-  }
+  },
+  "license": "Apache-2.0"
 }
