@@ -1,23 +1,23 @@
 package ad9910
 
 const (
-	rampEnableFlag      = 1 << 3
-	rampNoDwellLowFlag  = 1 << 1
-	rampNoDwellHighFlag = 1 << 2
+	flagRampEnable      = 1 << 3
+	flagRampNoDwellLow  = 1 << 1
+	flagRampNoDwellHigh = 1 << 2
 
-	pdataEnableFlag      = 1 << 4
-	pdataClockInvertFlag = 1 << 2
-	pdataClockEnableFlag = 1 << 3
-	txEnableInvertFlag   = 1 << 1
+	flagPDataEnable      = 1 << 4
+	flagPDataClockInvert = 1 << 2
+	flagPDataClockEnable = 1 << 3
+	flagTXEnableInvert   = 1 << 1
 
-	syncClockEnableFlag             = 1 << 6
-	syncTimingValidationDisableFlag = 1 << 5
+	flagSyncClockEnable        = 1 << 6
+	flagSyncTimingValidDisable = 1 << 5
 
-	stAmplScaleEnableFlag      = 1 << 0
-	readEffectiveFTWFlag       = 1 << 0
-	intIOUpdateEnableFlag      = 1 << 7
-	dataAssemblerLastValueFlag = 1 << 6
-	matchedLatencyEnableFlag   = 1 << 7
+	flagSTAmplScaleEnable      = 1 << 0
+	flagReadEffectiveFTW       = 1 << 0
+	flagIntUpdateEnable        = 1 << 7
+	flagDataAssemblerLastValue = 1 << 6
+	flagMatchedLatencyEnable   = 1 << 7
 )
 
 type CFR2 [4]byte
@@ -27,26 +27,26 @@ func NewCFR2() CFR2 {
 }
 
 func (r *CFR2) STAmplScaleEnabled() bool {
-	return r[0]&stAmplScaleEnableFlag > 0
+	return r[0]&flagSTAmplScaleEnable > 0
 }
 
 func (r *CFR2) SetSTAmplScaleEnabled(x bool) {
-	r[0] &= ^byte(stAmplScaleEnableFlag)
+	r[0] &= ^byte(flagSTAmplScaleEnable)
 
 	if x {
-		r[0] |= stAmplScaleEnableFlag
+		r[0] |= flagSTAmplScaleEnable
 	}
 }
 
 func (r *CFR2) SyncClockEnabled() bool {
-	return r[1]&syncClockEnableFlag > 0
+	return r[1]&flagSyncClockEnable > 0
 }
 
 func (r *CFR2) SetSyncClockEnabled(x bool) {
-	r[1] &= ^byte(syncClockEnableFlag)
+	r[1] &= ^byte(flagSyncClockEnable)
 
 	if x {
-		r[1] |= syncClockEnableFlag
+		r[1] |= flagSyncClockEnable
 	}
 }
 
@@ -83,49 +83,49 @@ func (r *CFR2) SetRampDest(x RampDest) {
 }
 
 func (r *CFR2) RampEnabled() bool {
-	return r[1]&rampEnableFlag > 0
+	return r[1]&flagRampEnable > 0
 }
 
 func (r *CFR2) SetRampEnabled(x bool) {
-	r[1] &= ^byte(rampEnableFlag)
+	r[1] &= ^byte(flagRampEnable)
 
 	if x {
-		r[1] |= rampEnableFlag
+		r[1] |= flagRampEnable
 	}
 }
 
 func (r *CFR2) RampNoDwellLow() bool {
-	return r[1]&rampNoDwellLowFlag > 0
+	return r[1]&flagRampNoDwellLow > 0
 }
 
 func (r *CFR2) SetRampNoDwellLow(x bool) {
-	r[1] &= ^byte(rampNoDwellLowFlag)
+	r[1] &= ^byte(flagRampNoDwellLow)
 
 	if x {
-		r[1] |= rampNoDwellLowFlag
+		r[1] |= flagRampNoDwellLow
 	}
 }
 
 func (r *CFR2) RampNoDwellHigh() bool {
-	return r[1]&rampNoDwellHighFlag > 0
+	return r[1]&flagRampNoDwellHigh > 0
 }
 
 func (r *CFR2) SetRampNoDwellHigh(x bool) {
-	r[1] &= ^byte(rampNoDwellHighFlag)
+	r[1] &= ^byte(flagRampNoDwellHigh)
 
 	if x {
-		r[1] |= rampNoDwellHighFlag
+		r[1] |= flagRampNoDwellHigh
 	}
 }
 
 func (r *CFR2) SyncTimingValidationDisabled() bool {
-	return r[3]&syncTimingValidationDisableFlag > 0
+	return r[3]&flagSyncTimingValidDisable > 0
 }
 
 func (r *CFR2) SetSyncTimingValidationDisabled(x bool) {
-	r[3] &= ^byte(syncTimingValidationDisableFlag)
+	r[3] &= ^byte(flagSyncTimingValidDisable)
 
 	if x {
-		r[3] |= syncTimingValidationDisableFlag
+		r[3] |= flagSyncTimingValidDisable
 	}
 }

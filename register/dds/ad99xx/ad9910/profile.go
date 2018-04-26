@@ -5,10 +5,8 @@ import (
 )
 
 const (
-	noDwellHighFlag  = 1 << 5
-	zeroCrossingFlag = 1 << 3
-
-	profileAddrOffset = 0x0e
+	flagNoDwellHigh  = 1 << 5
+	flagZeroCrossing = 1 << 3
 )
 
 type STProfile [8]byte
@@ -125,25 +123,25 @@ func (r *RAMProfile) SetRAMControlMode(x RAMControlMode) {
 }
 
 func (r *RAMProfile) NoDwellHigh() bool {
-	return r[7]&noDwellHighFlag > 0
+	return r[7]&flagNoDwellHigh > 0
 }
 
 func (r *RAMProfile) SetNoDwellHigh(x bool) {
-	r[7] &= ^byte(noDwellHighFlag)
+	r[7] &= ^byte(flagNoDwellHigh)
 
 	if x {
-		r[7] |= noDwellHighFlag
+		r[7] |= flagNoDwellHigh
 	}
 }
 
 func (r *RAMProfile) ZeroCrossing() bool {
-	return r[7]&zeroCrossingFlag > 0
+	return r[7]&flagZeroCrossing > 0
 }
 
 func (r *RAMProfile) SetZeroCrossing(x bool) {
-	r[7] &= ^byte(zeroCrossingFlag)
+	r[7] &= ^byte(flagZeroCrossing)
 
 	if x {
-		r[7] |= zeroCrossingFlag
+		r[7] |= flagZeroCrossing
 	}
 }

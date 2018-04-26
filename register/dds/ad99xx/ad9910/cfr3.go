@@ -1,11 +1,11 @@
 package ad9910
 
 const (
-	pllEnableFlag = 1 << 0
-	pfdResetFlag  = 1 << 2
+	flagPLLEnable = 1 << 0
+	flagPFDReset  = 1 << 2
 
-	refClockDivResetFlag  = 1 << 6
-	refClockDivBypassFlag = 1 << 7
+	flagRefClockDivReset  = 1 << 6
+	flagRefClockDivBypass = 1 << 7
 )
 
 type CFR3 [4]byte
@@ -15,14 +15,14 @@ func NewCFR3() CFR3 {
 }
 
 func (r *CFR3) PLLEnabled() bool {
-	return r[2]&pllEnableFlag > 0
+	return r[2]&flagPLLEnable > 0
 }
 
 func (r *CFR3) SetPLLEnabled(x bool) {
-	r[2] &= ^byte(pllEnableFlag)
+	r[2] &= ^byte(flagPLLEnable)
 
 	if x {
-		r[2] |= pllEnableFlag
+		r[2] |= flagPLLEnable
 	}
 }
 
