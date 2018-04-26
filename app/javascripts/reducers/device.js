@@ -55,7 +55,34 @@ function receiveDeviceUpdate(state, action) {
 }
 
 export default createReducer({
-  devices: []
+  devices: [
+    {
+      id: 0,
+      name: "Champion Board",
+      amplitude: {
+        "value": 1.0,
+      },
+      frequency: {
+        "value": 1e6,
+      },
+      phase: {
+        "value": 0,
+      }
+    },
+    {
+      id: 1,
+      name: "Zinker Board",
+      amplitude: {
+        "value": 0.5,
+      },
+      frequency: {
+        "value": 5e6,
+      },
+      phase: {
+        "value": 0,
+      }
+    }
+  ]
 }, {
   UPDATE_DEVICE: updateDevice,
   REQUEST_DEVICE_LIST: requestDeviceList,
