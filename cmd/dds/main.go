@@ -35,6 +35,7 @@ var device = model.DDSDevice{
 func main() {
 	kingpin.Flag("select", "chip select").Required().Uint8Var(&device.ID)
 	kingpin.Flag("config", "device config").Default("config.yaml").ExistingFileVar(&config.Filename)
+	kingpin.Flag("debug", "verbose logging").Default("false").BoolVar(&config.DDS.Debug)
 	kingpin.Command("reset", "resets a dds")
 
 	c := kingpin.Command("const", "outputs constant signal")

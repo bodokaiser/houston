@@ -2,11 +2,12 @@ dds:
   sysclock: 1000000000
   refclock: 10000000
   pll: true
+  sync: true
+  spi3wire: true
 
   spi:
     device: 'SPI1.0'
     maxfreq: 5000000
-    duplex: false
 
   gpio:
     reset: '65'

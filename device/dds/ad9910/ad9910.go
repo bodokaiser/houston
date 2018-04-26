@@ -73,15 +73,18 @@ func NewAD9910(c dds.Config) AD9910 {
 		RAMProfile7:  ad9910.NewRAMProfile(),
 	}
 
-	d.CFR1.SetSDIOInputOnly(true)
+	if c.SPI3Wire {
+		d.CFR1.SetSDIOInputOnly(true)
+	}
+
 	d.CFR2.SetSTAmplScaleEnabled(true)
-	d.CFR2.SetSyncClockEnabled(true)
 	d.CFR2.SetSyncTimingValidationDisabled(true)
 
 	if c.PLL && c.RefClock > 0 {
 		div := divider(d.config.SysClock, d.config.RefClock)
 
 		d.CFR3.SetPLLEnabled(true)
+		d.CFR2.SetSyncClockEnabled(true)
 		d.CFR3.SetDivider(div)
 
 		switch {
@@ -107,6 +110,10 @@ func NewAD9910(c dds.Config) AD9910 {
 
 func divider(x, y float64) uint8 {
 	return uint8(math.Round(x / y))
+}
+
+func (d *AD9910) Debug() bool {
+	return d.config.Debug
 }
 
 func (d *AD9910) SysClock() float64 {

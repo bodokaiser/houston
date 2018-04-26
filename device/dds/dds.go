@@ -3,9 +3,11 @@ package dds
 import "time"
 
 type Config struct {
+	Debug    bool    `yaml:"debug"`
 	RefClock float64 `yaml:"refclock"`
 	SysClock float64 `yaml:"sysclock"`
-	PLL      bool
+	PLL      bool    `yaml:"pll"`
+	SPI3Wire bool    `yaml:"spi3wire"`
 }
 
 type Param int

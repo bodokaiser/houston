@@ -147,6 +147,7 @@
   packages = [
     ".",
     "conn",
+    "conn/conntest",
     "conn/gpio",
     "conn/gpio/gpioreg",
     "conn/i2c",
@@ -155,6 +156,7 @@
     "conn/pin/pinreg",
     "conn/spi",
     "conn/spi/spireg",
+    "conn/spi/spitest",
     "devices",
     "host",
     "host/allwinner",
@@ -176,6 +178,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "8a20a9ce354d79c15429a4cd291fd7635522266835e95eb99b4e103104568467"
+  inputs-digest = "5e7a0d53741417aafd317694922f68d879ce9f56410f3ef47c3b52e3f3dc56be"
   solver-name = "gps-cdcl"
   solver-version = 1

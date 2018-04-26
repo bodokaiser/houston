@@ -15,7 +15,7 @@ type ConfigTestSuite struct {
 
 func (s *ConfigTestSuite) SetupTest() {
 	s.c = Config{
-		Filename: "../config.yaml",
+		Filename: "config.yaml",
 	}
 }
 

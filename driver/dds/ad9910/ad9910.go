@@ -9,6 +9,7 @@ import (
 	"periph.io/x/periph/conn/gpio/gpioreg"
 	"periph.io/x/periph/conn/spi"
 	"periph.io/x/periph/conn/spi/spireg"
+	"periph.io/x/periph/conn/spi/spitest"
 
 	"github.com/bodokaiser/houston/device/dds/ad9910"
 	"github.com/bodokaiser/houston/driver/dds"
@@ -85,6 +86,13 @@ func (d *AD9910) Init() (err error) {
 	}
 
 	d.spiConn, err = spiDev.Connect(d.config.SPI.MaxFreq, spi.Mode0, 8)
+	if err != nil {
+		return
+	}
+
+	if d.Debug() {
+		d.spiConn = &spitest.LogConn{Conn: d.spiConn}
+	}
 
 	return
 }
