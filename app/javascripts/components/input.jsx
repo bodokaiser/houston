@@ -1,54 +1,66 @@
 import React, {Fragment} from 'react'
 
-export const InputGroup = ({ name, type, value, label, append, prepend,
-  min, max, step, validation, placeholder }) => (
+import {
+  LocalForm,
+  Control
+} from 'react-redux-form'
+
+export const InputGroup = (props) => (
   <Fragment>
-    { label &&
-    <label className="form-label" htmlFor={name}>
-      { label }
+    { props.label &&
+    <label className="form-label" htmlFor={props.name}>
+      { props.label }
     </label> }
     <div className="input-group">
-      { prepend &&
+      { props.prepend &&
       <div className="input-group-prepend">
-        <div className="input-group-text">{ prepend }</div>
+        <div className="input-group-text">{ props.prepend }</div>
       </div> }
-      <input className="form-control"
-        id={name} type={type || 'text'} defaultValue={value}
-        min={min} max={max} step={step} placeholder={placeholder} />
-      <div className="valid-feedback">{ validation }</div>
-      { append &&
+      <input className="form-control" {...props} />
+      <div className="valid-feedback">{ props.validation }</div>
+      { props.append &&
       <div className="input-group-append">
-        <div className="input-group-text">{ append }</div>
+        <div className="input-group-text">{ props.append }</div>
       </div> }
     </div>
   </Fragment>
 )
 
-export const SelectGroup = ({ name, value, options, validation, onChange }) => (
+export const SelectGroupInput = (props) => (
+  <input className="selectgroup-input" type="radio" {...props} />
+)
+
+export const SelectGroup = ({ model }) => (
   <div className="selectgroup w-100">
-    {options.map((option, index) => (
-    <label className="selectgroup-item" key={index}>
-      <input className="selectgroup-input" type="radio" name={name}
-        value={option.value} checked={option.value == value} />
-      {option.icon &&
+    <label className="selectgroup-item">
+      <Control.radio model={model} component={SelectGroupInput} value="const" />
       <span className="selectgroup-button selectgroup-button-icon">
-        <i className={`fe fe-${option.icon}`}></i>
-      </span>}
+        <i className={`fe fe-minus`}></i>
+      </span>
     </label>
-    ))}
+    <label className="selectgroup-item">
+      <Control.radio model={model} component={SelectGroupInput} value="sweep" />
+      <span className="selectgroup-button selectgroup-button-icon">
+        <i className={`fe fe-trending-up`}></i>
+      </span>
+    </label>
+    <label className="selectgroup-item">
+      <Control.radio model={model} component={SelectGroupInput} value="playback" />
+      <span className="selectgroup-button selectgroup-button-icon">
+        <i className={`fe fe-activity`}></i>
+      </span>
+    </label>
   </div>
 )
 
-export const Range = ({ name, step, min, max }) => (
-  <input className="form-control custom-range" type="range"
-    step="1" min="0" max={2*Math.PI} />
+export const RangeInput = (props) => (
+  <input className="form-control custom-range" type="range" {...props} />
 )
 
 
-export const Checkbox = ({ name, label, checked }) => (
+export const CheckboxInput = (props) => (
   <label className="custom-control custom-checkbox custom-control-inline">
-    <input className="custom-control-input" type="checkbox"
-      name={name} checked={checked} />
-    <span className="custom-control-label">{ label }</span>
+    <input className="custom-control-input" type="checkbox" {...props} />
+    <span className="custom-control-label">{ props.label }</span>
   </label>
 )

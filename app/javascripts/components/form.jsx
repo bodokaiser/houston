@@ -26,7 +26,7 @@ function mediateSubmit(callback) {
 function mediateChange(callback) {
 
   return event => {
-    var name = event.target.id
+    var name = event.target.name
     var value = event.target.value
 
     if (event.target.type == 'number') value = parseFloat(value)

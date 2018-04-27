@@ -7,15 +7,12 @@ import {
 } from '../actions/device'
 
 function updateDevice(state, action) {
-  return {
-    ...state,
-    devices: state.map(device => {
-      if (device.name == action.device.name) {
-        device = action.device
-      }
-      return device
-    })
-  }
+  return state.map(device => {
+    if (device.name == action.device.name) {
+      device = action.device
+    }
+    return device
+  })
 }
 
 function requestDeviceList(state, action) {
@@ -26,16 +23,15 @@ function requestDeviceList(state, action) {
 }
 
 function receiveDeviceList(state, action) {
-  return {
-    ...state,
-    devices: action.devices.map(device => {
+  state = action.devices.map(device => {
       device.frequency /= 1e6
       device.amplitude *= 100
 
       return device
-    }),
-    isFetching: action.isFetching
-  }
+  })
+  state.isFetching = action.isFetching
+
+  return state
 }
 
 function requestDeviceUpdate(state, action) {
@@ -68,7 +64,8 @@ export default createReducer([
         start: '0%',
         stop: '20%',
         duration: '1s',
-        nodwells: [true, true]
+        noDwellLow: true,
+        noDwellHigh: true
       },
       playback: {
         interval: '262ns',
@@ -86,7 +83,8 @@ export default createReducer([
         start: '1 MHz',
         stop: '2 MHz',
         duration: '1s',
-        nodwells: [true, true]
+        noDwellLow: true,
+        noDwellHigh: true
       },
       playback: {
         interval: '262ns',
@@ -104,7 +102,8 @@ export default createReducer([
         start: '0 rad',
         stop: 'pi/2 rad',
         duration: '1s',
-        nodwells: [true, true]
+        noDwellLow: true,
+        noDwellHigh: true
       },
       playback: {
         interval: '262ns',
@@ -127,7 +126,8 @@ export default createReducer([
         start: '0%',
         stop: '100%',
         duration: '1s',
-        nodwells: [true, true]
+        noDwellLow: true,
+        noDwellHigh: true
       },
       playback: {
         interval: '262ns',
@@ -145,7 +145,8 @@ export default createReducer([
         start: '10 MHz',
         stop: '20 MHz',
         duration: '1s',
-        nodwells: [true, true]
+        noDwellLow: true,
+        noDwellHigh: true
       },
       playback: {
         interval: '262ns',
@@ -163,7 +164,8 @@ export default createReducer([
         start: '0 rad',
         stop: 'pi/2 rad',
         duration: '1s',
-        nodwells: [true, true]
+        noDwellLow: true,
+        noDwellHigh: true
       },
       playback: {
         interval: '262ns',
