@@ -7,11 +7,6 @@ export const InputGroup = ({ name, type, value, label, append, prepend,
     <label className="form-label" htmlFor={name}>
       { label }
     </label> }
-    <div className="btn-group">
-      <button type="button" className="btn btn-secondary">Const</button>
-      <button type="button" className="btn btn-secondary">Sweep</button>
-      <button type="button" className="btn btn-secondary">Playback</button>
-    </div>
     <div className="input-group">
       { prepend &&
       <div className="input-group-prepend">
@@ -29,21 +24,31 @@ export const InputGroup = ({ name, type, value, label, append, prepend,
   </Fragment>
 )
 
-export const SelectGroup = ({ name, label, value, options, validation, onChange }) => (
-  <Fragment>
-    { label &&
-    <label htmlFor={name}>
-      { label }
-    </label> }
-    <div className="input-group">
-      <select className="custom-select" defaultValue={value} onChange={e => onChange(e.target.value)}>
-        { options.map((option, index) => (
-          <option key={index} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
-      <div className="valid-feedback">{ validation }</div>
-    </div>
-  </Fragment>
+export const SelectGroup = ({ name, value, options, validation, onChange }) => (
+  <div className="selectgroup w-100">
+    {options.map((option, index) => (
+    <label className="selectgroup-item" key={index}>
+      <input className="selectgroup-input" type="radio" name={name}
+        value={option.value} checked={option.value == value} />
+      {option.icon &&
+      <span className="selectgroup-button selectgroup-button-icon">
+        <i className={`fe fe-${option.icon}`}></i>
+      </span>}
+    </label>
+    ))}
+  </div>
+)
+
+export const Range = ({ name, step, min, max }) => (
+  <input className="form-control custom-range" type="range"
+    step="1" min="0" max={2*Math.PI} />
+)
+
+
+export const Checkbox = ({ name, label, value, checked }) => (
+  <label className="custom-control custom-checkbox custom-control-inline">
+    <input className="custom-control-input" type="checkbox"
+      name={name} value={value} checked={checked} />
+    <span className="custom-control-label">{ label }</span>
+  </label>
 )

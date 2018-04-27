@@ -1,7 +1,9 @@
 import {combineReducers} from 'redux'
 
-import deviceReducers from './device'
+import devicesReducers from './devices'
+import systemReducers from './system'
 
 export default combineReducers({
-  device: deviceReducers
+  devices: devicesReducers,
+  system: systemReducers
 })
