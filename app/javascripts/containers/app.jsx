@@ -106,7 +106,7 @@ class App extends Component {
               </div>
               <div className="row">
               {devices.map((device, index) => (
-                <div className="col-6 col-sm-6 col-md-4 col-lg-3" key={index}>
+                <div className="col-8 offset-2 col-sm-6 offset-sm-0 col-md-5 col-lg-4 col-xl-3" key={index}>
                   <Device key={index} device={device} />
                 </div>
               ))}

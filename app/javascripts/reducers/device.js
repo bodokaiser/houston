@@ -71,7 +71,7 @@ export default createReducer({
     },
     {
       id: 1,
-      name: "Zinker Board",
+      name: "Bad Board",
       amplitude: {
         "value": 0.5,
       },
