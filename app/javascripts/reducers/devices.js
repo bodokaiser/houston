@@ -58,27 +58,119 @@ export default createReducer([
   {
     id: 0,
     name: "Champion Board",
+    description: "Direct Digital Synthesizer #0",
     amplitude: {
-      "value": 1.0,
+      mode: 'playback',
+      const: {
+        value: '100%'
+      },
+      sweep: {
+        start: '0%',
+        stop: '20%',
+        duration: '1s',
+        nodwells: [true, true]
+      },
+      playback: {
+        interval: '262ns',
+        trigger: false,
+        duplex: true,
+        data: "100%, 40%, 10%, 15%"
+      },
     },
     frequency: {
-      "value": 1e6,
+      mode: 'sweep',
+      const: {
+        value: '10 MHz'
+      },
+      sweep: {
+        start: '1 MHz',
+        stop: '2 MHz',
+        duration: '1s',
+        nodwells: [true, true]
+      },
+      playback: {
+        interval: '262ns',
+        trigger: false,
+        duplex: true,
+        data: "1 MHz, 1 MHz, 2 MHz"
+      },
     },
     phase: {
-      "value": 0,
+      mode: 'const',
+      const: {
+        value: '0 rad'
+      },
+      sweep: {
+        start: '0 rad',
+        stop: 'pi/2 rad',
+        duration: '1s',
+        nodwells: [true, true]
+      },
+      playback: {
+        interval: '262ns',
+        trigger: false,
+        duplex: true,
+        data: "0, 1.3, 2.0"
+      },
     }
   },
   {
     id: 1,
     name: "Bad Board",
+    description: "Direct Digital Synthesizer #1",
     amplitude: {
-      "value": 0.5,
+      mode: 'playback',
+      const: {
+        value: '100%'
+      },
+      sweep: {
+        start: '0%',
+        stop: '100%',
+        duration: '1s',
+        nodwells: [true, true]
+      },
+      playback: {
+        interval: '262ns',
+        trigger: false,
+        duplex: true,
+        data: "100%, 40%, 40%, 40%"
+      },
     },
     frequency: {
-      "value": 5e6,
+      mode: 'const',
+      const: {
+        value: '3 MHz'
+      },
+      sweep: {
+        start: '10 MHz',
+        stop: '20 MHz',
+        duration: '1s',
+        nodwells: [true, true]
+      },
+      playback: {
+        interval: '262ns',
+        trigger: false,
+        duplex: true,
+        data: "5 MHz, 2 MHz, 7 MHz"
+      },
     },
     phase: {
-      "value": 0,
+      mode: 'const',
+      const: {
+        value: '0 rad'
+      },
+      sweep: {
+        start: '0 rad',
+        stop: 'pi/2 rad',
+        duration: '1s',
+        nodwells: [true, true]
+      },
+      playback: {
+        interval: '262ns',
+        trigger: false,
+        duplex: true,
+        data: "0 rad, 5 rad"
+      },
     }
   }
 ], {

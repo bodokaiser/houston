@@ -45,10 +45,10 @@ export const Range = ({ name, step, min, max }) => (
 )
 
 
-export const Checkbox = ({ name, label, value, checked }) => (
+export const Checkbox = ({ name, label, checked }) => (
   <label className="custom-control custom-checkbox custom-control-inline">
     <input className="custom-control-input" type="checkbox"
-      name={name} value={value} checked={checked} />
+      name={name} checked={checked} />
     <span className="custom-control-label">{ label }</span>
   </label>
 )

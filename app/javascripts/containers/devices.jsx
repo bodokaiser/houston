@@ -20,92 +20,104 @@ import {
   updateDevice
 } from '../actions/device'
 
-const ConstGroup = () => (
+const ConstGroup = ({ value }) => (
   <div className="row align-items-center">
     <div className="col">
       <Range step={0.001} min={0} max={2*Math.PI} />
     </div>
     <div className="col-auto">
       <div className="w-9">
-        <InputGroup type="text" name="phase" placeholder="0.0 rad" />
+        <InputGroup type="text" name="value" value={value} />
       </div>
     </div>
   </div>
 )
 
-const SweepGroup = ({}) => (
+const SweepGroup = ({ start, stop, duration, nodwells }) => (
   <Fragment>
     <div className="row gutters-xs">
       <div className="col-4">
-        <InputGroup type="text" placeholder="Start" />
+        <InputGroup type="text" name="start" placeholder="Start" value={start} />
       </div>
       <div className="col-4">
-        <InputGroup type="text" placeholder="Stop" />
+        <InputGroup type="text" name="stop" placeholder="Stop" value={stop} />
       </div>
       <div className="col-4">
-        <InputGroup type="text" placeholder="Time" />
+        <InputGroup type="text" name="duration" placeholder="Time" value={duration} />
       </div>
     </div>
     <div className="mt-3">
-      <Checkbox name="nodwellLow" label="Hold Low" value={false} checked={false} />
-      <Checkbox name="nodwellHigh" label="Hold High" value={false} checked={false} />
+      <Checkbox name="nodwells0" label="Hold Low" checked={nodwells[0]} />
+      <Checkbox name="nodwells1" label="Hold High" checked={nodwells[1]} />
     </div>
   </Fragment>
 )
 
-const PlaybackGroup = ({ }) => (
+const PlaybackGroup = ({ data, interval, trigger, duplex}) => (
   <Fragment>
     <div className="row gutters-xs">
       <div className="col-8">
-        <InputGroup type="text" placeholder="Data" />
+        <InputGroup type="text" placeholder="Data" value={data} />
       </div>
       <div className="col-4">
-        <InputGroup type="text" placeholder="Data" />
+        <InputGroup type="text" placeholder="Time" value={interval} />
       </div>
     </div>
     <div className="mt-3">
-      <Checkbox name="trigger" label="Trigger" value={true} checked={false} />
-      <Checkbox name="Duplex" label="Duplex" value={true} checked={true} />
+      <Checkbox name="trigger" label="Trigger" checked={trigger} />
+      <Checkbox name="Duplex" label="Duplex" checked={duplex} />
     </div>
   </Fragment>
 )
 
+const ParamGroup = ({ param }) => {
+  if (param.mode == 'const') {
+    return (<ConstGroup {...param.const}/>)
+  }
+  if (param.mode == 'sweep') {
+    return (<SweepGroup {...param.sweep} />)
+  }
+  if (param.mode == 'playback') {
+    return (<PlaybackGroup {...param.playback} />)
+  }
+}
 
-const DeviceForm = ({ amplitude, frequency, phase, onSubmit, onChange }) => (
+
+const DeviceForm = ({ device, onSubmit, onChange }) => (
   <DefaultForm onSubmit={onSubmit} onChange={onChange}>
     <div className="form-row">
       <div className="form-group col-sm-12">
         <label className="form-label">
           Amplitude
         </label>
-        <SelectGroup name="amplitude" value="playback" options={[
+        <SelectGroup name="amplitude" value={device.amplitude.mode} options={[
           { value: 'const', icon: 'minus' },
           { value: 'sweep', icon: 'trending-up' },
           { value: 'playback', icon: 'activity' }
         ]} />
       </div>
-      <PlaybackGroup />
+      <ParamGroup param={device.amplitude} />
       <div className="form-group col-sm-12">
         <label className="form-label">
           Frequency
         </label>
-        <SelectGroup name="frequency" value="sweep" options={[
+        <SelectGroup name="frequency" value={device.frequency.mode} options={[
           { value: 'const', icon: 'minus' },
           { value: 'sweep', icon: 'trending-up' },
           { value: 'playback', icon: 'activity' }
         ]} />
-        <SweepGroup />
+        <ParamGroup param={device.frequency} />
       </div>
       <div className="form-group col-sm-12">
         <label className="form-label">
           Phase Offset
         </label>
-        <SelectGroup name="phase" value="const" options={[
+        <SelectGroup name="phase" value={device.phase.mode} options={[
           { value: 'const', icon: 'minus' },
           { value: 'sweep', icon: 'trending-up' },
           { value: 'playback', icon: 'activity' }
         ]} />
-        <ConstGroup />
+        <ParamGroup param={device.phase} />
       </div>
     </div>
   </DefaultForm>
@@ -134,10 +146,10 @@ class Device extends Component {
 
     return (
       <Card title={device.name}>
-        <p className="text-muted mb-5">Direct Digital Synthesizer #1</p>
+        <p className="text-muted mb-5">{device.description}</p>
         <DeviceForm onSubmit={this.handleSubmit}
                     onChange={this.handleChange}
-                    {...device} />
+                    device={device} />
       </Card>
     )
   }
