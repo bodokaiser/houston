@@ -9,14 +9,16 @@ import {
 } from 'react-router-dom'
 import {connect} from 'react-redux'
 
-import Devices from './devices'
-import Dashboard from './dashboard'
+import Device from './device'
 
 import {
   Header,
+  Page,
   PageNotFound
 } from '../components/layout'
-import {ClickButton} from '../components/button'
+import {
+  SimpleCard
+} from '../components/card'
 
 import {fetchDevicesLazy} from '../actions/device'
 
@@ -27,15 +29,35 @@ class App extends Component {
   }
 
   render() {
-    const { device, devices, isUpdating, isFetching } = this.props
+    const { devices, metrics } = this.props
 
     return (
       <Fragment>
         <Header />
         <div className="container mt-5">
           <Switch>
-            <Route path="/" component={Dashboard} exact />
-            <Route path="/devices" component={Devices} />
+            <Route path="/" exact render={() => (
+              <Page title="Dashboard">
+                <div className="row row-cards">
+                  {metrics.map((metric, index) => (
+                    <div className="col-6 col-sm-4 col-lg-2" key={index}>
+                      <SimpleCard {...metric} />
+                    </div>
+                  ))}
+                </div>
+              </Page>
+            )} />
+            <Route path="/devices" render={() => (
+              <Page title="Devices">
+                <div className="row">
+                {devices.map((device, index) => (
+                  <div className="col-8 offset-2 col-sm-6 offset-sm-0 col-md-5 col-lg-4 col-xl-3" key={index}>
+                    <Device key={index} device={device} />
+                  </div>
+                ))}
+                </div>
+              </Page>
+            )} />
             <Route component={PageNotFound}  />
           </Switch>
         </div>
@@ -46,7 +68,8 @@ class App extends Component {
 }
 
 const mapState = state => ({
-  devices: state.devices
+  devices: state.devices,
+  metrics: state.metrics
 })
 
 export default withRouter(connect(

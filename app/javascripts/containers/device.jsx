@@ -1,6 +1,5 @@
 import React, {
-  Component,
-  Fragment
+  Component
 } from 'react'
 import {
   LocalForm,
@@ -8,21 +7,22 @@ import {
   Fieldset
 } from 'react-redux-form'
 import {connect} from 'react-redux'
+import convert from 'convert-units'
 
-import {DefaultForm} from '../components/form'
+import {
+  updateDevice
+} from '../actions/device'
+
 import {
   RangeInput,
   CheckboxInput,
   InputGroup,
-  SelectGroup
-} from '../components/input'
-import {SubmitButton} from '../components/button'
-import {Card} from '../components/device'
-
+  SelectGroup,
+  SelectGroupInput
+} from '../components/form'
 import {
-  submitDevice,
-  updateDevice
-} from '../actions/device'
+  CollapsableCard
+} from '../components/card'
 
 const ConstGroup = ({ param, value }) => (
   <Fieldset model=".const">
@@ -62,10 +62,10 @@ const SweepGroup = ({ param }) => (
 const PlaybackGroup = ({ param }) => (
   <Fieldset model=".playback">
     <div className="row gutters-xs">
-      <div className="col-8">
+      <div className="col-7">
         <Control.text model=".data" component={InputGroup} />
       </div>
-      <div className="col-4">
+      <div className="col-5">
         <Control.text model=".interval" component={InputGroup} />
       </div>
     </div>
@@ -76,8 +76,15 @@ const PlaybackGroup = ({ param }) => (
   </Fieldset>
 )
 
+const ModeGroup = () => (
+  <SelectGroup>
+    <SelectGroupInput model=".mode" value="const" icon="minus" />
+    <SelectGroupInput model=".mode" value="sweep" icon="trending-up" />
+    <SelectGroupInput model=".mode" value="playback" icon="activity" />
+  </SelectGroup>
+)
+
 const ParamGroup = ({ param }) => {
-  console.log('param group', param)
   if (param.mode == 'const') {
     return (<ConstGroup />)
   }
@@ -89,6 +96,9 @@ const ParamGroup = ({ param }) => {
   }
 }
 
+function required(value) {
+  return value && value.length > 0
+}
 
 class Device extends Component {
 
@@ -100,17 +110,14 @@ class Device extends Component {
   }
 
   handleSubmit() {
-    console.log('handle submit', values)
     //this.props.dispatch(submitDevice(this.props.device))
   }
 
   handleChange(device) {
-    console.log('handle change', device)
     this.props.dispatch(updateDevice(device))
   }
 
   handleUpdate(form) {
-    console.log('handle update', form)
     //this.props.dispatch(updateDeviceProp(this.props.device, name, value))
   }
 
@@ -118,44 +125,55 @@ class Device extends Component {
     const { device } = this.props
 
     return (
-      <Card title={device.name}>
-        <p className="text-muted mb-5">{device.description}</p>
-        <LocalForm
-          initialState={device}
-          onUpdate={this.handleUpdate}
-          onSubmit={this.handleSubmit}
-          onChange={this.handleChange}>
-          <div className="form-row">
-            <div className="form-group col-sm-12">
-              <label className="form-label">
-                Amplitude
-              </label>
-              <Fieldset model=".amplitude">
-                <SelectGroup model=".mode" />
-                <ParamGroup param={device.amplitude} />
-              </Fieldset>
+      <CollapsableCard title={device.name}>
+        <div className="card-body">
+          <p className="text-muted mb-5">{device.description}</p>
+          <LocalForm
+            initialState={device}
+            validators={{
+              '': (foo) => {!!console.log(foo)}
+            }}
+            onUpdate={this.handleUpdate}
+            onSubmit={this.handleSubmit}
+            onChange={this.handleChange}>
+            <div className="form-row">
+              <div className="form-group col-sm-12">
+                <label className="form-label">
+                  Amplitude
+                </label>
+                <Fieldset model=".amplitude">
+                  <ModeGroup />
+                  <ParamGroup param={device.amplitude} />
+                </Fieldset>
+              </div>
+              <div className="form-group col-sm-12">
+                <label className="form-label">
+                  Frequency
+                </label>
+                <Fieldset model=".frequency">
+                  <ModeGroup />
+                  <ParamGroup param={device.frequency} />
+                </Fieldset>
+              </div>
+              <div className="form-group col-sm-12">
+                <label className="form-label">
+                  Phase Offset
+                </label>
+                <Fieldset model=".phase">
+                  <ModeGroup />
+                  <ParamGroup param={device.phase} />
+                </Fieldset>
+              </div>
             </div>
-            <div className="form-group col-sm-12">
-              <label className="form-label">
-                Frequency
-              </label>
-              <Fieldset model=".frequency">
-                <SelectGroup model=".mode" />
-                <ParamGroup param={device.frequency} />
-              </Fieldset>
-            </div>
-            <div className="form-group col-sm-12">
-              <label className="form-label">
-                Phase Offset
-              </label>
-              <Fieldset model=".phase">
-                <SelectGroup model=".mode" />
-                <ParamGroup param={device.phase} />
-              </Fieldset>
-            </div>
+          </LocalForm>
+        </div>
+        <div className="card-footer text-right">
+          <div className="d-flex">
+            <button type="button" className="btn btn-outline-secondary">Reset</button>
+            <button type="button" className="btn btn-primary ml-auto">Update</button>
           </div>
-        </LocalForm>
-      </Card>
+        </div>
+      </CollapsableCard>
     )
   }
 

@@ -4,6 +4,8 @@
     "axios": "^0.18.0",
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-3": "^6.24.1",
+    "convert-units": "^2.3.4",
+    "parcel-bundler": "^1.7.1",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
     "react-redux": "^5.0.7",
@@ -12,8 +14,7 @@
     "redux": "^4.0.0",
     "redux-create-reducer": "^1.1.2",
     "redux-logger": "^3.0.6",
-    "redux-thunk": "^2.2.0",
-    "parcel-bundler": "^1.7.1"
+    "redux-thunk": "^2.2.0"
   },
   "scripts": {
     "serve": "RESOURCE=http://localhost:8000 parcel app/index.html",

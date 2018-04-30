@@ -1,7 +1,15 @@
 import React from 'react'
 
+export const SimpleCard = ({ name, value }) => (
+  <div className="card">
+    <div className="card-body p-3 text-center">
+      <div className="h1 mt-6">{ value }</div>
+      <div className="text-muted mb-4">{ name }</div>
+    </div>
+  </div>
+)
 
-export const Card = ({ children, title, description }) => (
+export const CollapsableCard = ({ title, children }) => (
   <div className="card">
     <div className="card-status bg-blue"></div>
     <div className="card-header">
@@ -13,14 +21,6 @@ export const Card = ({ children, title, description }) => (
         </span>
       </div>
     </div>
-    <div className="card-body">
-      { children }
-    </div>
-    <div className="card-footer text-right">
-      <div className="d-flex">
-        <button type="button" className="btn btn-outline-secondary">Reset</button>
-        <button type="button" className="btn btn-primary ml-auto">Update</button>
-      </div>
-    </div>
+    { children }
   </div>
 )
