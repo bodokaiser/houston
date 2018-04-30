@@ -11,7 +11,8 @@ const wrapper = ({ children }) => (
 )
 
 const messages = {
-  required: 'please provide input'
+  required: 'input missing',
+  quantity: 'invalid quantity'
 }
 
 export const InvalidFeedback = ({ model }) => (

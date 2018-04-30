@@ -58,20 +58,20 @@ export default createReducer([
     amplitude: {
       mode: 'playback',
       const: {
-        value: '100%'
+        value: '100 %'
       },
       sweep: {
-        start: '0%',
-        stop: '20%',
-        duration: '1s',
+        start: '0 %',
+        stop: '20 %',
+        duration: '1 s',
         noDwellLow: true,
         noDwellHigh: true
       },
       playback: {
-        interval: '262ns',
+        interval: '262 ns',
         trigger: false,
         duplex: true,
-        data: "100%, 40%, 10%, 15%"
+        data: "100 %, 40 %, 10 %, 15 %"
       },
     },
     frequency: {
@@ -82,12 +82,12 @@ export default createReducer([
       sweep: {
         start: '1 MHz',
         stop: '2 MHz',
-        duration: '1s',
+        duration: '1 s',
         noDwellLow: true,
         noDwellHigh: true
       },
       playback: {
-        interval: '262ns',
+        interval: '262 ns',
         trigger: false,
         duplex: true,
         data: "1 MHz, 1 MHz, 2 MHz"
@@ -100,16 +100,16 @@ export default createReducer([
       },
       sweep: {
         start: '0 rad',
-        stop: 'pi/2 rad',
+        stop: '3.21 rad',
         duration: '1s',
         noDwellLow: true,
         noDwellHigh: true
       },
       playback: {
-        interval: '262ns',
+        interval: '262 ns',
         trigger: false,
         duplex: true,
-        data: "0, 1.3, 2.0"
+        data: "0 rad, 1.3 rad, 2.0 rad"
       },
     }
   },
@@ -120,20 +120,20 @@ export default createReducer([
     amplitude: {
       mode: 'playback',
       const: {
-        value: '100%'
+        value: '100 %'
       },
       sweep: {
-        start: '0%',
-        stop: '100%',
-        duration: '1s',
+        start: '0 %',
+        stop: '100 %',
+        duration: '1 s',
         noDwellLow: true,
         noDwellHigh: true
       },
       playback: {
-        interval: '262ns',
+        interval: '262 ns',
         trigger: false,
         duplex: true,
-        data: "100%, 40%, 40%, 40%"
+        data: "100 %, 40 %, 40 %, 40 %"
       },
     },
     frequency: {
@@ -144,12 +144,12 @@ export default createReducer([
       sweep: {
         start: '10 MHz',
         stop: '20 MHz',
-        duration: '1s',
+        duration: '1 s',
         noDwellLow: true,
         noDwellHigh: true
       },
       playback: {
-        interval: '262ns',
+        interval: '262 ns',
         trigger: false,
         duplex: true,
         data: "5 MHz, 2 MHz, 7 MHz"
@@ -162,13 +162,13 @@ export default createReducer([
       },
       sweep: {
         start: '0 rad',
-        stop: 'pi/2 rad',
-        duration: '1s',
+        stop: '2.7 rad',
+        duration: '1 s',
         noDwellLow: true,
         noDwellHigh: true
       },
       playback: {
-        interval: '262ns',
+        interval: '262 ns',
         trigger: false,
         duplex: true,
         data: "0 rad, 5 rad"

@@ -28,7 +28,7 @@ export const CheckboxInput = (props) => (
 function classNameMapper(str) {
   return function mapClassName(form) {
     if (!form.fieldValue.valid) {
-      str += ' is-invalid'
+      return `${str} is-invalid`
     }
 
     return str

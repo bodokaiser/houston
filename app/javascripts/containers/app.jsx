@@ -69,7 +69,7 @@ class App extends Component {
 
 const mapState = state => ({
   devices: state.devices,
-  metrics: state.metrics
+  metrics: Object.values(state.system)
 })
 
 export default withRouter(connect(

@@ -6,14 +6,15 @@ import {
   Fieldset
 } from 'react-redux-form'
 import {connect} from 'react-redux'
-import {
-  isEmpty
-} from 'validator'
-import convert from 'convert-units'
 
 import {
   updateDevice
 } from '../actions/device'
+
+import {
+  required,
+  quantity
+} from '../validators/device'
 
 import {
   InputGroup,
@@ -29,37 +30,47 @@ import {
   CollapsableCard
 } from '../components/card'
 
-const ConstGroup = ({ param, value }) => (
+const ConstGroup = ({ measure }) => (
   <Fieldset model=".const">
     <div className="row align-items-center">
       <div className="col">
-        <RangeInput model=".value" />
-      </div>
-      <div className="col-auto">
-        <div className="w-9">
-          <InputGroup
-            model=".value"
-            validators={{
-              required: v => !isEmpty(v),
-
-            }} />
-        </div>
+        <InputGroup
+          model=".value"
+          validators={{
+            required: required(),
+            quantity: quantity(measure)
+          }} />
       </div>
     </div>
   </Fieldset>
 )
 
-const SweepGroup = ({ param }) => (
+const SweepGroup = ({ measure }) => (
   <Fieldset model=".sweep">
     <div className="row gutters-xs">
       <div className="col-4">
-        <InputGroup model=".start" />
+        <InputGroup
+          model=".start"
+          validators={{
+            required: required(),
+            quantity: quantity(measure)
+          }} />
       </div>
       <div className="col-4">
-        <InputGroup model=".stop" />
+        <InputGroup
+          model=".stop"
+          validators={{
+            required: required(),
+            quantity: quantity(measure)
+          }} />
       </div>
       <div className="col-4">
-        <InputGroup model=".duration" />
+        <InputGroup
+          model=".duration"
+          validators={{
+            required: required(),
+            quantity: quantity('time')
+          }} />
       </div>
     </div>
     <div className="mt-3">
@@ -69,14 +80,19 @@ const SweepGroup = ({ param }) => (
   </Fieldset>
 )
 
-const PlaybackGroup = ({  }) => (
+const PlaybackGroup = ({ measure }) => (
   <Fieldset model=".playback">
     <div className="row gutters-xs">
       <div className="col-7">
         <InputGroup model=".data" />
       </div>
       <div className="col-5">
-        <InputGroup model=".interval" />
+        <InputGroup
+          model=".interval"
+          validators={{
+            required: required(),
+            quantity: quantity('time')
+          }} />
       </div>
     </div>
     <div className="mt-3">
@@ -131,11 +147,11 @@ class Device extends Component {
                 <Fieldset model=".amplitude">
                   <ModeGroup />
                   { device.amplitude.mode == 'const' &&
-                  <ConstGroup  /> }
+                  <ConstGroup measure="relative" /> }
                   { device.amplitude.mode == 'sweep' &&
-                  <SweepGroup /> }
+                  <SweepGroup measure="relative" /> }
                   { device.amplitude.mode == 'playback' &&
-                  <PlaybackGroup /> }
+                  <PlaybackGroup measure="relative" /> }
                 </Fieldset>
               </div>
               <div className="form-group col-sm-12">
@@ -145,11 +161,11 @@ class Device extends Component {
                 <Fieldset model=".frequency">
                   <ModeGroup />
                   { device.frequency.mode == 'const' &&
-                  <ConstGroup /> }
+                  <ConstGroup measure="frequency" /> }
                   { device.frequency.mode == 'sweep' &&
-                  <SweepGroup /> }
+                  <SweepGroup measure="frequency" /> }
                   { device.frequency.mode == 'playback' &&
-                  <PlaybackGroup /> }
+                  <PlaybackGroup measure="frequency" /> }
                 </Fieldset>
               </div>
               <div className="form-group col-sm-12">
@@ -159,11 +175,11 @@ class Device extends Component {
                 <Fieldset model=".phase">
                   <ModeGroup />
                   { device.phase.mode == 'const' &&
-                  <ConstGroup /> }
+                  <ConstGroup measure="angle" /> }
                   { device.phase.mode == 'sweep' &&
-                  <SweepGroup /> }
+                  <SweepGroup measure="angle" /> }
                   { device.phase.mode == 'playback' &&
-                  <PlaybackGroup /> }
+                  <PlaybackGroup measure="angle" /> }
                 </Fieldset>
               </div>
             </div>

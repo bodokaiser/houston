@@ -1,5 +1,5 @@
 import React from 'react'
-import {Link} from 'react-router-dom'
+import {NavLink} from 'react-router-dom'
 
 export const Page = ({ children, title }) => (
   <section>
@@ -37,14 +37,14 @@ export const Header = () => (
         <div className="col-lg order-lg-first">
           <ul className="nav nav-tabs border-0 flex-column flex-lg-row">
             <li className="nav-item">
-              <Link className="nav-link" to="/">
+              <NavLink className="nav-link" activeClassName="active" exact to="/">
                 <i className="fe fe-home"></i> Home
-              </Link>
+              </NavLink>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/devices">
+              <NavLink className="nav-link" activeClassName="active" to="/devices">
                 <i className="fe fe-cpu"></i> Devices
-              </Link>
+              </NavLink>
             </li>
             <li className="nav-item">
               <a className="nav-link" href="https://github.com/bodokaiser/houston">
