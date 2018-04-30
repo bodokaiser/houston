@@ -31,9 +31,11 @@ export const InputGroup = ({ model, label, prepend, append, value, validators, m
 )
 
 export const SelectGroup = ({ children }) => (
-  <div className="selectgroup w-100">
-    { children }
-  </div>
+  <Fragment>
+    <div className="selectgroup w-100">
+      { children }
+    </div>
+  </Fragment>
 )
 
 export const SelectGroupOption = ({ model, icon, value }) => (

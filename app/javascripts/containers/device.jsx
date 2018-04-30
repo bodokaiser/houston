@@ -12,8 +12,10 @@ import {
 } from '../actions/device'
 
 import {
+  modes,
   required,
-  quantity
+  quantity,
+  quantities
 } from '../validators/device'
 
 import {
@@ -84,7 +86,13 @@ const PlaybackGroup = ({ measure }) => (
   <Fieldset model=".playback">
     <div className="row gutters-xs">
       <div className="col-7">
-        <InputGroup model=".data" />
+        <InputGroup
+          model=".data"
+          validators={{
+            required: required(),
+            quantity: quantities(measure)
+          }}
+        />
       </div>
       <div className="col-5">
         <InputGroup
@@ -103,7 +111,7 @@ const PlaybackGroup = ({ measure }) => (
 )
 
 const ModeGroup = () => (
-  <SelectGroup>
+  <SelectGroup model="local.mode">
     <SelectGroupOption model=".mode" value="const" icon="minus" />
     <SelectGroupOption model=".mode" value="sweep" icon="trending-up" />
     <SelectGroupOption model=".mode" value="playback" icon="activity" />
@@ -114,6 +122,8 @@ class Device extends Component {
 
   constructor(props) {
     super(props)
+
+    this.state = {}
   }
 
   handleSubmit() {
@@ -125,17 +135,27 @@ class Device extends Component {
   }
 
   handleUpdate(form) {
+    this.setState({ form })
   }
 
   render() {
     const { device } = this.props
+    const { form } = this.state
+
+    var alert  = form && form.$form.errors.mode &&
+      'You can only use one sweep and one playback at a time.'
 
     return (
-      <CollapsableCard title={device.name}>
+      <CollapsableCard title={device.name} alert={alert}>
         <div className="card-body">
           <p className="text-muted mb-5">{device.description}</p>
           <LocalForm
             initialState={device}
+            validators={{
+              '': {
+                mode: modes()
+              }
+            }}
             onUpdate={form => this.handleUpdate(form)}
             onSubmit={device => this.handleSubmit(device)}
             onChange={device => this.handleChange(device)}>

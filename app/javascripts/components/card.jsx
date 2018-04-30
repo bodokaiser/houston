@@ -9,7 +9,7 @@ export const SimpleCard = ({ name, value }) => (
   </div>
 )
 
-export const CollapsableCard = ({ title, children }) => (
+export const CollapsableCard = ({ title, alert, children }) => (
   <div className="card">
     <div className="card-status bg-blue"></div>
     <div className="card-header">
@@ -21,6 +21,10 @@ export const CollapsableCard = ({ title, children }) => (
         </span>
       </div>
     </div>
+    { alert &&
+    <div className="card-alert alert alert-danger mb-0">
+      { alert }
+    </div> }
     { children }
   </div>
 )
