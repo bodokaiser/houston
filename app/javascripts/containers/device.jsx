@@ -3,10 +3,12 @@ import React, {
 } from 'react'
 import {
   LocalForm,
-  Control,
   Fieldset
 } from 'react-redux-form'
 import {connect} from 'react-redux'
+import {
+  isEmpty
+} from 'validator'
 import convert from 'convert-units'
 
 import {
@@ -14,12 +16,15 @@ import {
 } from '../actions/device'
 
 import {
-  RangeInput,
-  CheckboxInput,
   InputGroup,
   SelectGroup,
-  SelectGroupInput
-} from '../components/form'
+  SelectGroupOption,
+  CheckboxGroup
+} from '../components/form/group'
+import {
+  TextInput,
+  RangeInput
+} from '../components/form/input'
 import {
   CollapsableCard
 } from '../components/card'
@@ -28,11 +33,16 @@ const ConstGroup = ({ param, value }) => (
   <Fieldset model=".const">
     <div className="row align-items-center">
       <div className="col">
-        <Control model=".value" component={RangeInput} />
+        <RangeInput model=".value" />
       </div>
       <div className="col-auto">
         <div className="w-9">
-          <Control.text model=".value" component={InputGroup} />
+          <InputGroup
+            model=".value"
+            validators={{
+              required: v => !isEmpty(v),
+
+            }} />
         </div>
       </div>
     </div>
@@ -43,70 +53,51 @@ const SweepGroup = ({ param }) => (
   <Fieldset model=".sweep">
     <div className="row gutters-xs">
       <div className="col-4">
-        <Control.text model=".start" component={InputGroup} />
+        <InputGroup model=".start" />
       </div>
       <div className="col-4">
-        <Control.text model=".stop" component={InputGroup} />
+        <InputGroup model=".stop" />
       </div>
       <div className="col-4">
-        <Control.text model=".duration" component={InputGroup} />
+        <InputGroup model=".duration" />
       </div>
     </div>
     <div className="mt-3">
-      <Control.checkbox model=".noDwellLow" component={CheckboxInput} label="Hold Low" />
-      <Control.checkbox model=".noDwellHigh" component={CheckboxInput} label="Hold High" />
+      <CheckboxGroup model=".noDwellLow" label="Hold Low" />
+      <CheckboxGroup model=".noDwellHigh" label="Hold High" />
     </div>
   </Fieldset>
 )
 
-const PlaybackGroup = ({ param }) => (
+const PlaybackGroup = ({  }) => (
   <Fieldset model=".playback">
     <div className="row gutters-xs">
       <div className="col-7">
-        <Control.text model=".data" component={InputGroup} />
+        <InputGroup model=".data" />
       </div>
       <div className="col-5">
-        <Control.text model=".interval" component={InputGroup} />
+        <InputGroup model=".interval" />
       </div>
     </div>
     <div className="mt-3">
-      <Control.checkbox model=".trigger" component={CheckboxInput} label="Trigger" />
-      <Control.checkbox model=".duplex" component={CheckboxInput} label="Duplex" />
+      <CheckboxGroup model=".noDwellLow" label="Hold Low" />
+      <CheckboxGroup model=".noDwellHigh" label="Hold High" />
     </div>
   </Fieldset>
 )
 
 const ModeGroup = () => (
   <SelectGroup>
-    <SelectGroupInput model=".mode" value="const" icon="minus" />
-    <SelectGroupInput model=".mode" value="sweep" icon="trending-up" />
-    <SelectGroupInput model=".mode" value="playback" icon="activity" />
+    <SelectGroupOption model=".mode" value="const" icon="minus" />
+    <SelectGroupOption model=".mode" value="sweep" icon="trending-up" />
+    <SelectGroupOption model=".mode" value="playback" icon="activity" />
   </SelectGroup>
 )
-
-const ParamGroup = ({ param }) => {
-  if (param.mode == 'const') {
-    return (<ConstGroup />)
-  }
-  if (param.mode == 'sweep') {
-    return (<SweepGroup />)
-  }
-  if (param.mode == 'playback') {
-    return (<PlaybackGroup />)
-  }
-}
-
-function required(value) {
-  return value && value.length > 0
-}
 
 class Device extends Component {
 
   constructor(props) {
     super(props)
-
-    this.handleSubmit = this.handleSubmit.bind(this)
-    this.handleChange = this.handleChange.bind(this)
   }
 
   handleSubmit() {
@@ -118,7 +109,6 @@ class Device extends Component {
   }
 
   handleUpdate(form) {
-    //this.props.dispatch(updateDeviceProp(this.props.device, name, value))
   }
 
   render() {
@@ -130,12 +120,9 @@ class Device extends Component {
           <p className="text-muted mb-5">{device.description}</p>
           <LocalForm
             initialState={device}
-            validators={{
-              '': (foo) => {!!console.log(foo)}
-            }}
-            onUpdate={this.handleUpdate}
-            onSubmit={this.handleSubmit}
-            onChange={this.handleChange}>
+            onUpdate={form => this.handleUpdate(form)}
+            onSubmit={device => this.handleSubmit(device)}
+            onChange={device => this.handleChange(device)}>
             <div className="form-row">
               <div className="form-group col-sm-12">
                 <label className="form-label">
@@ -143,7 +130,12 @@ class Device extends Component {
                 </label>
                 <Fieldset model=".amplitude">
                   <ModeGroup />
-                  <ParamGroup param={device.amplitude} />
+                  { device.amplitude.mode == 'const' &&
+                  <ConstGroup  /> }
+                  { device.amplitude.mode == 'sweep' &&
+                  <SweepGroup /> }
+                  { device.amplitude.mode == 'playback' &&
+                  <PlaybackGroup /> }
                 </Fieldset>
               </div>
               <div className="form-group col-sm-12">
@@ -152,7 +144,12 @@ class Device extends Component {
                 </label>
                 <Fieldset model=".frequency">
                   <ModeGroup />
-                  <ParamGroup param={device.frequency} />
+                  { device.frequency.mode == 'const' &&
+                  <ConstGroup /> }
+                  { device.frequency.mode == 'sweep' &&
+                  <SweepGroup /> }
+                  { device.frequency.mode == 'playback' &&
+                  <PlaybackGroup /> }
                 </Fieldset>
               </div>
               <div className="form-group col-sm-12">
@@ -161,7 +158,12 @@ class Device extends Component {
                 </label>
                 <Fieldset model=".phase">
                   <ModeGroup />
-                  <ParamGroup param={device.phase} />
+                  { device.phase.mode == 'const' &&
+                  <ConstGroup /> }
+                  { device.phase.mode == 'sweep' &&
+                  <SweepGroup /> }
+                  { device.phase.mode == 'playback' &&
+                  <PlaybackGroup /> }
                 </Fieldset>
               </div>
             </div>
