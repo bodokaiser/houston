@@ -34,6 +34,9 @@ export function submitDevice(device) {
   return dispatch => {
     dispatch(requestDeviceUpdate(device))
 
+    console.log('submit', device)
+
+    return
     return axios.put(`/devices/dds/${device.name}`, {
         name: device.name,
         amplitude: device.amplitude / 100,

@@ -16,38 +16,19 @@ function updateDevice(state, action) {
 }
 
 function requestDeviceList(state, action) {
-  return {
-    ...state,
-    isFetching: action.isFetching
-  }
+  return state
 }
 
 function receiveDeviceList(state, action) {
-  state = action.devices.map(device => {
-      device.frequency /= 1e6
-      device.amplitude *= 100
-
-      return device
-  })
-  state.isFetching = action.isFetching
-
   return state
 }
 
 function requestDeviceUpdate(state, action) {
-  return {
-    ...state,
-    device: action.device,
-    isUpdating: action.isUpdating
-  }
+  return state
 }
 
 function receiveDeviceUpdate(state, action) {
-  return {
-    ...state,
-    device: action.device,
-    isUpdating: action.isUpdating
-  }
+  return state
 }
 
 export default createReducer([

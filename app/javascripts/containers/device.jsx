@@ -8,7 +8,8 @@ import {
 import {connect} from 'react-redux'
 
 import {
-  updateDevice
+  updateDevice,
+  submitDevice
 } from '../actions/device'
 
 import {
@@ -127,7 +128,7 @@ class Device extends Component {
   }
 
   handleSubmit() {
-    //this.props.dispatch(submitDevice(this.props.device))
+    this.props.dispatch(submitDevice(this.props.device))
   }
 
   handleChange(device) {
@@ -142,75 +143,79 @@ class Device extends Component {
     const { device } = this.props
     const { form } = this.state
 
-    var alert  = form && form.$form.errors.mode &&
+    var alert = form && form.$form.errors.mode &&
       'You can only use one sweep and one playback at a time.'
 
     return (
       <CollapsableCard title={device.name} alert={alert}>
-        <div className="card-body">
-          <p className="text-muted mb-5">{device.description}</p>
-          <LocalForm
-            initialState={device}
-            validators={{
-              '': {
-                mode: modes()
-              }
-            }}
-            onUpdate={form => this.handleUpdate(form)}
-            onSubmit={device => this.handleSubmit(device)}
-            onChange={device => this.handleChange(device)}>
-            <div className="form-row">
-              <div className="form-group col-sm-12">
-                <label className="form-label">
-                  Amplitude
-                </label>
-                <Fieldset model=".amplitude">
-                  <ModeGroup />
-                  { device.amplitude.mode == 'const' &&
-                  <ConstGroup measure="relative" /> }
-                  { device.amplitude.mode == 'sweep' &&
-                  <SweepGroup measure="relative" /> }
-                  { device.amplitude.mode == 'playback' &&
-                  <PlaybackGroup measure="relative" /> }
-                </Fieldset>
+        <LocalForm
+          initialState={device}
+          validators={{
+            '': {
+              mode: modes()
+            }
+          }}
+          onUpdate={form => this.handleUpdate(form)}
+          onSubmit={device => this.handleSubmit(device)}
+          onChange={device => this.handleChange(device)}>
+          <div className="card-body">
+            <p className="text-muted mb-5">{device.description}</p>
+              <div className="form-row">
+                <div className="form-group col-sm-12">
+                  <label className="form-label">
+                    Amplitude
+                  </label>
+                  <Fieldset model=".amplitude">
+                    <ModeGroup />
+                    { device.amplitude.mode == 'const' &&
+                    <ConstGroup measure="relative" /> }
+                    { device.amplitude.mode == 'sweep' &&
+                    <SweepGroup measure="relative" /> }
+                    { device.amplitude.mode == 'playback' &&
+                    <PlaybackGroup measure="relative" /> }
+                  </Fieldset>
+                </div>
+                <div className="form-group col-sm-12">
+                  <label className="form-label">
+                    Frequency
+                  </label>
+                  <Fieldset model=".frequency">
+                    <ModeGroup />
+                    { device.frequency.mode == 'const' &&
+                    <ConstGroup measure="frequency" /> }
+                    { device.frequency.mode == 'sweep' &&
+                    <SweepGroup measure="frequency" /> }
+                    { device.frequency.mode == 'playback' &&
+                    <PlaybackGroup measure="frequency" /> }
+                  </Fieldset>
+                </div>
+                <div className="form-group col-sm-12">
+                  <label className="form-label">
+                    Phase Offset
+                  </label>
+                  <Fieldset model=".phase">
+                    <ModeGroup />
+                    { device.phase.mode == 'const' &&
+                    <ConstGroup measure="angle" /> }
+                    { device.phase.mode == 'sweep' &&
+                    <SweepGroup measure="angle" /> }
+                    { device.phase.mode == 'playback' &&
+                    <PlaybackGroup measure="angle" /> }
+                  </Fieldset>
+                </div>
               </div>
-              <div className="form-group col-sm-12">
-                <label className="form-label">
-                  Frequency
-                </label>
-                <Fieldset model=".frequency">
-                  <ModeGroup />
-                  { device.frequency.mode == 'const' &&
-                  <ConstGroup measure="frequency" /> }
-                  { device.frequency.mode == 'sweep' &&
-                  <SweepGroup measure="frequency" /> }
-                  { device.frequency.mode == 'playback' &&
-                  <PlaybackGroup measure="frequency" /> }
-                </Fieldset>
-              </div>
-              <div className="form-group col-sm-12">
-                <label className="form-label">
-                  Phase Offset
-                </label>
-                <Fieldset model=".phase">
-                  <ModeGroup />
-                  { device.phase.mode == 'const' &&
-                  <ConstGroup measure="angle" /> }
-                  { device.phase.mode == 'sweep' &&
-                  <SweepGroup measure="angle" /> }
-                  { device.phase.mode == 'playback' &&
-                  <PlaybackGroup measure="angle" /> }
-                </Fieldset>
-              </div>
-            </div>
-          </LocalForm>
-        </div>
-        <div className="card-footer text-right">
-          <div className="d-flex">
-            <button type="button" className="btn btn-outline-secondary">Reset</button>
-            <button type="button" className="btn btn-primary ml-auto">Update</button>
           </div>
-        </div>
+          <div className="card-footer text-right">
+            <div className="d-flex">
+              <button type="button" className="btn btn-outline-secondary">
+                Reset
+              </button>
+              <button type="submit" className="btn btn-primary ml-auto" disabled={form && !form.$form.valid}>
+                Update
+              </button>
+            </div>
+          </div>
+        </LocalForm>
       </CollapsableCard>
     )
   }
