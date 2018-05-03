@@ -95,6 +95,7 @@ func main() {
 	pp.Flag("data", "").Required().Float64ListVar(&device.PhaseOffset.Data)
 
 	subcmd := kingpin.Parse()
+	config.Mux.Debug = config.DDS.Debug
 
 	kingpin.FatalIfError(config.ReadFromFile(), "config")
 

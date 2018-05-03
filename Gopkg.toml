@@ -26,12 +26,20 @@
 
 
 [[constraint]]
-  name = "github.com/labstack/echo"
-  version = "3.3.4"
+  branch = "master"
+  name = "github.com/bodokaiser/approx"
 
-[prune]
-  go-tests = true
-  unused-packages = true
+[[constraint]]
+  name = "github.com/labstack/echo"
+  version = "3.3.5"
+
+[[constraint]]
+  name = "github.com/stretchr/testify"
+  version = "1.2.1"
+
+[[constraint]]
+  name = "gopkg.in/alecthomas/kingpin.v2"
+  version = "2.2.6"
 
 [[constraint]]
   name = "gopkg.in/go-playground/validator.v9"
@@ -42,9 +50,9 @@
   version = "2.2.1"
 
 [[constraint]]
-  branch = "master"
-  name = "github.com/bodokaiser/approx"
+  name = "periph.io/x/periph"
+  revision = "bccf3c0f868190de79a30862b03899dc6eb82b61"
 
-[[constraint]]
-  name = "gopkg.in/alecthomas/kingpin.v2"
-  version = "2.2.6"
+[prune]
+  go-tests = true
+  unused-packages = true

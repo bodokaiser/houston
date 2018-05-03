@@ -5,6 +5,7 @@ import (
 
 	"periph.io/x/periph/conn/gpio"
 	"periph.io/x/periph/conn/gpio/gpioreg"
+	"periph.io/x/periph/conn/gpio/gpiotest"
 )
 
 // Digital implements Mux for a digital multiplexer.
@@ -21,6 +22,10 @@ func NewDigital(c Config) *Digital {
 	}
 }
 
+func (d *Digital) Debug() bool {
+	return d.config.Debug
+}
+
 func (d *Digital) Init() error {
 	d.pins = make([]gpio.PinIO, len(d.config.GPIO.CS))
 
@@ -29,6 +34,10 @@ func (d *Digital) Init() error {
 
 		if d.pins[i] == nil {
 			return errors.New("invalid pin name")
+		}
+
+		if d.Debug() {
+			d.pins[i] = &gpiotest.LogPinIO{PinIO: d.pins[i]}
 		}
 	}
 

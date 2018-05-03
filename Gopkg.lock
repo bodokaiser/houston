@@ -66,8 +66,8 @@
     "log",
     "random"
   ]
-  revision = "6fe1405d73ec4bd4cd8a4ac8e2a2b2bf95d03954"
-  version = "0.2.4"
+  revision = "588f4e8bddc6cb45c27b448e925c7fd6a5545434"
+  version = "0.2.5"
 
 [[projects]]
   name = "github.com/mattn/go-colorable"
@@ -116,13 +116,13 @@
     "acme",
     "acme/autocert"
   ]
-  revision = "d6449816ce06963d9d136eee5a56fca5b0616e7e"
+  revision = "8b1d31080a7692e075c4681cb2458454a1fe0706"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "3b87a42e500a6dc65dae1a55d0b641295971163e"
+  revision = "78d5f264b493f125018180c204871ecf58a2dce1"
 
 [[projects]]
   name = "gopkg.in/alecthomas/kingpin.v2"
@@ -150,6 +150,8 @@
     "conn/conntest",
     "conn/gpio",
     "conn/gpio/gpioreg",
+    "conn/gpio/gpiostream",
+    "conn/gpio/gpiotest",
     "conn/i2c",
     "conn/i2c/i2creg",
     "conn/pin",
@@ -172,12 +174,11 @@
     "host/sysfs",
     "host/videocore"
   ]
-  revision = "bdb4e4c4979bc79ee8c99e6432bd16519d7902a1"
-  version = "v2.1.0"
+  revision = "bccf3c0f868190de79a30862b03899dc6eb82b61"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "5e7a0d53741417aafd317694922f68d879ce9f56410f3ef47c3b52e3f3dc56be"
+  inputs-digest = "681e0f1fa3a46c79ebae86bc433dd9b97741ea180c24e3f1d3aed90db137639a"
   solver-name = "gps-cdcl"
   solver-version = 1

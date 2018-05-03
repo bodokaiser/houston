@@ -4,7 +4,8 @@ package mux
 import "github.com/bodokaiser/houston/driver"
 
 type Config struct {
-	GPIO GPIOConfig `yaml:"gpio"`
+	GPIO  GPIOConfig `yaml:"gpio"`
+	Debug bool       `yaml:"debug"`
 }
 
 type GPIOConfig struct {

@@ -7,6 +7,7 @@ import (
 
 	"periph.io/x/periph/conn/gpio"
 	"periph.io/x/periph/conn/gpio/gpioreg"
+	"periph.io/x/periph/conn/gpio/gpiotest"
 	"periph.io/x/periph/conn/spi"
 	"periph.io/x/periph/conn/spi/spireg"
 	"periph.io/x/periph/conn/spi/spitest"
@@ -91,6 +92,8 @@ func (d *AD9910) Init() (err error) {
 	}
 
 	if d.Debug() {
+		d.resetPin = &gpiotest.LogPinIO{PinIO: d.resetPin}
+		d.updatePin = &gpiotest.LogPinIO{PinIO: d.updatePin}
 		d.spiConn = &spitest.LogConn{Conn: d.spiConn}
 	}
 
