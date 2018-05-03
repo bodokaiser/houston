@@ -28,7 +28,7 @@ func (s *DDSTestSuite) SetupTest() {
 		Devices: []model.DDSDevice{
 			model.DDSDevice{
 				Name:      "DDS0",
-				Address:   3,
+				ID:        3,
 				Amplitude: 1.0,
 				Frequency: 250e6,
 			},

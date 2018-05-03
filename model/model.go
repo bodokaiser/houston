@@ -18,6 +18,7 @@ var validate *validator.Validate
 func init() {
 	validate = validator.New()
 	validate.RegisterValidation("range", ValidateRange)
+	validate.RegisterStructValidation(DDSDeviceValidation, DDSDevice{})
 	validate.RegisterStructValidation(DDSParamValidation, DDSParam{})
 }
 
@@ -40,27 +41,4 @@ func ValidateRange(f validator.FieldLevel) bool {
 	b := f.Field().Index(f.Field().Len() - 1).Interface().(float64)
 
 	return a < b
-}
-
-// DDSParamValidation implements struct level validation.
-func DDSParamValidation(sl validator.StructLevel) {
-	p := sl.Current().Interface().(DDSParam)
-	i := 0
-
-	if p.DDSConst != nil {
-		i++
-	}
-	if p.DDSSweep != nil {
-		i++
-	}
-	if p.DDSPlayback != nil {
-		i++
-	}
-
-	if i == 0 {
-		sl.ReportError(p.DDSConst, "DDSParam", "param", "noparam", "")
-	}
-	if i > 1 {
-		sl.ReportError(p.DDSConst, "DDSParam", "param", "toomanyparam", "")
-	}
 }

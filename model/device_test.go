@@ -12,20 +12,45 @@ type DDSDeviceTestSuite struct {
 }
 
 func (s *DDSDeviceTestSuite) TestValidation() {
-	d1 := &DDSDevice{}
-	d2 := &DDSDevice{ID: 0}
-	d3 := &DDSDevice{ID: 0, Name: "DDS0"}
-	d4 := &DDSDevice{
+	d1 := DDSDevice{}
+	d2 := DDSDevice{
+		ID:   0,
+		Name: "Champion",
+		Amplitude: DDSParam{
+			Mode:  ModeConst,
+			Const: &DDSConst{Value: 1.0},
+		},
+		Frequency: DDSParam{
+			Mode:  ModeConst,
+			Const: &DDSConst{Value: 200},
+		},
+	}
+	d3 := DDSDevice{
 		ID:   0,
 		Name: "DDS0",
 		Amplitude: DDSParam{
-			DDSConst: &DDSConst{Value: 1.0},
+			Mode:  ModeConst,
+			Const: &DDSConst{Value: -1.0},
 		},
 		Frequency: DDSParam{
-			DDSConst: &DDSConst{Value: 200},
+			Mode:  ModeConst,
+			Const: &DDSConst{Value: 200},
+		},
+	}
+	d4 := DDSDevice{
+		ID:   0,
+		Name: "DDS0",
+		Amplitude: DDSParam{
+			Mode:  ModeConst,
+			Const: &DDSConst{Value: 1.0},
+		},
+		Frequency: DDSParam{
+			Mode:  ModeConst,
+			Const: &DDSConst{Value: 200},
 		},
 		PhaseOffset: DDSParam{
-			DDSConst: &DDSConst{Value: 0},
+			Mode:  ModeConst,
+			Const: &DDSConst{Value: 0},
 		},
 	}
 

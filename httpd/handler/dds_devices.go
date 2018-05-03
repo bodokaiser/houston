@@ -5,7 +5,8 @@ import (
 
 	"github.com/labstack/echo"
 
-	"github.com/bodokaiser/houston/driver"
+	"github.com/bodokaiser/houston/driver/dds"
+	"github.com/bodokaiser/houston/driver/mux"
 	"github.com/bodokaiser/houston/httpd"
 	"github.com/bodokaiser/houston/model"
 )
@@ -17,7 +18,8 @@ import (
 // The Driver field contains the interface to the dds array.
 type DDSDevices struct {
 	Devices model.DDSDevices
-	Driver  driver.DDSArray
+	Mux     mux.Mux
+	DDS     dds.DDS
 }
 
 // List handles responds a list of available devices.
@@ -36,7 +38,7 @@ func (h *DDSDevices) List(ctx echo.Context) error {
 
 // Update updates configuration of specified device.
 func (h *DDSDevices) Update(ctx echo.Context) error {
-	d := new(model.DDSDevice)
+	d := model.DDSDevice{}
 
 	i := h.Devices.FindByName(ctx.Param("name"))
 	if i == -1 {
@@ -52,16 +54,28 @@ func (h *DDSDevices) Update(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	d.Address = h.Devices[i].Address
-	h.Devices[i] = *d
+	d.ID = h.Devices[i].ID
+	h.Devices[i] = d
 
-	err = h.Driver.Select(d.Address)
-	if err != nil {
+	if err := h.Mux.Select(d.ID); err != nil {
 		return err
 	}
 
-	err = h.Driver.SingleTone(d.Amplitude, d.Frequency, d.Phase)
-	if err != nil {
+	return ctx.NoContent(http.StatusNoContent)
+}
+
+func (h *DDSDevices) Delete(ctx echo.Context) error {
+	i := h.Devices.FindByName(ctx.Param("name"))
+	if i == -1 {
+		return echo.ErrNotFound
+	}
+
+	d := h.Devices[i]
+
+	if err := h.Mux.Select(d.ID); err != nil {
+		return err
+	}
+	if err := h.DDS.Reset(d.ID); err != nil {
 		return err
 	}
 
