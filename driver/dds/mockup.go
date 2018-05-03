@@ -1,5 +1,7 @@
 package dds
 
+import "log"
+
 type Mockup struct {
 	Debug     bool
 	HadReset  bool
@@ -11,21 +13,19 @@ type Mockup struct {
 	playback  PlaybackConfig
 }
 
-func NewMockup(c Config) *Mockup {
-	return &Mockup{
-		Debug:     c.Debug,
-		amplitude: 1.0,
-		frequency: 1e6,
-		phase:     0,
-	}
-}
-
 func (d *Mockup) Init() error {
+	if d.Debug {
+		log.Println("init")
+	}
 	return nil
 }
 
 func (d *Mockup) Reset() error {
 	d.HadReset = true
+
+	if d.Debug {
+		log.Println("reset")
+	}
 
 	return nil
 }
@@ -36,6 +36,10 @@ func (d *Mockup) Amplitude() float64 {
 
 func (d *Mockup) SetAmplitude(x float64) {
 	d.amplitude = x
+
+	if d.Debug {
+		log.Printf("amplitude set to %v\n", x)
+	}
 }
 
 func (d *Mockup) Frequency() float64 {
@@ -44,6 +48,10 @@ func (d *Mockup) Frequency() float64 {
 
 func (d *Mockup) SetFrequency(x float64) {
 	d.frequency = x
+
+	if d.Debug {
+		log.Printf("frequency set to %v\n", x)
+	}
 }
 
 func (d *Mockup) PhaseOffset() float64 {
@@ -52,6 +60,10 @@ func (d *Mockup) PhaseOffset() float64 {
 
 func (d *Mockup) SetPhaseOffset(x float64) {
 	d.phase = x
+
+	if d.Debug {
+		log.Printf("phase offset set to %v\n", x)
+	}
 }
 
 func (d *Mockup) Sweep() SweepConfig {
@@ -60,6 +72,10 @@ func (d *Mockup) Sweep() SweepConfig {
 
 func (d *Mockup) SetSweep(c SweepConfig) {
 	d.sweep = c
+
+	if d.Debug {
+		log.Printf("sweep set to %+v\n", c)
+	}
 }
 
 func (d *Mockup) Playback() PlaybackConfig {
@@ -68,10 +84,17 @@ func (d *Mockup) Playback() PlaybackConfig {
 
 func (d *Mockup) SetPlayback(c PlaybackConfig) {
 	d.playback = c
+
+	if d.Debug {
+		log.Printf("playback set to %+v\n", c)
+	}
 }
 
 func (d *Mockup) Exec() error {
 	d.HadExec = true
+	if d.Debug {
+		log.Println("exec")
+	}
 
 	return nil
 }

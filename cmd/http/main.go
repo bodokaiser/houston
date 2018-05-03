@@ -2,76 +2,48 @@
 package main
 
 import (
-	"flag"
-	"log"
-
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
 	"periph.io/x/periph/host"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 
-	"github.com/bodokaiser/houston/driver"
-	"github.com/bodokaiser/houston/driver/dds/ad99xx"
+	"github.com/bodokaiser/houston/cmd"
+	"github.com/bodokaiser/houston/driver/dds/ad9910"
 	"github.com/bodokaiser/houston/driver/mux"
 	"github.com/bodokaiser/houston/httpd"
 	"github.com/bodokaiser/houston/httpd/handler"
 	"github.com/bodokaiser/houston/model"
 )
 
-const (
-	defaultSysClock = 1e9
-	defaultRefClock = 1e7
-)
+var config = cmd.Config{}
 
-const (
-	defaultSPIDevice  = "SPI1.0"
-	defaultSPIMaxFreq = 5e6
-	defaultSPIMode    = 0
-)
+var devices model.DDSDevices
 
-const (
-	defaultResetPin    = "65"
-	defaultIOUpdatePin = "27"
-)
-
-var defaultMuxPins = []string{
-	"48", "30", "60", "31", "50",
-}
-
-type config struct {
-	address string
-	devices model.DDSDevices
-}
+var address string
 
 func main() {
-	c := config{}
+	kingpin.Flag("address", "").Default(":8000").StringVar(&address)
+	kingpin.Flag("config", "").Default("config.yaml").ExistingFileVar(&config.Filename)
+	kingpin.Flag("debug", "").Default("false").BoolVar(&config.DDS.Debug)
+	kingpin.Parse()
 
-	flag.StringVar(&c.address, "address", ":8000", "address to listen to")
-	flag.Var(&c.devices, "devices", "devices to expose")
-	flag.Parse()
+	config.Mux.Debug = config.DDS.Debug
 
-	_, err := host.Init()
-	if err != nil {
-		log.Fatal(err)
+	kingpin.FatalIfError(config.ReadFromFile(), "config")
+
+	if _, err := host.Init(); err != nil {
+		kingpin.FatalIfError(err, "host initialization")
 	}
 
-	csel, err := mux.NewDigital(defaultMuxPins)
-	if err != nil {
-		log.Fatal(err)
+	h := &handler.DDSDevices{
+		Devices: devices,
+		DDS:     ad9910.NewAD9910(config.DDS),
+		Mux:     mux.NewDigital(config.Mux),
 	}
 
-	dds, err := ad99xx.NewAD9910(ad99xx.Config{
-		SysClock:    defaultSysClock,
-		RefClock:    defaultRefClock,
-		ResetPin:    defaultResetPin,
-		IOUpdatePin: defaultIOUpdatePin,
-		SPIDevice:   defaultSPIDevice,
-		SPIMaxFreq:  defaultSPIMaxFreq,
-		SPIMode:     defaultSPIMode,
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
+	kingpin.FatalIfError(h.DDS.Init(), "mux initialization")
+	kingpin.FatalIfError(h.Mux.Init(), "dds initialization")
 
 	e := echo.New()
 	e.Use(httpd.WrapContext)
@@ -80,17 +52,11 @@ func main() {
 	e.Use(middleware.Recover())
 	e.HTTPErrorHandler = handler.HTTPError
 
-	dh := &handler.DDSDevices{
-		Devices: c.devices,
-		Driver: &driver.AD9910DDSArray{
-			DDS: dds,
-			Mux: csel,
-		},
-	}
-	e.GET("/devices/dds", dh.List)
-	e.PUT("/devices/dds/:name", dh.Update)
+	e.GET("/devices/dds", h.List)
+	e.PUT("/devices/dds/:id", h.Update)
+	e.DELETE("/devices/dds/:id", h.Delete)
 
 	e.Static("/", "public")
 
-	e.Logger.Fatal(e.Start(c.address))
+	e.Logger.Fatal(e.Start(address))
 }

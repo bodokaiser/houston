@@ -32,10 +32,10 @@ func (s *DDSTestSuite) SetupTest() {
 		ID:   3,
 		Name: "Champ",
 		Amplitude: model.DDSParam{
-			Const: &model.DDSConst{Value: 1.0},
+			Const: model.DDSConst{Value: 1.0},
 		},
 		Frequency: model.DDSParam{
-			Const: &model.DDSConst{Value: 250e6},
+			Const: model.DDSConst{Value: 250e6},
 		},
 	}
 	s.h = &DDSDevices{
@@ -101,16 +101,13 @@ func (s *DDSTestSuite) TestUpdateJSON() {
 		Name: "Abi Haft",
 		Amplitude: model.DDSParam{
 			Mode: model.ModeSweep,
-			Sweep: &model.DDSSweep{
+			Sweep: model.DDSSweep{
 				Limits:   [2]float64{0, 1.0},
 				Duration: 10 * time.Second,
 			},
 		},
 		Frequency: model.DDSParam{
-			Const: &model.DDSConst{Value: 250e6},
-		},
-		PhaseOffset: model.DDSParam{
-			Const: &model.DDSConst{},
+			Const: model.DDSConst{Value: 250e6},
 		},
 	}
 	json, err := json.Marshal(d)

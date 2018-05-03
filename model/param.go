@@ -61,10 +61,10 @@ func (m *Mode) UnmarshalJSON(b []byte) error {
 // Note that usually only one of the embedded structs will be not nil as it
 // does not make sense to have a constant frequency which we is also swept.
 type DDSParam struct {
-	Mode     Mode         `json:"mode"`
-	Const    *DDSConst    `json:"const,omitempty"`
-	Sweep    *DDSSweep    `json:"sweep,omitempty"`
-	Playback *DDSPlayback `json:"playback,omitempty"`
+	Mode     Mode        `json:"mode"`
+	Const    DDSConst    `json:"const" validate:"structonly"`
+	Sweep    DDSSweep    `json:"sweep" validate:"structonly"`
+	Playback DDSPlayback `json:"playback" validate:"structonly"`
 }
 
 // DDSConst is the DDS mode where a DDS controllable parameter is constant.
@@ -94,31 +94,16 @@ func DDSParamValidation(sl validator.StructLevel) {
 
 	switch p.Mode {
 	case ModeConst:
-		if p.Const == nil {
-			sl.ReportError(p, "DDSParam", "", "required",
-				"const mode was specified but not provided")
-		} else {
-			if err := sl.Validator().Struct(p.Const); err != nil {
-				sl.ReportValidationErrors("Const.", "Const.", err.(validator.ValidationErrors))
-			}
+		if err := sl.Validator().Struct(p.Const); err != nil {
+			sl.ReportValidationErrors("Const.", "Const.", err.(validator.ValidationErrors))
 		}
 	case ModeSweep:
-		if p.Sweep == nil {
-			sl.ReportError(p, "DDSParam", "", "required",
-				"sweep mode was specified but not provided")
-		} else {
-			if err := sl.Validator().Struct(p.Sweep); err != nil {
-				sl.ReportValidationErrors("Sweep.", "Sweep.", err.(validator.ValidationErrors))
-			}
+		if err := sl.Validator().Struct(p.Sweep); err != nil {
+			sl.ReportValidationErrors("Sweep.", "Sweep.", err.(validator.ValidationErrors))
 		}
 	case ModePlayback:
-		if p.Playback == nil {
-			sl.ReportError(p, "DDSParam", "", "required",
-				"playback mode was specified but not provided")
-		} else {
-			if err := sl.Validator().Struct(p.Playback); err != nil {
-				sl.ReportValidationErrors("Playback.", "Playback.", err.(validator.ValidationErrors))
-			}
+		if err := sl.Validator().Struct(p.Playback); err != nil {
+			sl.ReportValidationErrors("Playback.", "Playback.", err.(validator.ValidationErrors))
 		}
 	}
 }

@@ -1,41 +1,57 @@
-// httpdev starts a HTTP server with mocked hardware.
+// http starts a HTTP server with interface to the devices.
 package main
 
 import (
-	"flag"
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
+	"periph.io/x/periph/host"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 
-	"github.com/bodokaiser/houston/driver"
+	"github.com/bodokaiser/houston/driver/dds"
+	"github.com/bodokaiser/houston/driver/mux"
 	"github.com/bodokaiser/houston/httpd"
 	"github.com/bodokaiser/houston/httpd/handler"
 	"github.com/bodokaiser/houston/model"
 )
 
-var defaultDDSDevices = []model.DDSDevice{
+var devices = model.DDSDevices{
 	model.DDSDevice{
-		Name:      "DDS0",
-		Address:   0,
-		Amplitude: 1.0,
-		Frequency: 250e6,
-	},
-	model.DDSDevice{
-		Name:      "DDS1",
-		Address:   1,
-		Frequency: 10e6,
+		ID:   0,
+		Name: "Champ",
+		Amplitude: model.DDSParam{
+			Const: model.DDSConst{
+				Value: 1.0,
+			},
+		},
+		Frequency: model.DDSParam{
+			Const: model.DDSConst{
+				Value: 200e6,
+			},
+		},
 	},
 }
 
-type config struct {
-	address string
-}
+var address string
+var debug bool
 
 func main() {
-	c := config{}
+	kingpin.Flag("debug", "").Default("true").BoolVar(&debug)
+	kingpin.Flag("address", "").Default(":8000").StringVar(&address)
+	kingpin.Parse()
 
-	flag.StringVar(&c.address, "address", ":8000", "")
-	flag.Parse()
+	if _, err := host.Init(); err != nil {
+		kingpin.FatalIfError(err, "host initialization")
+	}
+
+	h := &handler.DDSDevices{
+		Devices: devices,
+		DDS:     &dds.Mockup{Debug: debug},
+		Mux:     &mux.Mockup{Debug: debug},
+	}
+
+	kingpin.FatalIfError(h.DDS.Init(), "mux initialization")
+	kingpin.FatalIfError(h.Mux.Init(), "dds initialization")
 
 	e := echo.New()
 	e.Use(httpd.WrapContext)
@@ -44,12 +60,11 @@ func main() {
 	e.Use(middleware.Recover())
 	e.HTTPErrorHandler = handler.HTTPError
 
-	dh := &handler.DDSDevices{
-		Devices: defaultDDSDevices,
-		Driver:  &driver.MockedDDSArray{},
-	}
-	e.GET("/devices/dds", dh.List)
-	e.PUT("/devices/dds/:name", dh.Update)
+	e.GET("/devices/dds", h.List)
+	e.PUT("/devices/dds/:id", h.Update)
+	e.DELETE("/devices/dds/:id", h.Delete)
 
-	e.Logger.Fatal(e.Start(c.address))
+	e.Static("/", "public")
+
+	e.Logger.Fatal(e.Start(address))
 }

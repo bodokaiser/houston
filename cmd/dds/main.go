@@ -14,23 +14,7 @@ import (
 
 var config = cmd.Config{}
 
-var device = model.DDSDevice{
-	Amplitude: model.DDSParam{
-		Const:    &model.DDSConst{},
-		Sweep:    &model.DDSSweep{},
-		Playback: &model.DDSPlayback{},
-	},
-	Frequency: model.DDSParam{
-		Const:    &model.DDSConst{},
-		Sweep:    &model.DDSSweep{},
-		Playback: &model.DDSPlayback{},
-	},
-	PhaseOffset: model.DDSParam{
-		Const:    &model.DDSConst{},
-		Sweep:    &model.DDSSweep{},
-		Playback: &model.DDSPlayback{},
-	},
-}
+var device = model.DDSDevice{}
 
 func main() {
 	kingpin.Flag("select", "chip select").Required().Uint8Var(&device.ID)
