@@ -2,6 +2,8 @@ package dds
 
 type Mockup struct {
 	Debug     bool
+	HadReset  bool
+	HadExec   bool
 	amplitude float64
 	frequency float64
 	phase     float64
@@ -19,6 +21,12 @@ func NewMockup(c Config) *Mockup {
 }
 
 func (d *Mockup) Init() error {
+	return nil
+}
+
+func (d *Mockup) Reset() error {
+	d.HadReset = true
+
 	return nil
 }
 
@@ -60,4 +68,10 @@ func (d *Mockup) Playback() PlaybackConfig {
 
 func (d *Mockup) SetPlayback(c PlaybackConfig) {
 	d.playback = c
+}
+
+func (d *Mockup) Exec() error {
+	d.HadExec = true
+
+	return nil
 }

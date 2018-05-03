@@ -2,16 +2,19 @@ package handler
 
 import (
 	"bytes"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/bodokaiser/houston/driver"
+	"github.com/bodokaiser/houston/driver/dds"
+	"github.com/bodokaiser/houston/driver/mux"
 	"github.com/bodokaiser/houston/httpd"
 	"github.com/bodokaiser/houston/model"
 )
@@ -21,25 +24,31 @@ type DDSTestSuite struct {
 
 	e *echo.Echo
 	h *DDSDevices
+	d model.DDSDevice
 }
 
 func (s *DDSTestSuite) SetupTest() {
-	s.h = &DDSDevices{
-		Devices: []model.DDSDevice{
-			model.DDSDevice{
-				Name:      "DDS0",
-				ID:        3,
-				Amplitude: 1.0,
-				Frequency: 250e6,
-			},
+	s.d = model.DDSDevice{
+		ID:   3,
+		Name: "Champ",
+		Amplitude: model.DDSParam{
+			Const: &model.DDSConst{Value: 1.0},
 		},
-		Driver: &driver.MockedDDSArray{},
+		Frequency: model.DDSParam{
+			Const: &model.DDSConst{Value: 250e6},
+		},
+	}
+	s.h = &DDSDevices{
+		Devices: model.DDSDevices{s.d},
+		Mux:     &mux.Mockup{},
+		DDS:     &dds.Mockup{},
 	}
 
 	s.e = echo.New()
 	s.e.Use(httpd.WrapContext)
 	s.e.GET("/devices/dds", s.h.List)
-	s.e.PUT("/devices/dds/:name", s.h.Update)
+	s.e.PUT("/devices/dds/:id", s.h.Update)
+	s.e.DELETE("/devices/dds/:id", s.h.Delete)
 }
 
 func (s *DDSTestSuite) TestList() {
@@ -59,10 +68,10 @@ func (s *DDSTestSuite) TestListJSON() {
 
 	s.e.ServeHTTP(rec, req)
 
+	d := model.DDSDevices{}
 	assert.Equal(s.T(), http.StatusOK, rec.Code)
-	assert.Equal(s.T(),
-		`[{"name":"DDS0","amplitude":1,"frequency":250000000,"phase":0}]`,
-		rec.Body.String())
+	assert.NoError(s.T(), json.Unmarshal([]byte(rec.Body.String()), &d))
+	assert.Equal(s.T(), s.h.Devices, d)
 }
 
 func (s *DDSTestSuite) TestListXML() {
@@ -77,7 +86,7 @@ func (s *DDSTestSuite) TestListXML() {
 }
 
 func (s *DDSTestSuite) TestUpdate() {
-	req := httptest.NewRequest(echo.PUT, "/devices/dds/DDS5", nil)
+	req := httptest.NewRequest(echo.PUT, "/devices/dds/2", nil)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 
@@ -87,18 +96,53 @@ func (s *DDSTestSuite) TestUpdate() {
 }
 
 func (s *DDSTestSuite) TestUpdateJSON() {
-	req := httptest.NewRequest(echo.PUT, "/devices/dds/DDS0",
-		bytes.NewBuffer([]byte(`{"name":"DDS0","amplitude":0.5,"frequency":100000000}`)))
+	d := model.DDSDevice{
+		ID:   3,
+		Name: "Abi Haft",
+		Amplitude: model.DDSParam{
+			Mode: model.ModeSweep,
+			Sweep: &model.DDSSweep{
+				Limits:   [2]float64{0, 1.0},
+				Duration: 10 * time.Second,
+			},
+		},
+		Frequency: model.DDSParam{
+			Const: &model.DDSConst{Value: 250e6},
+		},
+		PhaseOffset: model.DDSParam{
+			Const: &model.DDSConst{},
+		},
+	}
+	json, err := json.Marshal(d)
+	assert.NoError(s.T(), err)
+
+	req := httptest.NewRequest(echo.PUT, "/devices/dds/3", bytes.NewBuffer(json))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 
 	s.e.ServeHTTP(rec, req)
 
 	assert.Equal(s.T(), http.StatusNoContent, rec.Code)
-	assert.EqualValues(s.T(), 0.5, s.h.Devices[0].Amplitude)
-	assert.EqualValues(s.T(), 100e6, s.h.Devices[0].Frequency)
-	assert.EqualValues(s.T(), 3, s.h.Driver.(*driver.MockedDDSArray).Address)
-	assert.EqualValues(s.T(), 100e6, s.h.Driver.(*driver.MockedDDSArray).Frequency)
+	assert.Equal(s.T(), d, s.h.Devices[0])
+	assert.Equal(s.T(), dds.SweepConfig{
+		Limits:   [2]float64{0, 1.0},
+		Duration: 10 * time.Second,
+		Param:    dds.ParamAmplitude,
+	}, s.h.DDS.Sweep())
+	assert.Equal(s.T(), 250e6, s.h.DDS.Frequency())
+	assert.Equal(s.T(), float64(0), s.h.DDS.PhaseOffset())
+	assert.True(s.T(), s.h.DDS.(*dds.Mockup).HadExec)
+}
+
+func (s *DDSTestSuite) TestDelete() {
+	req := httptest.NewRequest(echo.DELETE, "/devices/dds/3", nil)
+	rec := httptest.NewRecorder()
+
+	s.e.ServeHTTP(rec, req)
+
+	assert.Equal(s.T(), http.StatusNoContent, rec.Code)
+	assert.EqualValues(s.T(), 3, s.h.Mux.(*mux.Mockup).Selected)
+	assert.True(s.T(), s.h.DDS.(*dds.Mockup).HadReset)
 }
 
 func TestDeviceTestSuite(t *testing.T) {

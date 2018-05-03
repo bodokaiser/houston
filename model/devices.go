@@ -25,6 +25,15 @@ func (s *DDSDevices) FindByID(id uint8) int {
 	return -1
 }
 
+func (s *DDSDevices) FindByIDString(id string) int {
+	i, err := strconv.Atoi(id)
+	if err != nil {
+		return -1
+	}
+
+	return s.FindByID(uint8(i))
+}
+
 // FindByName returns the first index of the DDSDevice with the given name.
 //
 // If no DDSDevice with given name is found -1 is returned.

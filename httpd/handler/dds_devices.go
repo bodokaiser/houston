@@ -40,24 +40,83 @@ func (h *DDSDevices) List(ctx echo.Context) error {
 func (h *DDSDevices) Update(ctx echo.Context) error {
 	d := model.DDSDevice{}
 
-	i := h.Devices.FindByName(ctx.Param("name"))
+	i := h.Devices.FindByIDString(ctx.Param("id"))
 	if i == -1 {
 		return echo.ErrNotFound
 	}
 
-	err := ctx.Bind(d)
-	if err != nil {
+	if err := ctx.Bind(&d); err != nil {
 		return err
 	}
 
-	err = d.Validate()
-	if err != nil {
+	if err := d.Validate(); err != nil {
 		return err
 	}
-	d.ID = h.Devices[i].ID
 	h.Devices[i] = d
 
 	if err := h.Mux.Select(d.ID); err != nil {
+		return err
+	}
+
+	switch d.Amplitude.Mode {
+	case model.ModeConst:
+		h.DDS.SetAmplitude(d.Amplitude.Const.Value)
+	case model.ModeSweep:
+		h.DDS.SetSweep(dds.SweepConfig{
+			Limits:   d.Amplitude.Sweep.Limits,
+			NoDwells: d.Amplitude.Sweep.NoDwells,
+			Duration: d.Amplitude.Sweep.Duration,
+			Param:    dds.ParamAmplitude,
+		})
+	case model.ModePlayback:
+		h.DDS.SetPlayback(dds.PlaybackConfig{
+			Trigger:  d.Amplitude.Playback.Trigger,
+			Duplex:   d.Amplitude.Playback.Duplex,
+			Duration: d.Amplitude.Playback.Interval,
+			Data:     d.Amplitude.Playback.Data,
+			Param:    dds.ParamAmplitude,
+		})
+	}
+	switch d.Frequency.Mode {
+	case model.ModeConst:
+		h.DDS.SetFrequency(d.Frequency.Const.Value)
+	case model.ModeSweep:
+		h.DDS.SetSweep(dds.SweepConfig{
+			Limits:   d.Frequency.Sweep.Limits,
+			NoDwells: d.Frequency.Sweep.NoDwells,
+			Duration: d.Frequency.Sweep.Duration,
+			Param:    dds.ParamFrequency,
+		})
+	case model.ModePlayback:
+		h.DDS.SetPlayback(dds.PlaybackConfig{
+			Trigger:  d.Frequency.Playback.Trigger,
+			Duplex:   d.Frequency.Playback.Duplex,
+			Duration: d.Frequency.Playback.Interval,
+			Data:     d.Frequency.Playback.Data,
+			Param:    dds.ParamFrequency,
+		})
+	}
+	switch d.PhaseOffset.Mode {
+	case model.ModeConst:
+		h.DDS.SetPhaseOffset(d.PhaseOffset.Const.Value)
+	case model.ModeSweep:
+		h.DDS.SetSweep(dds.SweepConfig{
+			Limits:   d.PhaseOffset.Sweep.Limits,
+			NoDwells: d.PhaseOffset.Sweep.NoDwells,
+			Duration: d.PhaseOffset.Sweep.Duration,
+			Param:    dds.ParamPhase,
+		})
+	case model.ModePlayback:
+		h.DDS.SetPlayback(dds.PlaybackConfig{
+			Trigger:  d.PhaseOffset.Playback.Trigger,
+			Duplex:   d.PhaseOffset.Playback.Duplex,
+			Duration: d.PhaseOffset.Playback.Interval,
+			Data:     d.PhaseOffset.Playback.Data,
+			Param:    dds.ParamPhase,
+		})
+	}
+
+	if err := h.DDS.Exec(); err != nil {
 		return err
 	}
 
@@ -65,17 +124,16 @@ func (h *DDSDevices) Update(ctx echo.Context) error {
 }
 
 func (h *DDSDevices) Delete(ctx echo.Context) error {
-	i := h.Devices.FindByName(ctx.Param("name"))
+	i := h.Devices.FindByIDString(ctx.Param("id"))
 	if i == -1 {
 		return echo.ErrNotFound
 	}
-
 	d := h.Devices[i]
 
 	if err := h.Mux.Select(d.ID); err != nil {
 		return err
 	}
-	if err := h.DDS.Reset(d.ID); err != nil {
+	if err := h.DDS.Reset(); err != nil {
 		return err
 	}
 

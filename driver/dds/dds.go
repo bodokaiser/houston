@@ -32,7 +32,7 @@ type PlaybackConfig = dds.PlaybackConfig
 type DDS interface {
 	driver.Driver
 
-	Reset(uint8) error
+	Reset() error
 
 	Amplitude() float64
 	SetAmplitude(float64)
@@ -48,4 +48,6 @@ type DDS interface {
 
 	Playback() PlaybackConfig
 	SetPlayback(PlaybackConfig)
+
+	Exec() error
 }
