@@ -54,7 +54,7 @@ copy files to the target device:
 ## Development
 
 Code documentation is available [online](https://godoc.org/github.com/bodokaiser/houston)
-or can be hosted locally with `godoc -http=:6060`.
+or can be hosted locally with `godoc -http=:6060`. To run tests do `go test ./...`.
 
 ## Appendix
 
