@@ -2,8 +2,9 @@
 package main
 
 import (
-	kingpin "gopkg.in/alecthomas/kingpin.v2"
 	"periph.io/x/periph/host"
+
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -21,23 +22,23 @@ type options struct {
 	Debug   bool
 }
 
-func main() {
-	o := options{
-		Devices: model.DDSDevices{
-			model.DDSDevice{
-				Name: "Champ",
-				Amplitude: model.DDSParam{
-					Const: model.DDSConst{Value: 1.0},
-				},
-				Frequency: model.DDSParam{
-					Const: model.DDSConst{Value: 200e6},
-				},
+var cmd = options{
+	Devices: model.DDSDevices{
+		model.DDSDevice{
+			Name: "Champ",
+			Amplitude: model.DDSParam{
+				Const: model.DDSConst{Value: 1.0},
+			},
+			Frequency: model.DDSParam{
+				Const: model.DDSConst{Value: 200e6},
 			},
 		},
-	}
+	},
+}
 
-	kingpin.Flag("debug", "").Default("true").BoolVar(&o.Debug)
-	kingpin.Flag("address", "").Default(":8000").StringVar(&o.Address)
+func main() {
+	kingpin.Flag("debug", "").Default("true").BoolVar(&cmd.Debug)
+	kingpin.Flag("address", "").Default(":8000").StringVar(&cmd.Address)
 	kingpin.Parse()
 
 	if _, err := host.Init(); err != nil {
@@ -45,9 +46,9 @@ func main() {
 	}
 
 	h := &handler.DDSDevices{
-		Devices: o.Devices,
-		DDS:     &dds.Mockup{Debug: o.Debug},
-		Mux:     &mux.Mockup{Debug: o.Debug},
+		Devices: cmd.Devices,
+		DDS:     &dds.Mockup{Debug: cmd.Debug},
+		Mux:     &mux.Mockup{Debug: cmd.Debug},
 	}
 
 	kingpin.FatalIfError(h.DDS.Init(), "mux initialization")
@@ -66,5 +67,5 @@ func main() {
 
 	e.Static("/", "public")
 
-	e.Logger.Fatal(e.Start(o.Address))
+	e.Logger.Fatal(e.Start(cmd.Address))
 }

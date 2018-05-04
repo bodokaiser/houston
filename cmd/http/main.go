@@ -25,26 +25,25 @@ type options struct {
 	Filename string
 }
 
-func main() {
-	o := &options{}
+var cmd = options{}
 
-	kingpin.Flag("address", "").Default(":8000").StringVar(&o.Address)
-	kingpin.Flag("config", "").Default("config.yaml").ExistingFileVar(&o.Filename)
-	kingpin.Flag("debug", "").Default("false").BoolVar(&o.Debug)
+func main() {
+	kingpin.Flag("address", "").Default(":8000").StringVar(&cmd.Address)
+	kingpin.Flag("config", "").ExistingFileVar(&cmd.Filename)
+	kingpin.Flag("debug", "").Default("false").BoolVar(&cmd.Debug)
 	kingpin.Parse()
 
-	o.Ensure()
-
-	kingpin.FatalIfError(o.ReadFromFile(o.Filename), "config")
+	cmd.Ensure()
+	cmd.ReadFromBox(cmd.Filename)
 
 	if _, err := host.Init(); err != nil {
 		kingpin.FatalIfError(err, "host initialization")
 	}
 
 	h := &handler.DDSDevices{
-		Devices: o.Devices,
-		DDS:     ad9910.NewAD9910(o.DDS),
-		Mux:     mux.NewDigital(o.Mux),
+		Devices: cmd.Devices,
+		DDS:     ad9910.NewAD9910(cmd.DDS),
+		Mux:     mux.NewDigital(cmd.Mux),
 	}
 
 	kingpin.FatalIfError(h.DDS.Init(), "mux initialization")
@@ -63,5 +62,5 @@ func main() {
 
 	e.Static("/", "public")
 
-	e.Logger.Fatal(e.Start(o.Address))
+	e.Logger.Fatal(e.Start(cmd.Address))
 }

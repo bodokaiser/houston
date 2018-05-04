@@ -6,6 +6,8 @@ import (
 
 	"gopkg.in/yaml.v2"
 
+	"github.com/gobuffalo/packr"
+
 	"github.com/bodokaiser/houston/driver/dds"
 	"github.com/bodokaiser/houston/driver/mux"
 )
@@ -34,4 +36,10 @@ func (c *Config) ReadFromFile(filename string) error {
 	}
 
 	return yaml.Unmarshal(buf.Bytes(), c)
+}
+
+func (c *Config) ReadFromBox(filename string) error {
+	b := packr.NewBox("./").Bytes("beagle.yaml")
+
+	return yaml.Unmarshal(b, c)
 }

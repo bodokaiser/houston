@@ -23,6 +23,18 @@ func (s *ConfigTestSuite) TestReadFromFile() {
 	assert.Equal(s.T(), "65", c.DDS.GPIO.Reset)
 }
 
+func (s *ConfigTestSuite) TestReadFromBox() {
+	c := Config{}
+
+	err := c.ReadFromBox("beagle.yaml")
+	assert.NoError(s.T(), err)
+
+	assert.Equal(s.T(), float64(1e9), c.DDS.SysClock)
+	assert.Equal(s.T(), float64(1e7), c.DDS.RefClock)
+	assert.Equal(s.T(), "SPI1.0", c.DDS.SPI.Device)
+	assert.Equal(s.T(), "65", c.DDS.GPIO.Reset)
+}
+
 func TestConfigSuite(t *testing.T) {
 	suite.Run(t, new(ConfigTestSuite))
 }
