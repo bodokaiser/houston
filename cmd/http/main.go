@@ -2,13 +2,14 @@
 package main
 
 import (
-	kingpin "gopkg.in/alecthomas/kingpin.v2"
 	"periph.io/x/periph/host"
+
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 
-	"github.com/bodokaiser/houston/cmd"
+	"github.com/bodokaiser/houston/config"
 	"github.com/bodokaiser/houston/driver/dds/ad9910"
 	"github.com/bodokaiser/houston/driver/mux"
 	"github.com/bodokaiser/houston/httpd"
@@ -16,30 +17,34 @@ import (
 	"github.com/bodokaiser/houston/model"
 )
 
-var config = cmd.Config{}
+type options struct {
+	config.Config
 
-var devices model.DDSDevices
-
-var address string
+	Devices  model.DDSDevices
+	Address  string
+	Filename string
+}
 
 func main() {
-	kingpin.Flag("address", "").Default(":8000").StringVar(&address)
-	kingpin.Flag("config", "").Default("config.yaml").ExistingFileVar(&config.Filename)
-	kingpin.Flag("debug", "").Default("false").BoolVar(&config.DDS.Debug)
+	o := &options{}
+
+	kingpin.Flag("address", "").Default(":8000").StringVar(&o.Address)
+	kingpin.Flag("config", "").Default("config.yaml").ExistingFileVar(&o.Filename)
+	kingpin.Flag("debug", "").Default("false").BoolVar(&o.Debug)
 	kingpin.Parse()
 
-	config.Mux.Debug = config.DDS.Debug
+	o.Ensure()
 
-	kingpin.FatalIfError(config.ReadFromFile(), "config")
+	kingpin.FatalIfError(o.ReadFromFile(o.Filename), "config")
 
 	if _, err := host.Init(); err != nil {
 		kingpin.FatalIfError(err, "host initialization")
 	}
 
 	h := &handler.DDSDevices{
-		Devices: devices,
-		DDS:     ad9910.NewAD9910(config.DDS),
-		Mux:     mux.NewDigital(config.Mux),
+		Devices: o.Devices,
+		DDS:     ad9910.NewAD9910(o.DDS),
+		Mux:     mux.NewDigital(o.Mux),
 	}
 
 	kingpin.FatalIfError(h.DDS.Init(), "mux initialization")
@@ -58,5 +63,5 @@ func main() {
 
 	e.Static("/", "public")
 
-	e.Logger.Fatal(e.Start(address))
+	e.Logger.Fatal(e.Start(o.Address))
 }

@@ -15,29 +15,29 @@ import (
 	"github.com/bodokaiser/houston/model"
 )
 
-var devices = model.DDSDevices{
-	model.DDSDevice{
-		ID:   0,
-		Name: "Champ",
-		Amplitude: model.DDSParam{
-			Const: model.DDSConst{
-				Value: 1.0,
-			},
-		},
-		Frequency: model.DDSParam{
-			Const: model.DDSConst{
-				Value: 200e6,
-			},
-		},
-	},
+type options struct {
+	Devices model.DDSDevices
+	Address string
+	Debug   bool
 }
 
-var address string
-var debug bool
-
 func main() {
-	kingpin.Flag("debug", "").Default("true").BoolVar(&debug)
-	kingpin.Flag("address", "").Default(":8000").StringVar(&address)
+	o := options{
+		Devices: model.DDSDevices{
+			model.DDSDevice{
+				Name: "Champ",
+				Amplitude: model.DDSParam{
+					Const: model.DDSConst{Value: 1.0},
+				},
+				Frequency: model.DDSParam{
+					Const: model.DDSConst{Value: 200e6},
+				},
+			},
+		},
+	}
+
+	kingpin.Flag("debug", "").Default("true").BoolVar(&o.Debug)
+	kingpin.Flag("address", "").Default(":8000").StringVar(&o.Address)
 	kingpin.Parse()
 
 	if _, err := host.Init(); err != nil {
@@ -45,9 +45,9 @@ func main() {
 	}
 
 	h := &handler.DDSDevices{
-		Devices: devices,
-		DDS:     &dds.Mockup{Debug: debug},
-		Mux:     &mux.Mockup{Debug: debug},
+		Devices: o.Devices,
+		DDS:     &dds.Mockup{Debug: o.Debug},
+		Mux:     &mux.Mockup{Debug: o.Debug},
 	}
 
 	kingpin.FatalIfError(h.DDS.Init(), "mux initialization")
@@ -66,5 +66,5 @@ func main() {
 
 	e.Static("/", "public")
 
-	e.Logger.Fatal(e.Start(address))
+	e.Logger.Fatal(e.Start(o.Address))
 }
