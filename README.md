@@ -2,6 +2,8 @@
 
 Houston connects your lab equipment.
 
+[![GoDoc](https://godoc.org/github.com/bodokaiser/houston?status.svg)](https://godoc.org/github.com/bodokaiser/houston)
+
 ## Usage
 
 ### CLI
