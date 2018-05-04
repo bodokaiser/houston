@@ -326,7 +326,7 @@ func (d *AD9910) Playback() dds.PlaybackConfig {
 }
 
 func (d *AD9910) SetPlayback(c dds.PlaybackConfig) {
-	t := c.Duration.Seconds()
+	t := c.Interval.Seconds()
 	tmin := 1 / d.playbackClock()
 	tmax := tmin * math.MaxUint16
 

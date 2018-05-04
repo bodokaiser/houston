@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -25,7 +24,7 @@ func (s *DDSParamTestSuite) TestValidateDDSConst() {
 func (s *DDSParamTestSuite) TestValidateDDSSweep() {
 	p1 := DDSSweep{
 		Limits:   [2]float64{0, 100},
-		Duration: time.Second,
+		Duration: 1e9,
 	}
 	p2 := DDSSweep{
 		Limits:   [2]float64{0, 100},
@@ -33,11 +32,11 @@ func (s *DDSParamTestSuite) TestValidateDDSSweep() {
 	}
 	p3 := DDSSweep{
 		Limits:   [2]float64{100, 0},
-		Duration: time.Second,
+		Duration: 1e9,
 	}
 	p4 := DDSSweep{
 		Limits:   [2]float64{-100, 0},
-		Duration: time.Second,
+		Duration: 1e9,
 	}
 
 	assert.NoError(s.T(), validate.Struct(p1))
@@ -48,7 +47,7 @@ func (s *DDSParamTestSuite) TestValidateDDSSweep() {
 
 func (s *DDSParamTestSuite) TestValidateDDSPlayback() {
 	p1 := DDSPlayback{
-		Interval: time.Nanosecond,
+		Interval: 1,
 		Data:     []float64{1, 2, 3},
 	}
 	p2 := DDSPlayback{
@@ -56,7 +55,7 @@ func (s *DDSParamTestSuite) TestValidateDDSPlayback() {
 		Data:     []float64{1, 2, 3},
 	}
 	p3 := DDSPlayback{
-		Interval: time.Nanosecond,
+		Interval: 1,
 	}
 
 	assert.NoError(s.T(), validate.Struct(p1))

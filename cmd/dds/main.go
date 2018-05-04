@@ -9,158 +9,107 @@ import (
 	"github.com/bodokaiser/houston/driver/dds"
 	"github.com/bodokaiser/houston/driver/dds/ad9910"
 	"github.com/bodokaiser/houston/driver/mux"
-	"github.com/bodokaiser/houston/model"
 )
 
 var config = cmd.Config{}
 
-var device = model.DDSDevice{}
+var (
+	id uint8
+
+	param       string
+	amplitude   float64
+	frequency   float64
+	phaseOffset float64
+
+	sweep    dds.SweepConfig
+	playback dds.PlaybackConfig
+)
 
 func main() {
-	kingpin.Flag("select", "chip select").Required().Uint8Var(&device.ID)
+	kingpin.Flag("select", "chip select").Required().Uint8Var(&id)
 	kingpin.Flag("config", "device config").Default("config.yaml").ExistingFileVar(&config.Filename)
 	kingpin.Flag("debug", "verbose logging").Default("false").BoolVar(&config.DDS.Debug)
 	kingpin.Command("reset", "resets a dds")
 
-	c := kingpin.Command("const", "outputs constant signal")
-	c.Flag("amplitude", "").Default("1").Float64Var(&device.Amplitude.Const.Value)
-	c.Flag("frequency", "").Required().Float64Var(&device.Frequency.Const.Value)
-	c.Flag("phase", "").Default("0").Float64Var(&device.PhaseOffset.Const.Value)
+	c := kingpin.Command("const", "constant parameters")
+	c.Flag("amplitude", "").Default("1").Float64Var(&amplitude)
+	c.Flag("frequency", "").Required().Float64Var(&frequency)
+	c.Flag("phase", "").Default("0").Float64Var(&phaseOffset)
 
-	sa := kingpin.Command("asweep", "sweeps amplitude")
-	sa.Flag("frequency", "").Required().Float64Var(&device.Frequency.Const.Value)
-	sa.Flag("phase", "").Default("0").Float64Var(&device.PhaseOffset.Const.Value)
-	sa.Flag("duration", "").Required().DurationVar(&device.Amplitude.Sweep.Duration)
-	sa.Flag("start", "").Required().Float64Var(&device.Amplitude.Sweep.Limits[0])
-	sa.Flag("stop", "").Required().Float64Var(&device.Amplitude.Sweep.Limits[1])
-	sa.Flag("nodwell-low", "").Default("true").BoolVar(&device.Amplitude.Sweep.NoDwells[0])
-	sa.Flag("nodwell-high", "").Default("true").BoolVar(&device.Amplitude.Sweep.NoDwells[1])
+	s := kingpin.Command("sweep", "sweeps single parameter")
+	s.Flag("amplitude", "").Default("1").Float64Var(&amplitude)
+	s.Flag("frequency", "").Required().Float64Var(&frequency)
+	s.Flag("phase", "").Default("0").Float64Var(&phaseOffset)
+	s.Flag("start", "").Required().Float64Var(&sweep.Limits[0])
+	s.Flag("stop", "").Required().Float64Var(&sweep.Limits[1])
+	s.Flag("nodwell-low", "").Default("true").BoolVar(&sweep.NoDwells[0])
+	s.Flag("nodwell-high", "").Default("true").BoolVar(&sweep.NoDwells[1])
+	s.Flag("param", "").Required().EnumVar(&param, "amplitude", "frequency", "phase")
 
-	sf := kingpin.Command("fsweep", "sweeps frequency")
-	sf.Flag("amplitude", "").Default("1").Float64Var(&device.Amplitude.Const.Value)
-	sf.Flag("phase", "").Default("0").Float64Var(&device.PhaseOffset.Const.Value)
-	sf.Flag("duration", "").Required().DurationVar(&device.Frequency.Sweep.Duration)
-	sf.Flag("start", "").Required().Float64Var(&device.Frequency.Sweep.Limits[0])
-	sf.Flag("stop", "").Required().Float64Var(&device.Frequency.Sweep.Limits[1])
-	sf.Flag("nodwell-low", "").Default("true").BoolVar(&device.Frequency.Sweep.NoDwells[0])
-	sf.Flag("nodwell-high", "").Default("true").BoolVar(&device.Frequency.Sweep.NoDwells[1])
+	p := kingpin.Command("playback", "playbacks single parameter")
+	s.Flag("amplitude", "").Default("1").Float64Var(&amplitude)
+	s.Flag("frequency", "").Required().Float64Var(&frequency)
+	s.Flag("phase", "").Default("0").Float64Var(&phaseOffset)
+	p.Flag("interval", "").Required().DurationVar(&playback.Interval)
+	p.Flag("trigger", "").Default("0").BoolVar(&playback.Trigger)
+	p.Flag("duplex", "").Default("0").BoolVar(&playback.Duplex)
+	p.Flag("data", "").Required().Float64ListVar(&playback.Data)
+	p.Flag("param", "").Required().EnumVar(&param, "amplitude", "frequency", "phase")
 
-	sp := kingpin.Command("psweep", "sweeps phase")
-	sp.Flag("amplitude", "").Default("1").Float64Var(&device.Amplitude.Const.Value)
-	sp.Flag("frequency", "").Required().Float64Var(&device.Frequency.Const.Value)
-	sp.Flag("duration", "").Required().DurationVar(&device.PhaseOffset.Sweep.Duration)
-	sp.Flag("start", "").Required().Float64Var(&device.PhaseOffset.Sweep.Limits[0])
-	sp.Flag("stop", "").Required().Float64Var(&device.PhaseOffset.Sweep.Limits[1])
-	sp.Flag("nodwell-low", "").Default("true").BoolVar(&device.PhaseOffset.Sweep.NoDwells[0])
-	sp.Flag("nodwell-high", "").Default("true").BoolVar(&device.PhaseOffset.Sweep.NoDwells[1])
-
-	pa := kingpin.Command("aplayback", "playbacks amplitude")
-	pa.Flag("frequency", "").Required().Float64Var(&device.Frequency.Const.Value)
-	pa.Flag("phase", "").Default("0").Float64Var(&device.PhaseOffset.Const.Value)
-	pa.Flag("interval", "").Required().DurationVar(&device.Amplitude.Playback.Interval)
-	pa.Flag("trigger", "").Default("0").BoolVar(&device.Amplitude.Playback.Trigger)
-	pa.Flag("duplex", "").Default("0").BoolVar(&device.Amplitude.Playback.Duplex)
-	pa.Flag("data", "").Required().Float64ListVar(&device.Amplitude.Playback.Data)
-
-	pf := kingpin.Command("fplayback", "playbacks frequency")
-	pf.Flag("amplitude", "").Default("1").Float64Var(&device.Amplitude.Const.Value)
-	pf.Flag("phase", "").Default("0").Float64Var(&device.PhaseOffset.Const.Value)
-	pf.Flag("interval", "").Required().DurationVar(&device.Frequency.Playback.Interval)
-	pf.Flag("trigger", "").Default("0").BoolVar(&device.Frequency.Playback.Trigger)
-	pf.Flag("duplex", "").Default("0").BoolVar(&device.Frequency.Playback.Duplex)
-	pf.Flag("data", "").Required().Float64ListVar(&device.Frequency.Playback.Data)
-
-	pp := kingpin.Command("pplayback", "playbacks frequency")
-	pp.Flag("amplitude", "").Default("1").Float64Var(&device.Amplitude.Const.Value)
-	pp.Flag("frequency", "").Default("0").Float64Var(&device.Frequency.Const.Value)
-	pp.Flag("interval", "").Required().DurationVar(&device.PhaseOffset.Playback.Interval)
-	pp.Flag("trigger", "").Default("0").BoolVar(&device.PhaseOffset.Playback.Trigger)
-	pp.Flag("duplex", "").Default("0").BoolVar(&device.PhaseOffset.Playback.Duplex)
-	pp.Flag("data", "").Required().Float64ListVar(&device.PhaseOffset.Playback.Data)
-
-	subcmd := kingpin.Parse()
-	config.Mux.Debug = config.DDS.Debug
-
-	kingpin.FatalIfError(config.ReadFromFile(), "config")
+	var m mux.Mux
+	var d dds.DDS
 
 	if _, err := host.Init(); err != nil {
 		kingpin.FatalIfError(err, "host initialization")
 	}
 
-	m := mux.NewDigital(config.Mux)
-	kingpin.FatalIfError(m.Init(), "mux initialization")
-	kingpin.FatalIfError(m.Select(device.ID), "mux chip select")
+	switch kingpin.Parse() {
+	default:
+		config.Mux.Debug = config.DDS.Debug
 
-	d := ad9910.NewAD9910(config.DDS)
-	kingpin.FatalIfError(d.Init(), "dds initialization")
+		kingpin.FatalIfError(config.ReadFromFile(), "config")
 
-	switch subcmd {
+		m = mux.NewDigital(config.Mux)
+		kingpin.FatalIfError(m.Init(), "mux initialization")
+		kingpin.FatalIfError(m.Select(id), "mux chip select")
+
+		d = ad9910.NewAD9910(config.DDS)
+		kingpin.FatalIfError(d.Init(), "dds initialization")
+
+		switch param {
+		case "amplitude":
+			sweep.Param = dds.ParamAmplitude
+			playback.Param = dds.ParamAmplitude
+		case "frequency":
+			sweep.Param = dds.ParamFrequency
+			playback.Param = dds.ParamFrequency
+		case "phase":
+			sweep.Param = dds.ParamPhase
+			playback.Param = dds.ParamPhase
+		}
+
+		fallthrough
 	case "reset":
 		d.Reset()
 	case "const":
-		d.SetAmplitude(device.Amplitude.Const.Value)
-		d.SetFrequency(device.Frequency.Const.Value)
-		d.SetPhaseOffset(device.PhaseOffset.Const.Value)
-	case "asweep":
-		d.SetSweep(dds.SweepConfig{
-			Limits:   device.Amplitude.Sweep.Limits,
-			NoDwells: device.Amplitude.Sweep.NoDwells,
-			Duration: device.Amplitude.Sweep.Duration,
-			Param:    dds.ParamAmplitude,
-		})
-		d.SetFrequency(device.Frequency.Const.Value)
-		d.SetPhaseOffset(device.PhaseOffset.Const.Value)
-	case "fsweep":
-		d.SetSweep(dds.SweepConfig{
-			Limits:   device.Frequency.Sweep.Limits,
-			NoDwells: device.Frequency.Sweep.NoDwells,
-			Duration: device.Frequency.Sweep.Duration,
-			Param:    dds.ParamFrequency,
-		})
-		d.SetAmplitude(device.Amplitude.Const.Value)
-		d.SetPhaseOffset(device.PhaseOffset.Const.Value)
-	case "psweep":
-		d.SetSweep(dds.SweepConfig{
-			Limits:   device.PhaseOffset.Sweep.Limits,
-			NoDwells: device.PhaseOffset.Sweep.NoDwells,
-			Duration: device.PhaseOffset.Sweep.Duration,
-			Param:    dds.ParamPhase,
-		})
-		d.SetAmplitude(device.Amplitude.Const.Value)
-		d.SetFrequency(device.Frequency.Const.Value)
-	case "aplayback":
-		d.SetPlayback(dds.PlaybackConfig{
-			Trigger:  device.Amplitude.Playback.Trigger,
-			Duplex:   device.Amplitude.Playback.Duplex,
-			Duration: device.Amplitude.Playback.Interval,
-			Data:     device.Amplitude.Playback.Data,
-			Param:    dds.ParamAmplitude,
-		})
-		d.SetFrequency(device.Frequency.Const.Value)
-		d.SetPhaseOffset(device.PhaseOffset.Const.Value)
-	case "fplayback":
-		d.SetPlayback(dds.PlaybackConfig{
-			Trigger:  device.Frequency.Playback.Trigger,
-			Duplex:   device.Frequency.Playback.Duplex,
-			Duration: device.Frequency.Playback.Interval,
-			Data:     device.Frequency.Playback.Data,
-			Param:    dds.ParamFrequency,
-		})
-		d.SetAmplitude(device.Amplitude.Const.Value)
-		d.SetPhaseOffset(device.PhaseOffset.Const.Value)
-	case "pplayback":
-		d.SetPlayback(dds.PlaybackConfig{
-			Trigger:  device.PhaseOffset.Playback.Trigger,
-			Duplex:   device.PhaseOffset.Playback.Duplex,
-			Duration: device.PhaseOffset.Playback.Interval,
-			Data:     device.PhaseOffset.Playback.Data,
-			Param:    dds.ParamPhase,
-		})
-		d.SetAmplitude(device.Amplitude.Const.Value)
-		d.SetFrequency(device.Frequency.Const.Value)
-	}
+		d.SetAmplitude(amplitude)
+		d.SetFrequency(frequency)
+		d.SetPhaseOffset(phaseOffset)
 
-	if subcmd != "reset" {
-		kingpin.FatalIfError(d.Exec(), "failed to write config")
+		kingpin.FatalIfError(d.Exec(), "failed to update device")
+	case "sweep":
+		d.SetAmplitude(amplitude)
+		d.SetFrequency(frequency)
+		d.SetPhaseOffset(phaseOffset)
+		d.SetSweep(sweep)
+
+		kingpin.FatalIfError(d.Exec(), "failed to update device")
+	case "playback":
+		d.SetAmplitude(amplitude)
+		d.SetFrequency(frequency)
+		d.SetPhaseOffset(phaseOffset)
+		d.SetPlayback(playback)
+
+		kingpin.FatalIfError(d.Exec(), "failed to update device")
 	}
 }

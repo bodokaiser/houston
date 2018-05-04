@@ -3,6 +3,7 @@ package model
 import (
 	"encoding/json"
 	"errors"
+	"math"
 	"strings"
 	"time"
 
@@ -56,6 +57,27 @@ func (m *Mode) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+type Seconds float64
+
+func (s Seconds) Duration() time.Duration {
+	return time.Duration(math.Round(float64(time.Second) * float64(s)))
+}
+
+func (s Seconds) String() string {
+	return s.Duration().String()
+}
+
+func (s *Seconds) Set(v string) error {
+	d, err := time.ParseDuration(v)
+	if err != nil {
+		return err
+	}
+
+	*s = Seconds(d.Seconds())
+
+	return nil
+}
+
 // DDSParam is the DDS mode in which a DDS controllable parameter runs.
 //
 // Note that usually only one of the embedded structs will be not nil as it
@@ -74,18 +96,18 @@ type DDSConst struct {
 
 // DDSSweep is the DDS mode where a DDS controllable parameter is swept.
 type DDSSweep struct {
-	Limits   [2]float64    `json:"limits" validate:"len=2,range,dive,gte=0"`
-	NoDwells [2]bool       `json:"nodwell"`
-	Duration time.Duration `json:"duration" validate:"required,gt=0"`
+	Limits   [2]float64 `json:"limits" validate:"len=2,range,dive,gte=0"`
+	NoDwells [2]bool    `json:"nodwell"`
+	Duration Seconds    `json:"duration" validate:"required,gt=0"`
 }
 
 // DDSPlayback is the DDS mode where a DDS controllable parameter is playbed
 // back from memory.
 type DDSPlayback struct {
-	Trigger  bool          `json:"trigger"`
-	Duplex   bool          `json:"duplex"`
-	Interval time.Duration `json:"interval" validate:"gt=0"`
-	Data     []float64     `json:"data" validate:"required"`
+	Trigger  bool      `json:"trigger"`
+	Duplex   bool      `json:"duplex"`
+	Interval Seconds   `json:"interval" validate:"gt=0"`
+	Data     []float64 `json:"data" validate:"required"`
 }
 
 // DDSParamValidation implements struct level validation.

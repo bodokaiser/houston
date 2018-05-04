@@ -29,6 +29,6 @@ type PlaybackConfig struct {
 	Data     []float64
 	Trigger  bool
 	Duplex   bool
-	Duration time.Duration
+	Interval time.Duration
 	Param    Param
 }

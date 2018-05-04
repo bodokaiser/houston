@@ -103,7 +103,7 @@ func (s *DDSTestSuite) TestUpdateJSON() {
 			Mode: model.ModeSweep,
 			Sweep: model.DDSSweep{
 				Limits:   [2]float64{0, 1.0},
-				Duration: 10 * time.Second,
+				Duration: 10,
 			},
 		},
 		Frequency: model.DDSParam{

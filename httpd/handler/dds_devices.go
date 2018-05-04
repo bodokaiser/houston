@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo"
 
@@ -65,14 +66,14 @@ func (h *DDSDevices) Update(ctx echo.Context) error {
 		h.DDS.SetSweep(dds.SweepConfig{
 			Limits:   d.Amplitude.Sweep.Limits,
 			NoDwells: d.Amplitude.Sweep.NoDwells,
-			Duration: d.Amplitude.Sweep.Duration,
+			Duration: d.Amplitude.Sweep.Duration.Duration(),
 			Param:    dds.ParamAmplitude,
 		})
 	case model.ModePlayback:
 		h.DDS.SetPlayback(dds.PlaybackConfig{
 			Trigger:  d.Amplitude.Playback.Trigger,
 			Duplex:   d.Amplitude.Playback.Duplex,
-			Duration: d.Amplitude.Playback.Interval,
+			Interval: d.Amplitude.Playback.Interval.Duration(),
 			Data:     d.Amplitude.Playback.Data,
 			Param:    dds.ParamAmplitude,
 		})
@@ -84,14 +85,14 @@ func (h *DDSDevices) Update(ctx echo.Context) error {
 		h.DDS.SetSweep(dds.SweepConfig{
 			Limits:   d.Frequency.Sweep.Limits,
 			NoDwells: d.Frequency.Sweep.NoDwells,
-			Duration: d.Frequency.Sweep.Duration,
+			Duration: d.Frequency.Sweep.Duration.Duration(),
 			Param:    dds.ParamFrequency,
 		})
 	case model.ModePlayback:
 		h.DDS.SetPlayback(dds.PlaybackConfig{
 			Trigger:  d.Frequency.Playback.Trigger,
 			Duplex:   d.Frequency.Playback.Duplex,
-			Duration: d.Frequency.Playback.Interval,
+			Interval: d.Frequency.Playback.Interval.Duration(),
 			Data:     d.Frequency.Playback.Data,
 			Param:    dds.ParamFrequency,
 		})
@@ -103,14 +104,14 @@ func (h *DDSDevices) Update(ctx echo.Context) error {
 		h.DDS.SetSweep(dds.SweepConfig{
 			Limits:   d.PhaseOffset.Sweep.Limits,
 			NoDwells: d.PhaseOffset.Sweep.NoDwells,
-			Duration: d.PhaseOffset.Sweep.Duration,
+			Duration: d.PhaseOffset.Sweep.Duration.Duration(),
 			Param:    dds.ParamPhase,
 		})
 	case model.ModePlayback:
 		h.DDS.SetPlayback(dds.PlaybackConfig{
 			Trigger:  d.PhaseOffset.Playback.Trigger,
 			Duplex:   d.PhaseOffset.Playback.Duplex,
-			Duration: d.PhaseOffset.Playback.Interval,
+			Interval: time.Duration(d.PhaseOffset.Playback.Interval),
 			Data:     d.PhaseOffset.Playback.Data,
 			Param:    dds.ParamPhase,
 		})
