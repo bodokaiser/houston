@@ -2,6 +2,10 @@ package dds
 
 import "log"
 
+// Mockup implements DDS interface.
+//
+// Mockup can be used to test the DDS interface without the need of fully
+// functioning hardware present.
 type Mockup struct {
 	Debug     bool
 	HadReset  bool
@@ -13,6 +17,7 @@ type Mockup struct {
 	playback  PlaybackConfig
 }
 
+// Init implements driver.Driver interface.
 func (d *Mockup) Init() error {
 	if d.Debug {
 		log.Println("init")
@@ -20,6 +25,7 @@ func (d *Mockup) Init() error {
 	return nil
 }
 
+// Reset implements DDS interface.
 func (d *Mockup) Reset() error {
 	d.HadReset = true
 
@@ -30,10 +36,12 @@ func (d *Mockup) Reset() error {
 	return nil
 }
 
+// Amplitude implements DDS interface.
 func (d *Mockup) Amplitude() float64 {
 	return d.amplitude
 }
 
+// SetAmplitude implements DDS interface.
 func (d *Mockup) SetAmplitude(x float64) {
 	d.amplitude = x
 
@@ -42,10 +50,12 @@ func (d *Mockup) SetAmplitude(x float64) {
 	}
 }
 
+// Frequency implements DDS interface.
 func (d *Mockup) Frequency() float64 {
 	return d.frequency
 }
 
+// SetFrequency implements DDS interface.
 func (d *Mockup) SetFrequency(x float64) {
 	d.frequency = x
 
@@ -54,10 +64,12 @@ func (d *Mockup) SetFrequency(x float64) {
 	}
 }
 
+// PhaseOffset implements DDS interface.
 func (d *Mockup) PhaseOffset() float64 {
 	return d.phase
 }
 
+// SetPhaseOffset implements DDS interface.
 func (d *Mockup) SetPhaseOffset(x float64) {
 	d.phase = x
 
@@ -66,10 +78,12 @@ func (d *Mockup) SetPhaseOffset(x float64) {
 	}
 }
 
+// Sweep implements DDS interface.
 func (d *Mockup) Sweep() SweepConfig {
 	return d.sweep
 }
 
+// SetSweep implements DDS interface.
 func (d *Mockup) SetSweep(c SweepConfig) {
 	d.sweep = c
 
@@ -78,10 +92,12 @@ func (d *Mockup) SetSweep(c SweepConfig) {
 	}
 }
 
+// Playback implements DDS interface.
 func (d *Mockup) Playback() PlaybackConfig {
 	return d.playback
 }
 
+// SetPlayback implements DDS interface.
 func (d *Mockup) SetPlayback(c PlaybackConfig) {
 	d.playback = c
 
@@ -90,6 +106,7 @@ func (d *Mockup) SetPlayback(c PlaybackConfig) {
 	}
 }
 
+// Exec implements DDS interface.
 func (d *Mockup) Exec() error {
 	d.HadExec = true
 	if d.Debug {

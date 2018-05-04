@@ -63,6 +63,7 @@ func NewAD9910(c dds.Config) *AD9910 {
 	return d
 }
 
+// Init implements driver.Driver interface.
 func (d *AD9910) Init() (err error) {
 	d.resetPin = gpioreg.ByName(d.config.GPIO.Reset)
 	d.updatePin = gpioreg.ByName(d.config.GPIO.Update)
@@ -109,10 +110,12 @@ func strobe(p gpio.PinIO) error {
 	return p.Out(gpio.Low)
 }
 
+// Reset implements DDS interace.
 func (d *AD9910) Reset() error {
 	return strobe(d.resetPin)
 }
 
+// Update implements DDS interace.
 func (d *AD9910) Update() error {
 	return strobe(d.updatePin)
 }
@@ -121,6 +124,7 @@ func prefix(prefix byte, b []byte) []byte {
 	return append([]byte{prefix}, b[:]...)
 }
 
+// Exec implements DDS interace.
 func (d *AD9910) Exec() error {
 	// we cannot write to RAM if RAM is enabled
 	re := d.CFR1.RAMEnabled()

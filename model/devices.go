@@ -13,8 +13,9 @@ import (
 // list of device addresses.
 type DDSDevices []DDSDevice
 
-// FindByID returns the first index of the DDSDevice with the given id
-// or -1 if not match was found.
+// FindByID returns the first index of the DDSDevice with the given id.
+//
+// If no device matches -1 is returned.
 func (s *DDSDevices) FindByID(id uint8) int {
 	for i, d := range *s {
 		if d.ID == id {
@@ -25,6 +26,9 @@ func (s *DDSDevices) FindByID(id uint8) int {
 	return -1
 }
 
+// FindByIDString returns the first index of the DDSDevice with the given id.
+//
+// If no device matches -1 is returned.
 func (s *DDSDevices) FindByIDString(id string) int {
 	i, err := strconv.Atoi(id)
 	if err != nil {
@@ -36,7 +40,7 @@ func (s *DDSDevices) FindByIDString(id string) int {
 
 // FindByName returns the first index of the DDSDevice with the given name.
 //
-// If no DDSDevice with given name is found -1 is returned.
+// If no device matches -1 is returned.
 func (s *DDSDevices) FindByName(name string) int {
 	for i, d := range *s {
 		if d.Name == name {

@@ -1,4 +1,4 @@
-// http starts a HTTP server with interface to the devices.
+// HTTP interface to devices.
 package main
 
 import (

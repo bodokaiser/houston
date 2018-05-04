@@ -124,6 +124,7 @@ func (h *DDSDevices) Update(ctx echo.Context) error {
 	return ctx.NoContent(http.StatusNoContent)
 }
 
+// Delete resets a DDS device.
 func (h *DDSDevices) Delete(ctx echo.Context) error {
 	i := h.Devices.FindByIDString(ctx.Param("id"))
 	if i == -1 {

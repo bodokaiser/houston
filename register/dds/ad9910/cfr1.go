@@ -26,16 +26,20 @@ const (
 	flagPowerDownCore     = 1 << 6
 )
 
+// CFR1 mirrors the CFR1 register.
 type CFR1 [4]byte
 
+// NewCFR1 returns an initialized CFR1.
 func NewCFR1() CFR1 {
 	return [4]byte{}
 }
 
+// RAMEnabled returns true if RAM enabled flag is set.
 func (r *CFR1) RAMEnabled() bool {
 	return r[0]&flagRAMEnable > 0
 }
 
+// SetRAMEnabled sets RAM enabled flag if true.
 func (r *CFR1) SetRAMEnabled(x bool) {
 	r[0] &= ^byte(flagRAMEnable)
 
@@ -44,8 +48,10 @@ func (r *CFR1) SetRAMEnabled(x bool) {
 	}
 }
 
+// RAMDest specifies the parameter to be controlled by RAM.
 type RAMDest uint8
 
+// Available RAM destinations.
 const (
 	RAMDestFrequency RAMDest = iota
 	RAMDestPhase
@@ -53,10 +59,12 @@ const (
 	RAMDestPolar
 )
 
+// RAMDest returns the configured RAMDest.
 func (r *CFR1) RAMDest() RAMDest {
 	return RAMDest((r[0] << 1) >> 6)
 }
 
+// SetRAMDest configures RAMDest as RAM destination.
 func (r *CFR1) SetRAMDest(x RAMDest) {
 	r[0] &= ^byte(0x30)
 
@@ -70,10 +78,12 @@ func (r *CFR1) SetRAMDest(x RAMDest) {
 	}
 }
 
+// OSKEnabled returns true if OSK enabled flag is set.
 func (r *CFR1) OSKEnabled() bool {
 	return r[2]&flagOSKEnable > 0
 }
 
+// SetOSKEnabled sets the OSK enabled flag if true.
 func (r *CFR1) SetOSKEnabled(x bool) {
 	r[2] &= ^byte(flagOSKEnable)
 
@@ -82,10 +92,12 @@ func (r *CFR1) SetOSKEnabled(x bool) {
 	}
 }
 
+// OSKManual returns true if OSK manual flag is set.
 func (r *CFR1) OSKManual() bool {
 	return r[1]&flagOSKManual > 0
 }
 
+// SetOSKManual sets the OSK manual flag if true.
 func (r *CFR1) SetOSKManual(x bool) {
 	r[1] &= ^byte(flagOSKManual)
 
@@ -94,10 +106,12 @@ func (r *CFR1) SetOSKManual(x bool) {
 	}
 }
 
+// OSKAuto returns true if OSK auto flag is set.
 func (r *CFR1) OSKAuto() bool {
 	return r[2]&flagOSKAuto > 0
 }
 
+// SetOSKAuto sets the OSK auto flag if true.
 func (r *CFR1) SetOSKAuto(x bool) {
 	r[2] &= ^byte(flagOSKAuto)
 
@@ -106,10 +120,12 @@ func (r *CFR1) SetOSKAuto(x bool) {
 	}
 }
 
+// SDIOInputOnly returns true if SPI uses threewire mode.
 func (r *CFR1) SDIOInputOnly() bool {
 	return r[3]&flagSPI3Wire > 0
 }
 
+// SetSDIOInputOnly configures SPI to use threewire mode if true.
 func (r *CFR1) SetSDIOInputOnly(x bool) {
 	r[3] &= ^byte(flagSPI3Wire)
 

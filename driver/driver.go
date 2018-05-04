@@ -3,6 +3,7 @@
 // The subpackages are structured by device function and device family.
 package driver
 
+// Driver implements a device driver.
 type Driver interface {
 	Init() error
 }

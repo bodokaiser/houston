@@ -9,6 +9,7 @@ import (
 	"github.com/bodokaiser/houston/register/dds/ad9910"
 )
 
+// AD9910 mirrors a AD9910 DDS device as described by the datasheet.
 type AD9910 struct {
 	config       dds.Config
 	CFR1         ad9910.CFR1
@@ -41,6 +42,10 @@ type AD9910 struct {
 	RAM          []ad9910.RAM
 }
 
+// NewAD9910 returns an initialized AD9910 from config.
+//
+// In particular this will initialize present registers with defaults defined
+// in the config.
 func NewAD9910(c dds.Config) AD9910 {
 	d := AD9910{
 		config:       c,
@@ -112,14 +117,17 @@ func divider(x, y float64) uint8 {
 	return uint8(math.Round(x / y))
 }
 
+// Debug returns true if debug mode is enabled.
 func (d *AD9910) Debug() bool {
 	return d.config.Debug
 }
 
+// SysClock returns the system clock frequency.
 func (d *AD9910) SysClock() float64 {
 	return d.config.SysClock
 }
 
+// RefClock returns the reference clock frequency.
 func (d *AD9910) RefClock() float64 {
 	return d.config.SysClock
 }
@@ -128,6 +136,11 @@ func asfToAmpl(x uint16) float64 {
 	return float64(x) / (math.MaxUint16 >> 2)
 }
 
+// Amplitude returns the relative amplitude.
+//
+// Depending on the device configuration the amplitude will originate from
+// the ASF or STProfile0 register even if sweep or playback is configured for
+// the amplitude.
 func (d *AD9910) Amplitude() float64 {
 	asf := d.ASF.AmplScaleFactor()
 
@@ -148,6 +161,9 @@ func assertAmpl(x float64) {
 	}
 }
 
+// SetAmplitude sets the relative amplitude.
+//
+// See Amplitude() for details.
 func (d *AD9910) SetAmplitude(x float64) {
 	assertAmpl(x)
 	asf := amplToASF(x)
@@ -166,6 +182,10 @@ func (d *AD9910) ftwToFreq(x uint32) float64 {
 	return ftwToFreq(x, float64(d.SysClock()))
 }
 
+// Frequency returns the output frequency in Hz.
+//
+// Depending on the device configuration this method will panic if frequency
+// is controlled by RAM or the digital ramp.
 func (d *AD9910) Frequency() float64 {
 	if d.CFR1.RAMEnabled() && d.CFR1.RAMDest() == ad9910.RAMDestFrequency {
 		panic("frequency is controlled by RAM")
@@ -195,6 +215,9 @@ func (d *AD9910) freqToFTW(f float64) uint32 {
 	return freqToFTW(f, float64(d.SysClock()))
 }
 
+// SetFrequency sets the output frequency.
+//
+// See Frequency() for details.
 func (d *AD9910) SetFrequency(f float64) {
 	assertFreq(f)
 	ftw := d.freqToFTW(f)
@@ -209,6 +232,10 @@ func powToPhase(x uint16) float64 {
 	return float64(x) * (2 * math.Pi) / math.MaxUint16
 }
 
+// PhaseOffset returns the phase offset in rads.
+//
+// Depending on the device configuration this method will panic if phase
+// is controlled by RAM or the digital ramp.
 func (d *AD9910) PhaseOffset() float64 {
 	if d.CFR1.RAMEnabled() && (d.CFR1.RAMDest() == ad9910.RAMDestPhase ||
 		d.CFR1.RAMDest() == ad9910.RAMDestPolar) {
@@ -236,6 +263,9 @@ func phaseToPOW(x float64) uint16 {
 	return uint16(math.Round(x / (2 * math.Pi) * math.MaxUint16))
 }
 
+// SetPhaseOffset sets the output phase offset.
+//
+// See PhaseOffset() for details.
 func (d *AD9910) SetPhaseOffset(p float64) {
 	assertPhase(p)
 	pow := phaseToPOW(p)
@@ -263,10 +293,16 @@ func (d *AD9910) rampParams(T, dx float64) (uint32, uint16) {
 	return uint32(s), uint16(r)
 }
 
+// Sweep returns the configured sweep as SweepConfig.
+//
+// Will panic as not implemented.
 func (d *AD9910) Sweep() dds.SweepConfig {
 	panic("not implemented")
 }
 
+// SetSweep configures a sweep as defined in SweepConfig.
+//
+// Will panic on invalid sweep parameters.
 func (d *AD9910) SetSweep(c dds.SweepConfig) {
 	a, b := c.Limits[0], c.Limits[1]
 	assertRange(a, b)
@@ -321,10 +357,16 @@ func (d *AD9910) playbackParams(T float64) uint16 {
 	return uint16(math.Round(T * d.playbackClock()))
 }
 
+// Playback returns the configured playback as PlaybackConfig.
+//
+// Will panic as not implemented.
 func (d *AD9910) Playback() dds.PlaybackConfig {
 	panic("not implemented")
 }
 
+// SetPlayback configures a playback as defined in PlaybackConfig.
+//
+// Will panic on invalid playback parameters.
 func (d *AD9910) SetPlayback(c dds.PlaybackConfig) {
 	t := c.Interval.Seconds()
 	tmin := 1 / d.playbackClock()

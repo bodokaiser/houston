@@ -10,14 +10,17 @@ import (
 	validator "gopkg.in/go-playground/validator.v9"
 )
 
+// Mode is a DDS parameter mode.
 type Mode int
 
+// Available DDS parameter modes.
 const (
 	ModeConst Mode = iota
 	ModeSweep
 	ModePlayback
 )
 
+// String returns the string representation of mode.
 func (m Mode) String() string {
 	if m == ModeConst {
 		return "const"
@@ -32,10 +35,12 @@ func (m Mode) String() string {
 	panic("unknown mode")
 }
 
+// MarshalJSON implements json.Marshaller interface.
 func (m Mode) MarshalJSON() ([]byte, error) {
 	return json.Marshal(m.String())
 }
 
+// UnmarshalJSON implements json.Unmarshaller interface.
 func (m *Mode) UnmarshalJSON(b []byte) error {
 	var s string
 
@@ -57,16 +62,23 @@ func (m *Mode) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// Seconds represents a time duration in seconds.
+//
+// Actually we would use time.Duration for this case but unfortunately
+// time.Duration states strange json requirements which we do not support.
 type Seconds float64
 
+// Duration returns a time.Duration with the same duration as seconds.
 func (s Seconds) Duration() time.Duration {
 	return time.Duration(math.Round(float64(time.Second) * float64(s)))
 }
 
+// String returns the string representation of seconds.
 func (s Seconds) String() string {
 	return s.Duration().String()
 }
 
+// Set sets the seconds from a duration time string.
 func (s *Seconds) Set(v string) error {
 	d, err := time.ParseDuration(v)
 	if err != nil {

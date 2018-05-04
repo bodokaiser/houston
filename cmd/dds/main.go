@@ -1,3 +1,4 @@
+// Command line interface to DDS devices.
 package main
 
 import (

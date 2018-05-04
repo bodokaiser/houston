@@ -1,3 +1,4 @@
+// Package config provides global configuration.
 package config
 
 import (
@@ -12,17 +13,25 @@ import (
 	"github.com/bodokaiser/houston/driver/mux"
 )
 
+// Config combines different device configs into a single type.
 type Config struct {
 	Debug bool
 	DDS   dds.Config `yaml:"dds"`
 	Mux   mux.Config `yaml:"mux"`
 }
 
+// Ensure ensures configurations consistency.
+//
+// In particular we just pass on the top level debug flag into the
+// nested configs.
 func (c *Config) Ensure() {
 	c.DDS.Debug = c.Debug
 	c.Mux.Debug = c.Debug
 }
 
+// ReadFromFile reads a configuration from file.
+//
+// At this point we only support YAML formatted files.
 func (c *Config) ReadFromFile(filename string) error {
 	f, err := os.Open(filename)
 	if err != nil {
@@ -38,6 +47,9 @@ func (c *Config) ReadFromFile(filename string) error {
 	return yaml.Unmarshal(buf.Bytes(), c)
 }
 
+// ReadFromBox reads a configuration from a box container.
+//
+// At this point we only support YAML formatted files.
 func (c *Config) ReadFromBox(filename string) error {
 	b := packr.NewBox("./").Bytes("beagle.yaml")
 

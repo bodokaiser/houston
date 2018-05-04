@@ -3,11 +3,13 @@ package mux
 
 import "github.com/bodokaiser/houston/driver"
 
+// Config holds configuration for multiplexer devices.
 type Config struct {
 	GPIO  GPIOConfig `yaml:"gpio"`
 	Debug bool       `yaml:"debug"`
 }
 
+// GPIOConfig defines the GPIO pines to use as multiplexer lines.
 type GPIOConfig struct {
 	CS []string `yaml:"cs"`
 }

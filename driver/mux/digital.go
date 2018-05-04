@@ -22,10 +22,12 @@ func NewDigital(c Config) *Digital {
 	}
 }
 
+// Debug returns true if debug mode is enabled.
 func (d *Digital) Debug() bool {
 	return d.config.Debug
 }
 
+// Init implements Mux interface.
 func (d *Digital) Init() error {
 	d.pins = make([]gpio.PinIO, len(d.config.GPIO.CS))
 
@@ -44,7 +46,7 @@ func (d *Digital) Init() error {
 	return nil
 }
 
-// Select selects the given address.
+// Select implements Mux interface.
 func (d *Digital) Select(address uint8) (err error) {
 	if address > (2 << uint(len(d.pins))) {
 		return errors.New("address is out of range")
