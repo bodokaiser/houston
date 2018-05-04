@@ -1,3 +1,4 @@
+// Package dds provides structures to mirror direct digital synthesizer devices.
 package dds
 
 import "time"

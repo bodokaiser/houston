@@ -1,3 +1,4 @@
+// Package ad9910 provides a structure to mirror the AD9910 DDS chip.
 package ad9910
 
 import (
