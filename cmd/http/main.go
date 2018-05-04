@@ -2,9 +2,10 @@
 package main
 
 import (
-	"periph.io/x/periph/host"
+	"flag"
+	"log"
 
-	kingpin "gopkg.in/alecthomas/kingpin.v2"
+	"periph.io/x/periph/host"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -28,16 +29,17 @@ type options struct {
 var cmd = options{}
 
 func main() {
-	kingpin.Flag("address", "").Default(":8000").StringVar(&cmd.Address)
-	kingpin.Flag("config", "").ExistingFileVar(&cmd.Filename)
-	kingpin.Flag("debug", "").Default("false").BoolVar(&cmd.Debug)
-	kingpin.Parse()
+	flag.StringVar(&cmd.Address, "address", ":6200", "")
+	flag.StringVar(&cmd.Filename, "config", cmd.Filename, "")
+	flag.BoolVar(&cmd.Debug, "debug", false, "")
+	flag.Var(&cmd.Devices, "devices", "")
+	flag.Parse()
 
 	cmd.Ensure()
 	cmd.ReadFromBox(cmd.Filename)
 
 	if _, err := host.Init(); err != nil {
-		kingpin.FatalIfError(err, "host initialization")
+		log.Fatalf("host init: %s", err)
 	}
 
 	h := &handler.DDSDevices{
@@ -46,8 +48,12 @@ func main() {
 		Mux:     mux.NewDigital(cmd.Mux),
 	}
 
-	kingpin.FatalIfError(h.DDS.Init(), "mux initialization")
-	kingpin.FatalIfError(h.Mux.Init(), "dds initialization")
+	if err := h.DDS.Init(); err != nil {
+		log.Fatalf("dds init: %s", err)
+	}
+	if err := h.Mux.Init(); err != nil {
+		log.Fatalf("mux init: %s", err)
+	}
 
 	e := echo.New()
 	e.Use(httpd.WrapContext)
@@ -61,6 +67,7 @@ func main() {
 	e.DELETE("/devices/dds/:id", h.Delete)
 
 	e.Static("/", "public")
+	e.File("/devices", "public/index.html")
 
 	e.Logger.Fatal(e.Start(cmd.Address))
 }

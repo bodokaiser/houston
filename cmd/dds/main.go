@@ -38,61 +38,59 @@ func main() {
 
 	c := kingpin.Command("const", "constant parameters")
 	c.Flag("amplitude", "").Default("1").Float64Var(&cmd.Amplitude)
-	c.Flag("frequency", "").Required().Float64Var(&cmd.Frequency)
 	c.Flag("phase", "").Default("0").Float64Var(&cmd.PhaseOffset)
+	c.Flag("frequency", "").Required().Float64Var(&cmd.Frequency)
 
 	s := kingpin.Command("sweep", "sweeps single parameter")
 	s.Flag("amplitude", "").Default("1").Float64Var(&cmd.Amplitude)
-	s.Flag("frequency", "").Required().Float64Var(&cmd.Frequency)
 	s.Flag("phase", "").Default("0").Float64Var(&cmd.PhaseOffset)
+	s.Flag("frequency", "").Default("10e6").Float64Var(&cmd.Frequency)
 	s.Flag("start", "").Required().Float64Var(&cmd.SweepConfig.Limits[0])
 	s.Flag("stop", "").Required().Float64Var(&cmd.SweepConfig.Limits[1])
 	s.Flag("nodwell-low", "").Default("true").BoolVar(&cmd.SweepConfig.NoDwells[0])
 	s.Flag("nodwell-high", "").Default("true").BoolVar(&cmd.SweepConfig.NoDwells[1])
+	s.Flag("duration", "").Required().DurationVar(&cmd.SweepConfig.Duration)
 	s.Flag("param", "").Required().EnumVar(&cmd.Param, "amplitude", "frequency", "phase")
 
 	p := kingpin.Command("playback", "playbacks single parameter")
-	s.Flag("amplitude", "").Default("1").Float64Var(&cmd.Amplitude)
-	s.Flag("frequency", "").Required().Float64Var(&cmd.Frequency)
-	s.Flag("phase", "").Default("0").Float64Var(&cmd.PhaseOffset)
+	p.Flag("amplitude", "").Default("1").Float64Var(&cmd.Amplitude)
+	p.Flag("phase", "").Default("0").Float64Var(&cmd.PhaseOffset)
+	p.Flag("frequency", "").Default("10e6").Float64Var(&cmd.Frequency)
 	p.Flag("interval", "").Required().DurationVar(&cmd.PlaybackConfig.Interval)
 	p.Flag("trigger", "").Default("0").BoolVar(&cmd.PlaybackConfig.Trigger)
 	p.Flag("duplex", "").Default("0").BoolVar(&cmd.PlaybackConfig.Duplex)
 	p.Flag("data", "").Required().Float64ListVar(&cmd.PlaybackConfig.Data)
 	p.Flag("param", "").Required().EnumVar(&cmd.Param, "amplitude", "frequency", "phase")
 
-	var m mux.Mux
-	var d dds.DDS
-
 	if _, err := host.Init(); err != nil {
 		kingpin.FatalIfError(err, "host initialization")
 	}
 
-	switch kingpin.Parse() {
-	default:
-		cmd.Ensure()
-		cmd.ReadFromBox(cmd.Filename)
+	subcmd := kingpin.Parse()
 
-		m = mux.NewDigital(cmd.Mux)
-		kingpin.FatalIfError(m.Init(), "mux initialization")
-		kingpin.FatalIfError(m.Select(cmd.ID), "mux chip select")
+	cmd.Ensure()
+	cmd.ReadFromBox(cmd.Filename)
 
-		d = ad9910.NewAD9910(cmd.DDS)
-		kingpin.FatalIfError(d.Init(), "dds initialization")
+	m := mux.NewDigital(cmd.Mux)
+	kingpin.FatalIfError(m.Init(), "mux initialization")
+	kingpin.FatalIfError(m.Select(cmd.ID), "mux chip select")
 
-		switch cmd.Param {
-		case "amplitude":
-			cmd.SweepConfig.Param = dds.ParamAmplitude
-			cmd.PlaybackConfig.Param = dds.ParamAmplitude
-		case "frequency":
-			cmd.SweepConfig.Param = dds.ParamFrequency
-			cmd.PlaybackConfig.Param = dds.ParamFrequency
-		case "phase":
-			cmd.SweepConfig.Param = dds.ParamPhase
-			cmd.PlaybackConfig.Param = dds.ParamPhase
-		}
+	d := ad9910.NewAD9910(cmd.DDS)
+	kingpin.FatalIfError(d.Init(), "dds initialization")
 
-		fallthrough
+	switch cmd.Param {
+	case "amplitude":
+		cmd.SweepConfig.Param = dds.ParamAmplitude
+		cmd.PlaybackConfig.Param = dds.ParamAmplitude
+	case "frequency":
+		cmd.SweepConfig.Param = dds.ParamFrequency
+		cmd.PlaybackConfig.Param = dds.ParamFrequency
+	case "phase":
+		cmd.SweepConfig.Param = dds.ParamPhase
+		cmd.PlaybackConfig.Param = dds.ParamPhase
+	}
+
+	switch subcmd {
 	case "reset":
 		d.Reset()
 	case "const":
