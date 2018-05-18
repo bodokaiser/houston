@@ -36,16 +36,16 @@ func (s *CFR1TestSuite) TestSetRamEnabled() {
 }
 
 func (s *CFR1TestSuite) TestRAMDest() {
-	s.r[0] = 0x00
+	s.r[0] = 0x80
 	assert.Equal(s.T(), RAMDestFrequency, s.r.RAMDest())
 
-	s.r[0] = 0x20
+	s.r[0] = 0xa0
 	assert.Equal(s.T(), RAMDestPhase, s.r.RAMDest())
 
-	s.r[0] = 0x40
+	s.r[0] = 0xc0
 	assert.Equal(s.T(), RAMDestAmplitude, s.r.RAMDest())
 
-	s.r[0] = 0x60
+	s.r[0] = 0xe0
 	assert.Equal(s.T(), RAMDestPolar, s.r.RAMDest())
 }
 
@@ -53,10 +53,22 @@ func (s *CFR1TestSuite) TestSetRAMDest() {
 	s.r[0] = 0x00
 	s.r.SetRAMDest(RAMDestFrequency)
 	assert.Equal(s.T(), []byte{0x00}, s.r[0:1])
+	s.r.SetRAMDest(RAMDestPhase)
+	assert.Equal(s.T(), []byte{0x20}, s.r[0:1])
+	s.r.SetRAMDest(RAMDestAmplitude)
+	assert.Equal(s.T(), []byte{0x40}, s.r[0:1])
+	s.r.SetRAMDest(RAMDestPolar)
+	assert.Equal(s.T(), []byte{0x60}, s.r[0:1])
 
 	s.r[0] = 0x80
 	s.r.SetRAMDest(RAMDestFrequency)
 	assert.Equal(s.T(), []byte{0x80}, s.r[0:1])
+	s.r.SetRAMDest(RAMDestPhase)
+	assert.Equal(s.T(), []byte{0xa0}, s.r[0:1])
+	s.r.SetRAMDest(RAMDestAmplitude)
+	assert.Equal(s.T(), []byte{0xc0}, s.r[0:1])
+	s.r.SetRAMDest(RAMDestPolar)
+	assert.Equal(s.T(), []byte{0xe0}, s.r[0:1])
 }
 
 func (s *CFR1TestSuite) TestOSKEnabled() {

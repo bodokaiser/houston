@@ -110,14 +110,96 @@ func (s *AD9910TestSuite) TestPhaseOffset() {
 
 func (s *AD9910TestSuite) TestSetAmplitude() {
 	s.d.SetAmplitude(0.742)
+	assert.InEpsilon(s.T(), 0.742,
+		ASFToAmplitude(s.d.ASF.AmplScaleFactor()), 1e-3)
+	assert.InEpsilon(s.T(), 0.742,
+		ASFToAmplitude(s.d.STProfile0.AmplScaleFactor()), 1e-3)
+
+	s.d.CFR1.SetRAMEnabled(true)
+	s.d.CFR1.SetRAMDest(ad9910.RAMDestPhase)
+	s.d.SetAmplitude(0.950)
+	assert.InEpsilon(s.T(), 0.950,
+		ASFToAmplitude(s.d.ASF.AmplScaleFactor()), 1e-3)
+	assert.InEpsilon(s.T(), 0.742,
+		ASFToAmplitude(s.d.STProfile0.AmplScaleFactor()), 1e-3)
+
+	s.d.CFR1.SetRAMEnabled(true)
+	s.d.CFR1.SetRAMDest(ad9910.RAMDestAmplitude)
+	s.d.SetAmplitude(0.230)
+	assert.InEpsilon(s.T(), 0.230,
+		ASFToAmplitude(s.d.ASF.AmplScaleFactor()), 1e-3)
+	assert.InEpsilon(s.T(), 0.230,
+		ASFToAmplitude(s.d.STProfile0.AmplScaleFactor()), 1e-3)
+	assert.False(s.T(), s.d.CFR1.RAMEnabled())
+
+	s.d.CFR2.SetRampEnabled(true)
+	s.d.CFR2.SetRampDest(ad9910.RampDestAmplitude)
+	s.d.SetAmplitude(0.333)
+	assert.InEpsilon(s.T(), 0.333,
+		ASFToAmplitude(s.d.ASF.AmplScaleFactor()), 1e-3)
+	assert.InEpsilon(s.T(), 0.333,
+		ASFToAmplitude(s.d.STProfile0.AmplScaleFactor()), 1e-3)
+	assert.False(s.T(), s.d.CFR2.RampEnabled())
 }
 
 func (s *AD9910TestSuite) TestSetFrequency() {
+	s.d.SetFrequency(1e6)
+	assert.Equal(s.T(), 1e6, FTWToFrequency(s.d.FTW.FreqTuningWord(), s.d.SysClock()))
+	assert.Equal(s.T(), 1e6, FTWToFrequency(s.d.STProfile0.FreqTuningWord(), s.d.SysClock()))
 
+	s.d.CFR1.SetRAMEnabled(true)
+	s.d.CFR1.SetRAMDest(ad9910.RAMDestPhase)
+	s.d.SetFrequency(22e6)
+	assert.Equal(s.T(), 22e6, FTWToFrequency(s.d.FTW.FreqTuningWord(), s.d.SysClock()))
+	assert.Equal(s.T(), 1e6, FTWToFrequency(s.d.STProfile0.FreqTuningWord(), s.d.SysClock()))
+
+	s.d.CFR1.SetRAMEnabled(true)
+	s.d.CFR1.SetRAMDest(ad9910.RAMDestFrequency)
+	s.d.SetFrequency(40e6)
+	assert.Equal(s.T(), 40e6, FTWToFrequency(s.d.FTW.FreqTuningWord(), s.d.SysClock()))
+	assert.Equal(s.T(), 40e6, FTWToFrequency(s.d.STProfile0.FreqTuningWord(), s.d.SysClock()))
+	assert.False(s.T(), s.d.CFR1.RAMEnabled())
+
+	s.d.CFR2.SetRampEnabled(true)
+	s.d.CFR2.SetRampDest(ad9910.RampDestFrequency)
+	s.d.SetFrequency(50e6)
+	assert.Equal(s.T(), 50e6, FTWToFrequency(s.d.FTW.FreqTuningWord(), s.d.SysClock()))
+	assert.Equal(s.T(), 50e6, FTWToFrequency(s.d.STProfile0.FreqTuningWord(), s.d.SysClock()))
+	assert.False(s.T(), s.d.CFR2.RampEnabled())
 }
 
 func (s *AD9910TestSuite) TestSetPhaseOffset() {
+	s.d.SetPhaseOffset(0.742)
+	assert.InEpsilon(s.T(), 0.742,
+		POWToPhase(s.d.POW.PhaseOffsetWord()), 1e-3)
+	assert.InEpsilon(s.T(), 0.742,
+		POWToPhase(s.d.STProfile0.PhaseOffsetWord()), 1e-3)
 
+	s.d.CFR1.SetRAMEnabled(true)
+	s.d.CFR1.SetRAMDest(ad9910.RAMDestAmplitude)
+	s.d.SetPhaseOffset(0.950)
+	assert.InEpsilon(s.T(), 0.950,
+		POWToPhase(s.d.POW.PhaseOffsetWord()), 1e-3)
+	assert.InEpsilon(s.T(), 0.742,
+		POWToPhase(s.d.STProfile0.PhaseOffsetWord()), 1e-3)
+
+	s.d.CFR1.SetRAMEnabled(true)
+	s.d.CFR1[0] = 0xa0
+	s.d.SetPhaseOffset(0.230)
+	assert.InEpsilon(s.T(), 0.230,
+		POWToPhase(s.d.POW.PhaseOffsetWord()), 1e-3)
+	assert.InEpsilon(s.T(), 0.230,
+		POWToPhase(s.d.STProfile0.PhaseOffsetWord()), 1e-3)
+	assert.False(s.T(), s.d.CFR1.RAMEnabled())
+
+	s.d.CFR2.SetRampEnabled(true)
+	s.d.CFR2.SetRampDest(ad9910.RampDestPhase)
+	s.d.SetPhaseOffset(0.333)
+	assert.InEpsilon(s.T(), 0.333,
+		POWToPhase(s.d.POW.PhaseOffsetWord()), 1e-3)
+	assert.InEpsilon(s.T(), 0.333,
+		POWToPhase(s.d.STProfile0.PhaseOffsetWord()), 1e-3)
+	assert.False(s.T(), s.d.CFR2.RampEnabled())
 }
 
 func TestAD9910Suite(t *testing.T) {

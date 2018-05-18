@@ -66,7 +66,7 @@ func (r *CFR1) RAMDest() RAMDest {
 
 // SetRAMDest configures RAMDest as RAM destination.
 func (r *CFR1) SetRAMDest(x RAMDest) {
-	r[0] &= ^byte(0x30)
+	r[0] &= ^byte(0x60)
 
 	v := byte(x)
 

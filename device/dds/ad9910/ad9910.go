@@ -171,11 +171,20 @@ func (d *AD9910) Amplitude() float64 {
 	return ASFToAmplitude(asf)
 }
 
-// SetAmplitude sets the relative amplitude.
+// SetAmplitude configures the amplitude to be of constant value between 0 and 1.
 //
-// See Amplitude() for details.
+// If the amplitude was previously controlled by RAM or ramp those will be disabled
+// and ASF as well as STProfile0 (if not used by RAM) will be updated.
+// If the specified amplitude resides outside of 0 and 1 it will panic.
 func (d *AD9910) SetAmplitude(x float64) {
 	asf := AmplitudeToASF(x)
+
+	if d.CFR1.RAMEnabled() && d.CFR1.RAMDest() == ad9910.RAMDestAmplitude {
+		d.CFR1.SetRAMEnabled(false)
+	}
+	if d.CFR2.RampEnabled() && d.CFR2.RampDest() == ad9910.RampDestAmplitude {
+		d.CFR2.SetRampEnabled(false)
+	}
 
 	if !d.CFR1.RAMEnabled() {
 		d.STProfile0.SetAmplScaleFactor(asf)
@@ -201,8 +210,8 @@ func FTWToFrequency(ftw uint32, sysClock float64) float64 {
 
 // Frequency returns the output frequency in Hz.
 //
-// Depending on the device configuration this method will panic if frequency
-// is controlled by RAM or the digital ramp.
+// If the amplitude was previously controlled by RAM or ramp those will be disabled
+// and ASF as well as STProfile0 (if not used by RAM) will be updated.
 func (d *AD9910) Frequency() float64 {
 	if d.CFR1.RAMEnabled() && d.CFR1.RAMDest() == ad9910.RAMDestFrequency {
 		panic("frequency is controlled by RAM")
@@ -220,9 +229,18 @@ func (d *AD9910) Frequency() float64 {
 
 // SetFrequency sets the output frequency.
 //
-// See Frequency() for details.
+// If the frequency was previously controlled by RAM or ramp those will be disabled
+// and FTW as well as STProfile0 (if not used by RAM) will be updated.
+// If the specified frequency resides outside of 1 Hz and 420 MHz it will panic.
 func (d *AD9910) SetFrequency(x float64) {
 	ftw := FrequencyToFTW(x, d.SysClock())
+
+	if d.CFR1.RAMEnabled() && d.CFR1.RAMDest() == ad9910.RAMDestFrequency {
+		d.CFR1.SetRAMEnabled(false)
+	}
+	if d.CFR2.RampEnabled() && d.CFR2.RampDest() == ad9910.RampDestFrequency {
+		d.CFR2.SetRampEnabled(false)
+	}
 
 	if !d.CFR1.RAMEnabled() {
 		d.STProfile0.SetFreqTuningWord(ftw)
@@ -269,9 +287,18 @@ func (d *AD9910) PhaseOffset() float64 {
 
 // SetPhaseOffset sets the output phase offset.
 //
-// See PhaseOffset() for details.
+// If the phase offset was previously controlled by RAM or ramp those will be
+// disabled and POW as well as STProfile0 (if not used by RAM) will be updated.
+// If the specified phase offset resides outside of 0 and 2π it will panic.
 func (d *AD9910) SetPhaseOffset(x float64) {
 	pow := PhaseToPOW(x)
+
+	if d.CFR1.RAMEnabled() && d.CFR1.RAMDest() == ad9910.RAMDestPhase {
+		d.CFR1.SetRAMEnabled(false)
+	}
+	if d.CFR2.RampEnabled() && d.CFR2.RampDest() == ad9910.RampDestPhase {
+		d.CFR2.SetRampEnabled(false)
+	}
 
 	if !d.CFR1.RAMEnabled() {
 		d.STProfile0.SetPhaseOffsetWord(pow)
