@@ -126,9 +126,11 @@ func prefix(prefix byte, b []byte) []byte {
 
 // Exec implements DDS interace.
 func (d *AD9910) Exec() error {
-	// we cannot write to RAM if RAM is enabled
-	re := d.CFR1.RAMEnabled()
 	d.CFR1.SetOSKEnabled(false)
+
+	if d.CFR1.RAMEnabled() {
+		d.CFR2.SetSTAmplScaleEnabled(false)
+	}
 
 	p := [][]byte{
 		prefix(addrCFR1, d.CFR1[:]),
@@ -148,7 +150,7 @@ func (d *AD9910) Exec() error {
 		p = append(p, prefix(addrASF, d.ASF[:]))
 	}
 
-	if re && len(d.RAM) > 0 {
+	if d.CFR1.RAMEnabled() && len(d.RAM) > 0 {
 		p = append(p, prefix(addrProfile0, d.RAMProfile0[:]))
 	} else {
 		p = append(p, prefix(addrProfile0, d.STProfile0[:]))
@@ -169,20 +171,13 @@ func (d *AD9910) Exec() error {
 		return err
 	}
 
-	if re && len(d.RAM) > 0 {
+	if d.CFR1.RAMEnabled() && len(d.RAM) > 0 {
 		w = []byte{addrRAM}
 		for _, ram := range d.RAM {
 			w = append(w, ram[:]...)
 		}
 		r = make([]byte, len(w))
 
-		if err := d.spiConn.Tx(w, r); err != nil {
-			return err
-		}
-
-		d.CFR1.SetRAMEnabled(true)
-		w = prefix(addrCFR1, d.CFR1[:])
-		r = make([]byte, len(w))
 		if err := d.spiConn.Tx(w, r); err != nil {
 			return err
 		}

@@ -31,16 +31,16 @@ func NewCFR2() CFR2 {
 // STAmplScaleEnabled returns true if amplitude scale from singletone profile
 // flag is set.
 func (r *CFR2) STAmplScaleEnabled() bool {
-	return r[0]&flagSTAmplScaleEnable > 0
+	return r[0] == 0x01
 }
 
 // SetSTAmplScaleEnabled sets the amplitude scale from singletone profile
 // flag to be set if true.
 func (r *CFR2) SetSTAmplScaleEnabled(x bool) {
-	r[0] &= ^byte(flagSTAmplScaleEnable)
-
 	if x {
-		r[0] |= flagSTAmplScaleEnable
+		r[0] = flagSTAmplScaleEnable
+	} else {
+		r[0] = 0
 	}
 }
 
