@@ -157,6 +157,13 @@ func ASFToAmplitude(asf uint16) float64 {
 func (d *AD9910) Amplitude() float64 {
 	asf := d.ASF.AmplScaleFactor()
 
+	if d.CFR1.RAMEnabled() && d.CFR1.RAMDest() == ad9910.RAMDestAmplitude {
+		panic("amplitude controlled by RAM")
+	}
+	if d.CFR2.RampEnabled() && d.CFR2.RampDest() == ad9910.RampDestAmplitude {
+		panic("amplitude controlled by ramp")
+	}
+
 	if d.CFR2.STAmplScaleEnabled() && !d.CFR1.RAMEnabled() {
 		asf = d.STProfile0.AmplScaleFactor()
 	}
