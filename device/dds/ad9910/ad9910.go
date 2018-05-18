@@ -133,8 +133,20 @@ func (d *AD9910) RefClock() float64 {
 	return d.config.SysClock
 }
 
-func asfToAmpl(x uint16) float64 {
-	return float64(x) / (math.MaxUint16 >> 2)
+// AmplitudeToASF converts a relative amplitude scale from 0 to 1 to an ASF word.
+//
+// If the amplitude scales resides outside of the range 0 to 1 this function will panic.
+func AmplitudeToASF(amplitude float64) uint16 {
+	if amplitude < 0 || amplitude > 1 {
+		panic("amplitude is not in range between 0 and 1")
+	}
+
+	return uint16(math.Round(amplitude * (math.MaxUint16 >> 2)))
+}
+
+// ASFToAmplitude converts an ASF word to a relative amplitude scale from 0 to 1.
+func ASFToAmplitude(asf uint16) float64 {
+	return float64(asf) / (math.MaxUint16 >> 2)
 }
 
 // Amplitude returns the relative amplitude.
@@ -149,25 +161,14 @@ func (d *AD9910) Amplitude() float64 {
 		asf = d.STProfile0.AmplScaleFactor()
 	}
 
-	return asfToAmpl(asf)
-}
-
-func amplToASF(x float64) uint16 {
-	return uint16(math.Round(x * (math.MaxInt16 >> 2)))
-}
-
-func assertAmpl(x float64) {
-	if x < 0 || x > 1 {
-		panic("amplitude is not in range between 0 and 1")
-	}
+	return ASFToAmplitude(asf)
 }
 
 // SetAmplitude sets the relative amplitude.
 //
 // See Amplitude() for details.
 func (d *AD9910) SetAmplitude(x float64) {
-	assertAmpl(x)
-	asf := amplToASF(x)
+	asf := AmplitudeToASF(x)
 
 	if !d.CFR1.RAMEnabled() {
 		d.STProfile0.SetAmplScaleFactor(asf)
@@ -175,12 +176,20 @@ func (d *AD9910) SetAmplitude(x float64) {
 	d.ASF.SetAmplScaleFactor(asf)
 }
 
-func ftwToFreq(x uint32, y float64) float64 {
-	return float64(x) * y / math.MaxUint32
+// FrequencyToFTW converts an output frequency in Hz to a FTW word.
+//
+// If the frequency resides outside of the range 0 to 420 MHz this function will panic.
+func FrequencyToFTW(frequency float64, sysClock float64) uint32 {
+	if frequency <= 0 || frequency > 420e6 {
+		panic("frequency is not in range between 0 and 420 MHz")
+	}
+
+	return uint32(math.Round(math.MaxUint32*(frequency/sysClock))) + 1
 }
 
-func (d *AD9910) ftwToFreq(x uint32) float64 {
-	return ftwToFreq(x, float64(d.SysClock()))
+// FTWToFrequency converts a FTW word to a output frequency in Hz.
+func FTWToFrequency(ftw uint32, sysClock float64) float64 {
+	return math.Round(float64(ftw) * sysClock / math.MaxUint32)
 }
 
 // Frequency returns the output frequency in Hz.
@@ -197,31 +206,16 @@ func (d *AD9910) Frequency() float64 {
 	// parallal data port controls frequency
 
 	if d.CFR1.RAMEnabled() {
-		return d.ftwToFreq(d.FTW.FreqTuningWord())
+		return FTWToFrequency(d.FTW.FreqTuningWord(), d.SysClock())
 	}
-	return d.ftwToFreq(d.STProfile0.FreqTuningWord())
-}
-
-func assertFreq(x float64) {
-	if x < 0 || x > 420e6 {
-		panic("frequency is not in range between 0 and 420 MHz")
-	}
-}
-
-func freqToFTW(out float64, sys float64) uint32 {
-	return uint32(math.Round(math.MaxUint32*(out/sys))) + 1
-}
-
-func (d *AD9910) freqToFTW(f float64) uint32 {
-	return freqToFTW(f, float64(d.SysClock()))
+	return FTWToFrequency(d.STProfile0.FreqTuningWord(), d.SysClock())
 }
 
 // SetFrequency sets the output frequency.
 //
 // See Frequency() for details.
-func (d *AD9910) SetFrequency(f float64) {
-	assertFreq(f)
-	ftw := d.freqToFTW(f)
+func (d *AD9910) SetFrequency(x float64) {
+	ftw := FrequencyToFTW(x, d.SysClock())
 
 	if !d.CFR1.RAMEnabled() {
 		d.STProfile0.SetFreqTuningWord(ftw)
@@ -229,8 +223,20 @@ func (d *AD9910) SetFrequency(f float64) {
 	d.FTW.SetFreqTuningWord(ftw)
 }
 
-func powToPhase(x uint16) float64 {
-	return float64(x) * (2 * math.Pi) / math.MaxUint16
+// PhaseToPOW converts a phase in radiants to a POW word.
+//
+// If the phase resides outside of the range 0 to 2π this function will panic.
+func PhaseToPOW(phase float64) uint16 {
+	if phase < 0 || phase > 2*math.Pi {
+		panic("phase not in range between 0 and 2π")
+	}
+
+	return uint16(math.Round(phase / (2 * math.Pi) * math.MaxUint16))
+}
+
+// POWToPhase converts a POW word to a phase in radiants.
+func POWToPhase(pow uint16) float64 {
+	return float64(pow) * (2 * math.Pi) / math.MaxUint16
 }
 
 // PhaseOffset returns the phase offset in rads.
@@ -248,28 +254,17 @@ func (d *AD9910) PhaseOffset() float64 {
 	// parallal data port controls phase
 
 	if d.CFR1.RAMEnabled() {
-		return powToPhase(d.POW.PhaseOffsetWord())
+		return POWToPhase(d.POW.PhaseOffsetWord())
 	}
 
-	return powToPhase(d.STProfile0.PhaseOffsetWord())
-}
-
-func assertPhase(x float64) {
-	if x < 0 || x > 2*math.Pi {
-		panic("phase not in range between 0 and 2 pi")
-	}
-}
-
-func phaseToPOW(x float64) uint16 {
-	return uint16(math.Round(x / (2 * math.Pi) * math.MaxUint16))
+	return POWToPhase(d.STProfile0.PhaseOffsetWord())
 }
 
 // SetPhaseOffset sets the output phase offset.
 //
 // See PhaseOffset() for details.
-func (d *AD9910) SetPhaseOffset(p float64) {
-	assertPhase(p)
-	pow := phaseToPOW(p)
+func (d *AD9910) SetPhaseOffset(x float64) {
+	pow := PhaseToPOW(x)
 
 	if !d.CFR1.RAMEnabled() {
 		d.STProfile0.SetPhaseOffsetWord(pow)
@@ -277,18 +272,13 @@ func (d *AD9910) SetPhaseOffset(p float64) {
 	d.POW.SetPhaseOffsetWord(pow)
 }
 
-func assertRange(a, b float64) {
-	if a >= b {
-		panic("lower limit not greater than upper limit")
-	}
-}
-
-func (d *AD9910) rampClock() float64 {
-	return d.config.SysClock / 4
+// RampClock returns the digital ramp clock in Hz.
+func (d *AD9910) RampClock() float64 {
+	return d.SysClock() / 4
 }
 
 func (d *AD9910) rampParams(T, dx float64) (uint32, uint16) {
-	m := T * d.rampClock() / (math.MaxUint32 * dx)
+	m := T * d.RampClock() / (math.MaxUint32 * dx)
 	r, s := approx.RatioConstr2(m, math.MaxUint32, math.MaxUint16)
 
 	return uint32(s), uint16(r)
@@ -306,34 +296,29 @@ func (d *AD9910) Sweep() dds.SweepConfig {
 // Will panic on invalid sweep parameters.
 func (d *AD9910) SetSweep(c dds.SweepConfig) {
 	a, b := c.Limits[0], c.Limits[1]
-	assertRange(a, b)
+	if a >= b {
+		panic("lower limit not greater than upper limit")
+	}
 
 	scale := 1.0
 
 	switch c.Param {
 	case dds.ParamAmplitude:
-		assertAmpl(a)
-		assertAmpl(b)
-
 		d.CFR2.SetRampDest(ad9910.RampDestAmplitude)
-		d.RampLimit.SetLowerASF(amplToASF(a))
-		d.RampLimit.SetUpperASF(amplToASF(b))
+		d.RampLimit.SetLowerASF(AmplitudeToASF(a))
+		d.RampLimit.SetUpperASF(AmplitudeToASF(b))
 	case dds.ParamFrequency:
-		assertFreq(a)
-		assertFreq(b)
 		scale = d.SysClock()
 
 		d.CFR2.SetRampDest(ad9910.RampDestFrequency)
-		d.RampLimit.SetLowerFTW(d.freqToFTW(a))
-		d.RampLimit.SetUpperFTW(d.freqToFTW(b))
+		d.RampLimit.SetLowerFTW(FrequencyToFTW(a, scale))
+		d.RampLimit.SetUpperFTW(FrequencyToFTW(b, scale))
 	case dds.ParamPhase:
-		assertPhase(a)
-		assertPhase(b)
 		scale = 2 * math.Pi
 
 		d.CFR2.SetRampDest(ad9910.RampDestPhase)
-		d.RampLimit.SetLowerASF(phaseToPOW(a))
-		d.RampLimit.SetUpperASF(phaseToPOW(b))
+		d.RampLimit.SetLowerASF(PhaseToPOW(a))
+		d.RampLimit.SetUpperASF(PhaseToPOW(b))
 	default:
 		panic("invalid parameter")
 	}
@@ -391,10 +376,8 @@ func (d *AD9910) SetPlayback(c dds.PlaybackConfig) {
 		d.CFR1.SetRAMDest(ad9910.RAMDestAmplitude)
 
 		for _, v := range c.Data {
-			assertAmpl(v)
-
 			r := ad9910.NewRAM()
-			r.SetAmplScaleFactor(amplToASF(v))
+			r.SetAmplScaleFactor(AmplitudeToASF(v))
 
 			d.RAM = append(d.RAM, r)
 		}
@@ -402,10 +385,8 @@ func (d *AD9910) SetPlayback(c dds.PlaybackConfig) {
 		d.CFR1.SetRAMDest(ad9910.RAMDestFrequency)
 
 		for _, v := range c.Data {
-			assertFreq(v)
-
 			r := ad9910.NewRAM()
-			r.SetFreqTuningWord(d.freqToFTW(v))
+			r.SetFreqTuningWord(FrequencyToFTW(v, d.SysClock()))
 
 			d.RAM = append(d.RAM, r)
 		}
@@ -413,10 +394,8 @@ func (d *AD9910) SetPlayback(c dds.PlaybackConfig) {
 		d.CFR1.SetRAMDest(ad9910.RAMDestPhase)
 
 		for _, v := range c.Data {
-			assertPhase(v)
-
 			r := ad9910.NewRAM()
-			r.SetPhaseOffsetWord(phaseToPOW(v))
+			r.SetPhaseOffsetWord(PhaseToPOW(v))
 
 			d.RAM = append(d.RAM, r)
 		}

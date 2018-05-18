@@ -95,7 +95,7 @@ func (s *DDSTestSuite) TestUpdate() {
 	assert.Equal(s.T(), http.StatusNotFound, rec.Code)
 }
 
-func (s *DDSTestSuite) TestUpdateJSON() {
+func (s *DDSTestSuite) TestUpdateSweepJSON() {
 	d := model.DDSDevice{
 		ID:   3,
 		Name: "Abi Haft",
@@ -127,6 +127,42 @@ func (s *DDSTestSuite) TestUpdateJSON() {
 		Param:    dds.ParamAmplitude,
 	}, s.h.DDS.Sweep())
 	assert.Equal(s.T(), 250e6, s.h.DDS.Frequency())
+	assert.Equal(s.T(), float64(0), s.h.DDS.PhaseOffset())
+	assert.True(s.T(), s.h.DDS.(*dds.Mockup).HadExec)
+}
+
+func (s *DDSTestSuite) TestUpdateConstJSON() {
+	s.h.Devices[0].Amplitude = model.DDSParam{
+		Mode: model.ModeSweep,
+		Sweep: model.DDSSweep{
+			Limits:   [2]float64{0, 1.0},
+			Duration: 10,
+		},
+	}
+
+	d := model.DDSDevice{
+		ID:   3,
+		Name: "Abi Haft",
+		Amplitude: model.DDSParam{
+			Const: model.DDSConst{Value: 0.5},
+		},
+		Frequency: model.DDSParam{
+			Const: model.DDSConst{Value: 200e6},
+		},
+	}
+	json, err := json.Marshal(d)
+	assert.NoError(s.T(), err)
+
+	req := httptest.NewRequest(echo.PUT, "/devices/dds/3", bytes.NewBuffer(json))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+
+	s.e.ServeHTTP(rec, req)
+
+	assert.Equal(s.T(), http.StatusNoContent, rec.Code)
+	assert.Equal(s.T(), d, s.h.Devices[0])
+	assert.Equal(s.T(), 0.5, s.h.DDS.Amplitude())
+	assert.Equal(s.T(), 200e6, s.h.DDS.Frequency())
 	assert.Equal(s.T(), float64(0), s.h.DDS.PhaseOffset())
 	assert.True(s.T(), s.h.DDS.(*dds.Mockup).HadExec)
 }
