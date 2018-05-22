@@ -3,6 +3,7 @@ package ad9910
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/bodokaiser/houston/driver/dds"
@@ -22,7 +23,8 @@ func (s *AD9910TestSuite) SetupTest() {
 	s.d = NewAD9910(c)
 }
 
-func (s *AD9910TestSuite) TestSingleTone() {
+func (s *AD9910TestSuite) TestMaxTxSize() {
+	assert.Equal(s.T(), 0, s.d.MaxTxSize())
 }
 
 func TestAD9910Suite(t *testing.T) {

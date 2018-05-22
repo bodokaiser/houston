@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"periph.io/x/periph/conn"
 	"periph.io/x/periph/conn/gpio"
 	"periph.io/x/periph/conn/gpio/gpioreg"
 	"periph.io/x/periph/conn/gpio/gpiotest"
@@ -124,6 +125,21 @@ func prefix(prefix byte, b []byte) []byte {
 	return append([]byte{prefix}, b[:]...)
 }
 
+// MaxTxSize returns the maximum number of bytes per SPI
+// transaction.
+func (d *AD9910) MaxTxSize() int {
+	if c, ok := d.spiConn.(*spitest.LogConn); ok {
+		if l, ok := c.Conn.(conn.Limits); ok {
+			return l.MaxTxSize()
+		}
+	}
+	if l, ok := d.spiConn.(conn.Limits); ok {
+		return l.MaxTxSize()
+	}
+
+	return 0
+}
+
 // Exec implements DDS interace.
 func (d *AD9910) Exec() error {
 	d.CFR1.SetOSKEnabled(false)
@@ -172,16 +188,31 @@ func (d *AD9910) Exec() error {
 	}
 
 	if d.CFR1.RAMEnabled() && len(d.RAM) > 0 {
-		w = []byte{addrRAM}
-		for _, ram := range d.RAM {
-			w = append(w, ram[:]...)
-		}
-		r = make([]byte, len(w))
-
-		if err := d.spiConn.Tx(w, r); err != nil {
+		if err := d.sendRAMWord(0); err != nil {
 			return err
 		}
 	}
 
 	return d.Update()
+}
+
+func (d *AD9910) sendRAMWord(offset int) error {
+	w := []byte{addrRAM}
+
+	for offset < len(d.RAM) && len(d.RAM[0])*offset < d.MaxTxSize() {
+		w = append(w, d.RAM[offset][:]...)
+
+		offset++
+	}
+
+	r := make([]byte, len(w))
+	if err := d.spiConn.Tx(w, r); err != nil {
+		return err
+	}
+
+	if offset < len(d.RAM) {
+		return d.sendRAMWord(offset)
+	}
+
+	return nil
 }

@@ -377,6 +377,8 @@ func (d *AD9910) playbackParams(T float64) uint16 {
 	return uint16(math.Round(T * d.playbackClock()))
 }
 
+const maxRAMWords = 1024
+
 // Playback returns the configured playback as PlaybackConfig.
 //
 // Will panic as not implemented.
@@ -388,6 +390,10 @@ func (d *AD9910) Playback() dds.PlaybackConfig {
 //
 // Will panic on invalid playback parameters.
 func (d *AD9910) SetPlayback(c dds.PlaybackConfig) {
+	if len(c.Data) > maxRAMWords {
+		panic("playback data exceeds maximum RAM words")
+	}
+
 	t := c.Interval.Seconds()
 	tmin := 1 / d.playbackClock()
 	tmax := tmin * math.MaxUint16
