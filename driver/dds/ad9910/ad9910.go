@@ -9,6 +9,7 @@ import (
 	"periph.io/x/periph/conn/gpio"
 	"periph.io/x/periph/conn/gpio/gpioreg"
 	"periph.io/x/periph/conn/gpio/gpiotest"
+	"periph.io/x/periph/conn/physic"
 	"periph.io/x/periph/conn/spi"
 	"periph.io/x/periph/conn/spi/spireg"
 	"periph.io/x/periph/conn/spi/spitest"
@@ -88,7 +89,7 @@ func (d *AD9910) Init() (err error) {
 		return
 	}
 
-	d.spiConn, err = spiDev.Connect(d.config.SPI.MaxFreq, spi.Mode0, 8)
+	d.spiConn, err = spiDev.Connect(physic.Frequency(d.config.SPI.MaxFreq)*physic.Hertz, spi.Mode0, 8)
 	if err != nil {
 		return
 	}

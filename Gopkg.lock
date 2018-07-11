@@ -17,10 +17,10 @@
   revision = "2efee857e7cfd4f3d0138cc3cbb1b4966962b93a"
 
 [[projects]]
-  branch = "master"
   name = "github.com/bodokaiser/approx"
   packages = ["."]
   revision = "3ed280a49971da6a2c5e4c88bb4f2c5058335bae"
+  version = "1.0.0"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -52,8 +52,8 @@
 [[projects]]
   name = "github.com/gobuffalo/packr"
   packages = ["."]
-  revision = "7f4074995d431987caaa35088199f13c44b24440"
-  version = "v1.11.0"
+  revision = "bd47f2894846e32edcf9aa37290fef76c327883f"
+  version = "v1.11.1"
 
 [[projects]]
   name = "github.com/labstack/echo"
@@ -72,8 +72,8 @@
     "log",
     "random"
   ]
-  revision = "588f4e8bddc6cb45c27b448e925c7fd6a5545434"
-  version = "0.2.5"
+  revision = "d6898124de917583f5ff5592ef931d1dfe0ddc05"
+  version = "0.2.6"
 
 [[projects]]
   name = "github.com/mattn/go-colorable"
@@ -106,8 +106,8 @@
     "require",
     "suite"
   ]
-  revision = "12b6f73e6084dad08a7c6e575284b177ecafbc71"
-  version = "v1.2.1"
+  revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
+  version = "v1.2.2"
 
 [[projects]]
   branch = "master"
@@ -128,13 +128,13 @@
     "acme",
     "acme/autocert"
   ]
-  revision = "8b1d31080a7692e075c4681cb2458454a1fe0706"
+  revision = "a49355c7e3f8fe157a85be2f77e6e269a0f89602"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "78d5f264b493f125018180c204871ecf58a2dce1"
+  revision = "1b2967e3c290b7c545b3db0deeda16e9be4f98a2"
 
 [[projects]]
   name = "gopkg.in/alecthomas/kingpin.v2"
@@ -145,8 +145,8 @@
 [[projects]]
   name = "gopkg.in/go-playground/validator.v9"
   packages = ["."]
-  revision = "14984d91328f9612b58443cbdf4a077d4fd71091"
-  version = "v9.15.0"
+  revision = "ab2a8a99087e827c9af87ed6777ba897348fb178"
+  version = "v9.20.2"
 
 [[projects]]
   name = "gopkg.in/yaml.v2"
@@ -166,15 +166,19 @@
     "conn/gpio/gpiotest",
     "conn/i2c",
     "conn/i2c/i2creg",
+    "conn/physic",
     "conn/pin",
     "conn/pin/pinreg",
     "conn/spi",
     "conn/spi/spireg",
     "conn/spi/spitest",
-    "devices",
     "host",
     "host/allwinner",
+    "host/am335x",
     "host/bcm283x",
+    "host/beagle/black",
+    "host/beagle/bone",
+    "host/beagle/green",
     "host/chip",
     "host/cpu",
     "host/distro",
@@ -186,11 +190,12 @@
     "host/sysfs",
     "host/videocore"
   ]
-  revision = "bccf3c0f868190de79a30862b03899dc6eb82b61"
+  revision = "000523f7fa26b78f012b93221c94434ac5b18e37"
+  version = "v3.0.0"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b38fd9e294baf37ed420c2bcf09b491f393dc6021cf590333812bbc3dde3864f"
+  inputs-digest = "6e1a8a86fdf07540858263e58a3af102542544064ac53df47ef4c1d588bc055c"
   solver-name = "gps-cdcl"
   solver-version = 1

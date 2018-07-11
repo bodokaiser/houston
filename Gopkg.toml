@@ -1,33 +1,6 @@
-# Gopkg.toml example
-#
-# Refer to https://github.com/golang/dep/blob/master/docs/Gopkg.toml.md
-# for detailed Gopkg.toml documentation.
-#
-# required = ["github.com/user/thing/cmd/thing"]
-# ignored = ["github.com/user/project/pkgX", "bitbucket.org/user/project/pkgA/pkgY"]
-#
-# [[constraint]]
-#   name = "github.com/user/project"
-#   version = "1.0.0"
-#
-# [[constraint]]
-#   name = "github.com/user/project2"
-#   branch = "dev"
-#   source = "github.com/myfork/project2"
-#
-# [[override]]
-#   name = "github.com/x/y"
-#   version = "2.4.0"
-#
-# [prune]
-#   non-go = false
-#   go-tests = true
-#   unused-packages = true
-
-
 [[constraint]]
-  branch = "master"
   name = "github.com/bodokaiser/approx"
+  version = "1.0.0"
 
 [[constraint]]
   name = "github.com/labstack/echo"
@@ -35,7 +8,7 @@
 
 [[constraint]]
   name = "github.com/stretchr/testify"
-  version = "1.2.1"
+  version = "1.2.2"
 
 [[constraint]]
   name = "gopkg.in/alecthomas/kingpin.v2"
@@ -43,7 +16,7 @@
 
 [[constraint]]
   name = "gopkg.in/go-playground/validator.v9"
-  version = "9.15.0"
+  version = "9.20.2"
 
 [[constraint]]
   name = "gopkg.in/yaml.v2"
@@ -51,12 +24,12 @@
 
 [[constraint]]
   name = "periph.io/x/periph"
-  revision = "bccf3c0f868190de79a30862b03899dc6eb82b61"
+  version = "3.0.0"
+
+[[constraint]]
+  name = "github.com/gobuffalo/packr"
+  version = "1.11.1"
 
 [prune]
   go-tests = true
   unused-packages = true
-
-[[constraint]]
-  name = "github.com/gobuffalo/packr"
-  version = "1.11.0"
