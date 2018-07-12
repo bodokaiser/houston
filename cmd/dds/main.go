@@ -2,9 +2,11 @@
 package main
 
 import (
-	"periph.io/x/periph/host"
-
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
+
+	"periph.io/x/periph/conn/gpio/gpioreg"
+	"periph.io/x/periph/conn/spi/spireg"
+	"periph.io/x/periph/host"
 
 	"github.com/bodokaiser/houston/config"
 	"github.com/bodokaiser/houston/driver/dds"
@@ -62,7 +64,8 @@ func main() {
 	p.Flag("data", "").Required().Float64ListVar(&cmd.PlaybackConfig.Data)
 	p.Flag("param", "").Required().EnumVar(&cmd.Param, "amplitude", "frequency", "phase")
 
-	if _, err := host.Init(); err != nil {
+	_, err := host.Init()
+	if err != nil {
 		kingpin.FatalIfError(err, "host initialization")
 	}
 
@@ -75,7 +78,11 @@ func main() {
 	kingpin.FatalIfError(m.Init(), "mux initialization")
 	kingpin.FatalIfError(m.Select(cmd.ID), "mux chip select")
 
-	d := ad9910.NewAD9910(cmd.DDS)
+	cmd.DDS.Config.SPIPort, _ = spireg.Open(cmd.DDS.SPI.Device)
+	cmd.DDS.Config.ResetPin = gpioreg.ByName(cmd.DDS.GPIO.Reset)
+	cmd.DDS.Config.UpdatePin = gpioreg.ByName(cmd.DDS.GPIO.Update)
+
+	d := ad9910.NewAD9910(cmd.DDS.Config)
 	kingpin.FatalIfError(d.Init(), "dds initialization")
 
 	switch cmd.Param {

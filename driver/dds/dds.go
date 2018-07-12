@@ -2,22 +2,19 @@
 package dds
 
 import (
+	"periph.io/x/periph/conn/gpio"
+	"periph.io/x/periph/conn/spi"
+
 	"github.com/bodokaiser/houston/device/dds"
 	"github.com/bodokaiser/houston/driver"
-	"github.com/bodokaiser/houston/driver/spi"
 )
 
 // Config extends dds.Config with hardware specific configuration.
 type Config struct {
 	dds.Config `yaml:",inline"`
-	SPI        spi.Config `yaml:"spi"`
-	GPIO       GPIOConfig `yaml:"gpio"`
-}
-
-// GPIOConfig defines the GPIO pins to as update and reset lines.
-type GPIOConfig struct {
-	Reset  string `yaml:"reset"`
-	Update string `yaml:"update"`
+	ResetPin   gpio.PinIO
+	UpdatePin  gpio.PinIO
+	SPIPort    spi.Port
 }
 
 // Param alias dds.Param.

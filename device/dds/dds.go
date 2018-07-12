@@ -6,11 +6,12 @@ import "time"
 // Config holds the configuration of a generic direct digital synthesizer
 // device.
 type Config struct {
-	Debug    bool    `yaml:"debug"`
-	RefClock float64 `yaml:"refclock"`
-	SysClock float64 `yaml:"sysclock"`
-	PLL      bool    `yaml:"pll"`
-	SPI3Wire bool    `yaml:"spi3wire"`
+	Debug        bool    `yaml:"debug"`
+	RefClock     float64 `yaml:"refclock"`
+	SysClock     float64 `yaml:"sysclock"`
+	PLL          bool    `yaml:"pll"`
+	SPI3Wire     bool    `yaml:"spi3wire"`
+	SPIMaxTxSize int     `yaml:"spimaxtxsize"`
 }
 
 // Param defines a signal parameter controlled by the DDS device.

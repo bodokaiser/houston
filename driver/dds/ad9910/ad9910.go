@@ -7,11 +7,9 @@ import (
 
 	"periph.io/x/periph/conn"
 	"periph.io/x/periph/conn/gpio"
-	"periph.io/x/periph/conn/gpio/gpioreg"
 	"periph.io/x/periph/conn/gpio/gpiotest"
 	"periph.io/x/periph/conn/physic"
 	"periph.io/x/periph/conn/spi"
-	"periph.io/x/periph/conn/spi/spireg"
 	"periph.io/x/periph/conn/spi/spitest"
 
 	"github.com/bodokaiser/houston/device/dds/ad9910"
@@ -51,6 +49,7 @@ type AD9910 struct {
 	ad9910.AD9910
 	config    dds.Config
 	spiConn   spi.Conn
+	spiPort   spi.Port
 	resetPin  gpio.PinIO
 	updatePin gpio.PinIO
 }
@@ -58,8 +57,11 @@ type AD9910 struct {
 // NewAD9910 returns an initialized AD9910 driver.
 func NewAD9910(c dds.Config) *AD9910 {
 	d := &AD9910{
-		config: c,
-		AD9910: ad9910.NewAD9910(c.Config),
+		config:    c,
+		AD9910:    ad9910.NewAD9910(c.Config),
+		spiPort:   c.SPIPort,
+		resetPin:  c.ResetPin,
+		updatePin: c.UpdatePin,
 	}
 
 	return d
@@ -67,19 +69,14 @@ func NewAD9910(c dds.Config) *AD9910 {
 
 // Init implements driver.Driver interface.
 func (d *AD9910) Init() (err error) {
-	d.resetPin = gpioreg.ByName(d.config.GPIO.Reset)
-	d.updatePin = gpioreg.ByName(d.config.GPIO.Update)
-
+	if d.spiPort == nil {
+		return errors.New("failed to find SPI port")
+	}
 	if d.resetPin == nil {
 		return errors.New("failed to find reset GPIO pin")
 	}
 	if d.updatePin == nil {
-		return errors.New("failed to find I/O update GPIO pin")
-	}
-
-	spiDev, err := spireg.Open(d.config.SPI.Device)
-	if err != nil {
-		return
+		return errors.New("failed to find update GPIO pin")
 	}
 
 	if err = d.resetPin.Out(gpio.Low); err != nil {
@@ -89,7 +86,7 @@ func (d *AD9910) Init() (err error) {
 		return
 	}
 
-	d.spiConn, err = spiDev.Connect(physic.Frequency(d.config.SPI.MaxFreq)*physic.Hertz, spi.Mode0, 8)
+	d.spiConn, err = d.spiPort.Connect(5*physic.MegaHertz, spi.Mode0, 8)
 	if err != nil {
 		return
 	}
@@ -138,7 +135,7 @@ func (d *AD9910) MaxTxSize() int {
 		return l.MaxTxSize()
 	}
 
-	return 0
+	return d.config.Config.SPIMaxTxSize
 }
 
 // Exec implements DDS interace.
@@ -179,9 +176,8 @@ func (d *AD9910) Exec() error {
 	}
 
 	w := bytes.Join(p, []byte{})
-	r := make([]byte, len(w))
 
-	if err := d.spiConn.Tx(w, r); err != nil {
+	if err := d.spiConn.Tx(w, nil); err != nil {
 		return err
 	}
 	if err := d.Update(); err != nil {
@@ -200,20 +196,19 @@ func (d *AD9910) Exec() error {
 func (d *AD9910) sendRAMWord(offset int) error {
 	w := []byte{addrRAM}
 
-	for offset < len(d.RAM) && len(d.RAM[0])*offset < d.MaxTxSize() {
-		w = append(w, d.RAM[offset][:]...)
+	//for offset < len(d.RAM) && len(d.RAM[0])*offset < d.MaxTxSize() {
+	//	w = append(w, d.RAM[offset][:]...)
 
-		offset++
-	}
+	//	offset++
+	//}
 
-	r := make([]byte, len(w))
-	if err := d.spiConn.Tx(w, r); err != nil {
+	if err := d.spiConn.Tx(w, nil); err != nil {
 		return err
 	}
 
-	if offset < len(d.RAM) {
-		return d.sendRAMWord(offset)
-	}
+	//if offset < len(d.RAM) {
+	//	return d.sendRAMWord(offset)
+	//}
 
 	return nil
 }

@@ -5,6 +5,8 @@ import (
 	"flag"
 	"log"
 
+	"periph.io/x/periph/conn/gpio/gpioreg"
+	"periph.io/x/periph/conn/spi/spireg"
 	"periph.io/x/periph/host"
 
 	"github.com/labstack/echo"
@@ -42,9 +44,13 @@ func main() {
 		log.Fatalf("host init: %s", err)
 	}
 
+	cmd.DDS.Config.SPIPort, _ = spireg.Open(cmd.DDS.SPI.Device)
+	cmd.DDS.Config.ResetPin = gpioreg.ByName(cmd.DDS.GPIO.Reset)
+	cmd.DDS.Config.UpdatePin = gpioreg.ByName(cmd.DDS.GPIO.Update)
+
 	h := &handler.DDSDevices{
 		Devices: cmd.Devices,
-		DDS:     ad9910.NewAD9910(cmd.DDS),
+		DDS:     ad9910.NewAD9910(cmd.DDS.Config),
 		Mux:     mux.NewDigital(cmd.Mux),
 	}
 

@@ -16,8 +16,23 @@ import (
 // Config combines different device configs into a single type.
 type Config struct {
 	Debug bool
-	DDS   dds.Config `yaml:"dds"`
+	DDS   DDSConfig  `yaml:"dds"`
 	Mux   mux.Config `yaml:"mux"`
+}
+
+type DDSConfig struct {
+	dds.Config `yaml:",inline"`
+	SPI        SPIConfig  `yaml:"spi"`
+	GPIO       GPIOConfig `yaml:"gpio"`
+}
+
+type SPIConfig struct {
+	Device string `yaml:"device"`
+}
+
+type GPIOConfig struct {
+	Reset  string `yaml:"reset"`
+	Update string `yaml:"update"`
 }
 
 // Ensure ensures configurations consistency.
