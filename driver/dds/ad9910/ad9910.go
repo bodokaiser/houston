@@ -175,9 +175,7 @@ func (d *AD9910) Exec() error {
 		p = append(p, prefix(addrRampRate, d.RampRate[:]))
 	}
 
-	w := bytes.Join(p, []byte{})
-
-	if err := d.spiConn.Tx(w, nil); err != nil {
+	if err := d.send(bytes.Join(p, []byte{})); err != nil {
 		return err
 	}
 	if err := d.Update(); err != nil {
@@ -185,7 +183,13 @@ func (d *AD9910) Exec() error {
 	}
 
 	if d.CFR1.RAMEnabled() && len(d.RAM) > 0 {
-		if err := d.sendRAMWord(0); err != nil {
+		w := []byte{addrRAM}
+
+		for _, b := range d.RAM {
+			w = append(w, b[:]...)
+		}
+
+		if err := d.send(w); err != nil {
 			return err
 		}
 	}
@@ -193,22 +197,20 @@ func (d *AD9910) Exec() error {
 	return d.Update()
 }
 
-func (d *AD9910) sendRAMWord(offset int) error {
-	w := []byte{addrRAM}
+func (d *AD9910) send(b []byte) error {
+	max := d.MaxTxSize()
 
-	//for offset < len(d.RAM) && len(d.RAM[0])*offset < d.MaxTxSize() {
-	//	w = append(w, d.RAM[offset][:]...)
+	for len(b) != 0 {
+		if max > len(b) {
+			max = len(b)
+		}
 
-	//	offset++
-	//}
+		if err := d.spiConn.Tx(b[:max], nil); err != nil {
+			return err
+		}
 
-	if err := d.spiConn.Tx(w, nil); err != nil {
-		return err
+		b = b[max:]
 	}
-
-	//if offset < len(d.RAM) {
-	//	return d.sendRAMWord(offset)
-	//}
 
 	return nil
 }
