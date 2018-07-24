@@ -12,6 +12,7 @@ type Config struct {
 	PLL          bool    `yaml:"pll"`
 	SPI3Wire     bool    `yaml:"spi3wire"`
 	SPIMaxTxSize int     `yaml:"spimaxtxsize"`
+	InverseSinc  bool    `yaml:"inversesinc"`
 }
 
 // Param defines a signal parameter controlled by the DDS device.

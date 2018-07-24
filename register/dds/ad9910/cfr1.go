@@ -133,3 +133,17 @@ func (r *CFR1) SetSDIOInputOnly(x bool) {
 		r[3] |= flagSPI3Wire
 	}
 }
+
+// InverseSincFilter returns true if inverse sinc filter is set.
+func (r *CFR1) InverseSincFilter() bool {
+	return r[1]&flagInverseSinc > 0
+}
+
+// SetInverseSincFilter configures inverse sinc filter to be enabled.
+func (r *CFR1) SetInverseSincFilter(x bool) {
+	r[1] &= ^byte(flagInverseSinc)
+
+	if x {
+		r[1] |= flagInverseSinc
+	}
+}

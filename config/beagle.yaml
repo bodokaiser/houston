@@ -4,6 +4,7 @@ dds:
   pll: true
   sync: true
   spi3wire: true
+  inversesinc: true
 
   spi:
     device: 'SPI1.0'

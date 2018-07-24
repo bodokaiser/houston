@@ -82,6 +82,9 @@ func NewAD9910(c dds.Config) AD9910 {
 	if c.SPI3Wire {
 		d.CFR1.SetSDIOInputOnly(true)
 	}
+	if c.InverseSinc {
+		d.CFR1.SetInverseSincFilter(true)
+	}
 
 	d.CFR2.SetSTAmplScaleEnabled(true)
 	d.CFR2.SetSyncTimingValidationDisabled(true)

@@ -137,6 +137,22 @@ func (s *CFR1TestSuite) TestSetSDIOInputOnly() {
 	assert.Equal(s.T(), []byte{0x00}, s.r[3:4])
 }
 
+func (s *CFR1TestSuite) TestInverseSincFilter() {
+	s.r[1] = 0x80
+	assert.False(s.T(), s.r.InverseSincFilter())
+
+	s.r[1] = 0x40
+	assert.True(s.T(), s.r.InverseSincFilter())
+}
+
+func (s *CFR1TestSuite) TestSetInverseSincFilter() {
+	s.r.SetInverseSincFilter(true)
+	assert.Equal(s.T(), []byte{0x40}, s.r[1:2])
+
+	s.r.SetInverseSincFilter(false)
+	assert.Equal(s.T(), []byte{0x00}, s.r[1:2])
+}
+
 func TestCFR1Suite(t *testing.T) {
 	suite.Run(t, new(CFR1TestSuite))
 }
