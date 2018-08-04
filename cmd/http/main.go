@@ -52,6 +52,7 @@ func main() {
 		Devices: cmd.Devices,
 		DDS:     ad9910.NewAD9910(cmd.DDS.Config),
 		Mux:     mux.NewDigital(cmd.Mux),
+		Debug:   cmd.DDS.Config.Debug,
 	}
 
 	if err := h.DDS.Init(); err != nil {

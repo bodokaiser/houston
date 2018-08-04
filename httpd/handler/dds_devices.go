@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log"
 	"net/http"
 	"time"
 
@@ -21,6 +22,7 @@ type DDSDevices struct {
 	Devices model.DDSDevices
 	Mux     mux.Mux
 	DDS     dds.DDS
+	Debug   bool
 }
 
 // List handles responds a list of available devices.
@@ -48,6 +50,10 @@ func (h *DDSDevices) Update(ctx echo.Context) error {
 
 	if err := ctx.Bind(&d); err != nil {
 		return err
+	}
+
+	if h.Debug {
+		log.Printf("%+v\n", d)
 	}
 
 	if err := d.Validate(); err != nil {
