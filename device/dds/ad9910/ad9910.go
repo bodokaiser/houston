@@ -188,6 +188,7 @@ func (d *AD9910) SetAmplitude(x float64) {
 	if d.CFR2.RampEnabled() && d.CFR2.RampDest() == ad9910.RampDestAmplitude {
 		d.CFR2.SetRampEnabled(false)
 	}
+	d.CFR2.SetSTAmplScaleEnabled(true)
 
 	if !d.CFR1.RAMEnabled() {
 		d.STProfile0.SetAmplScaleFactor(asf)

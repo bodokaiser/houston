@@ -126,6 +126,7 @@ func (s *AD9910TestSuite) TestSetAmplitude() {
 	s.d.CFR1.SetRAMEnabled(true)
 	s.d.CFR1.SetRAMDest(ad9910.RAMDestAmplitude)
 	s.d.SetAmplitude(0.230)
+	assert.True(s.T(), s.d.CFR2.STAmplScaleEnabled())
 	assert.InEpsilon(s.T(), 0.230,
 		ASFToAmplitude(s.d.ASF.AmplScaleFactor()), 1e-3)
 	assert.InEpsilon(s.T(), 0.230,
