@@ -37,6 +37,7 @@ func main() {
 	kingpin.Flag("debug", "verbose logging").Default("false").BoolVar(&cmd.Debug)
 
 	kingpin.Command("reset", "resets a dds")
+	kingpin.Command("trigger", "triggers a dds")
 
 	c := kingpin.Command("const", "constant parameters")
 	c.Flag("amplitude", "").Default("1").Float64Var(&cmd.Amplitude)
@@ -100,6 +101,8 @@ func main() {
 	switch subcmd {
 	case "reset":
 		d.Reset()
+	case "update":
+		d.Update()
 	case "const":
 		d.SetAmplitude(cmd.Amplitude)
 		d.SetFrequency(cmd.Frequency)
