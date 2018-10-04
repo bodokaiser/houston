@@ -72,6 +72,7 @@ func main() {
 	e.GET("/devices/dds", h.List)
 	e.PUT("/devices/dds/:id", h.Update)
 	e.DELETE("/devices/dds/:id", h.Delete)
+	e.POST("/devices/dds/:id/trigger", h.Trigger)
 
 	e.Static("/", "public")
 	e.File("/devices", "public/index.html")

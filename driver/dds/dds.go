@@ -38,6 +38,7 @@ type DDS interface {
 	driver.Driver
 
 	Reset() error
+  Update() error
 
 	Amplitude() float64
 	SetAmplitude(float64)

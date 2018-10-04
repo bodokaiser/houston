@@ -49,6 +49,7 @@ func (s *DDSTestSuite) SetupTest() {
 	s.e.GET("/devices/dds", s.h.List)
 	s.e.PUT("/devices/dds/:id", s.h.Update)
 	s.e.DELETE("/devices/dds/:id", s.h.Delete)
+	s.e.POST("/devices/dds/:id/trigger", s.h.Trigger)
 }
 
 func (s *DDSTestSuite) TestList() {
@@ -176,6 +177,16 @@ func (s *DDSTestSuite) TestDelete() {
 	assert.Equal(s.T(), http.StatusNoContent, rec.Code)
 	assert.EqualValues(s.T(), 3, s.h.Mux.(*mux.Mockup).Selected)
 	assert.True(s.T(), s.h.DDS.(*dds.Mockup).HadReset)
+}
+
+func (s *DDSTestSuite) TestTrigger() {
+	req := httptest.NewRequest(echo.POST, "/devices/dds/3/trigger", nil)
+	rec := httptest.NewRecorder()
+
+	s.e.ServeHTTP(rec, req)
+
+	assert.Equal(s.T(), http.StatusNoContent, rec.Code)
+	assert.True(s.T(), s.h.DDS.(*dds.Mockup).HadUpdate)
 }
 
 func TestDeviceTestSuite(t *testing.T) {

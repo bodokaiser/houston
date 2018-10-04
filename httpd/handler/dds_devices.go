@@ -147,3 +147,21 @@ func (h *DDSDevices) Delete(ctx echo.Context) error {
 
 	return ctx.NoContent(http.StatusNoContent)
 }
+
+// Triggers a DDS device through IO update.
+func (h *DDSDevices) Trigger(ctx echo.Context) error {
+	i := h.Devices.FindByIDString(ctx.Param("id"))
+	if i == -1 {
+		return echo.ErrNotFound
+	}
+	d := h.Devices[i]
+
+	if err := h.Mux.Select(d.ID); err != nil {
+		return err
+	}
+  if err := h.DDS.Update(); err != nil {
+    return err
+  }
+
+	return ctx.NoContent(http.StatusNoContent)
+}

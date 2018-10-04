@@ -9,6 +9,7 @@ import "log"
 type Mockup struct {
 	Debug     bool
 	HadReset  bool
+	HadUpdate  bool
 	HadExec   bool
 	amplitude float64
 	frequency float64
@@ -31,6 +32,17 @@ func (d *Mockup) Reset() error {
 
 	if d.Debug {
 		log.Println("reset")
+	}
+
+	return nil
+}
+
+// Update implements DDS interface.
+func (d *Mockup) Update() error {
+	d.HadUpdate = true
+
+	if d.Debug {
+		log.Println("update")
 	}
 
 	return nil
